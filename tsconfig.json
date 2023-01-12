@@ -5,6 +5,7 @@
 		"target": "ES2022",
 		"moduleResolution": "Node",
 		"rootDir": "./src",
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"module": "CommonJS"
 	}
 }
