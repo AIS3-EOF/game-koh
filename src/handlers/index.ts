@@ -1,19 +1,12 @@
 import { ServerMessage, LoginMessageData, MoveMessageData } from '../protocol/server'
-import { ClientMessage } from '../protocol/client'
-
-export class Context {
-	send(msg: ClientMessage) {}
-}
+import { Context } from '../context'
 
 export class Handler {
 	handle(ctx: Context, msg: ServerMessage) {
-		switch (msg.type) {
-			case 'login':
-				this.handle_login(ctx, msg.data)
-				break
-			case 'move':
-				this.handle_move(ctx, msg.data)
-				break
+		const fn = this[`handle_${msg.type}`]
+		if (typeof fn === 'function') {
+			// idk how to fix this without hack
+			;(fn as any).call(this, ctx, msg.data)
 		}
 	}
 	handle_login(ctx: Context, data: LoginMessageData) {}
