@@ -1,14 +1,18 @@
-import { ServerMessage, LoginMessageData, MoveMessageData } from '../protocol/server'
+import { ServerMessage } from '../protocol/server'
 import { Context } from '../context'
+import { handle as handle_login } from './login'
+import { handle as handle_move } from './move'
 
-export class Handler {
-	handle(ctx: Context, msg: ServerMessage) {
-		const fn = this[`handle_${msg.type}`]
-		if (typeof fn === 'function') {
-			// idk how to fix this without hack
-			;(fn as any).call(this, ctx, msg.data)
-		}
+const HANDLERS = {
+	login: handle_login,
+	move: handle_move
+}
+Object.setPrototypeOf(HANDLERS, null)
+
+export const dispatch = async (ctx: Context, msg: ServerMessage) => {
+	const fn = HANDLERS[msg.type]
+	if (typeof fn === 'function') {
+		// idk how to fix this without hack
+		await fn(ctx, msg.data as any)
 	}
-	handle_login(ctx: Context, data: LoginMessageData) {}
-	handle_move(ctx: Context, data: MoveMessageData) {}
 }

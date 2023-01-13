@@ -1,15 +1,17 @@
 import { WebSocketServer } from 'ws'
-import { Handler } from './handlers/index'
+import { dispatch } from './handlers'
 import { Context } from './context'
 import { ServerMessage } from './protocol/server'
+import { Game } from './game'
+import { GameMap } from './game/gamemap'
 
 const wss = new WebSocketServer({ port: 8080 })
-const handler = new Handler()
+const game = new Game(GameMap.generate(10, 10))
 
 wss.on('connection', ws => {
-	const ctx = new Context(ws)
+	const ctx = new Context(ws, game)
 	ws.on('message', rawData => {
 		const msg: ServerMessage = JSON.parse(rawData.toString())
-		handler.handle(ctx, msg)
+		dispatch(ctx, msg)
 	})
 })

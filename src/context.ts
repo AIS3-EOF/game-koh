@@ -1,5 +1,6 @@
 import { WebSocket } from 'ws'
 import { ClientMessage } from './protocol/client'
+import { Game } from './game'
 
 /**
  * Per-connection context
@@ -8,10 +9,7 @@ import { ClientMessage } from './protocol/client'
  */
 
 export class Context {
-	ws: WebSocket
-	constructor(ws: WebSocket) {
-		this.ws = ws
-	}
+	constructor(private ws: WebSocket, public game: Game) {}
 	send(msg: ClientMessage) {
 		this.ws.send(JSON.stringify(msg))
 	}
