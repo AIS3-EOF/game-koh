@@ -5,9 +5,11 @@
 	"author": "maple3142 <kirby741852963@gmail.com>",
 	"license": "MIT",
 	"dependencies": {
+		"debug": "^4.3.4",
 		"ws": "^8.12.0"
 	},
 	"devDependencies": {
+		"@types/debug": "^4.1.7",
 		"@types/node": "^18.11.18",
 		"@types/ws": "^8.5.4",
 		"prettier": "^2.8.2",
@@ -16,7 +18,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"dev": "ts-node src/index.ts",
+		"dev": "DEBUG=server:* ts-node src/index.ts",
 		"format": "prettier src -w"
 	}
 }
