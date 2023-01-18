@@ -6,34 +6,38 @@ import { SyncMessage } from './protocol/client'
 import { Game } from './game'
 import { GameMap } from './game/gamemap'
 import { Player } from './game/player'
-import { debounce } from './utils'
+import { EventQueue } from './event_queue'
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
 
 const log = debug('server:main')
 const wss = new WebSocketServer({ port: 8080 })
 const game = new Game(GameMap.generate(10, 10))
+
+const TICK_INTERVAL = 1000
 const contexts = new Map<string, Context>()
-const updateFn = debounce(() => {
+const eventQueue = new EventQueue()
+eventQueue.on('tick', events => {
 	const sync: SyncMessage = {
 		type: 'sync',
 		data: {
 			// need to make sure that `game.players` doesn't have some sensitive data
-			players: game.players
+			players: game.players,
+			events
 		}
 	}
 	for (const ctx of contexts.values()) {
 		ctx.send(sync)
 	}
-}, 1000)
+})
+setInterval(eventQueue.tick.bind(eventQueue), TICK_INTERVAL)
 
 wss.on('connection', ws => {
 	const sessionId = randomUUID()
 	log('%s connected', sessionId)
 	const player = new Player()
 	game.addPlayer(player)
-	const ctx = new Context(sessionId, ws, game, player)
-	ctx.scheduleSync = updateFn
+	const ctx = new Context(sessionId, ws, game, player, eventQueue)
 	contexts.set(sessionId, ctx)
 	ws.on('message', rawData => {
 		const msg: ServerMessage = JSON.parse(rawData.toString())
