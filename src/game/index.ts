@@ -2,7 +2,7 @@ import { GameMap } from './gamemap'
 import { Player } from './player'
 
 export class Game {
-	private players: Player[] = []
+	players: Player[] = []
 	constructor(public map: GameMap) {}
 	addPlayer(player: Player) {
 		this.players.push(player)
