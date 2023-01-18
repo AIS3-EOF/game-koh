@@ -3,6 +3,7 @@ import { ClientMessage } from './protocol/client'
 import { Game } from './game'
 import { Player } from './game/player'
 import { EventQueue } from './event_queue'
+import { Db } from 'mongodb'
 
 /**
  * Per-connection context
@@ -16,7 +17,8 @@ export class Context {
 		private ws: WebSocket,
 		public game: Game,
 		public player: Player,
-		public eventQueue: EventQueue
+		public eventQueue: EventQueue,
+		public db: Db
 	) {}
 	send(msg: ClientMessage) {
 		this.ws.send(JSON.stringify(msg))

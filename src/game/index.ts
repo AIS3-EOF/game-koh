@@ -3,6 +3,7 @@ import { Player } from './player'
 
 export class Game {
 	players: Player[] = []
+
 	constructor(public map: GameMap) {}
 	addPlayer(player: Player) {
 		this.players.push(player)

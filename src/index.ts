@@ -7,6 +7,7 @@ import { Game } from './game'
 import { GameMap } from './game/gamemap'
 import { Player } from './game/player'
 import { EventQueue } from './event_queue'
+import { connect } from './db'
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
 
@@ -32,12 +33,14 @@ eventQueue.on('tick', events => {
 })
 setInterval(eventQueue.tick.bind(eventQueue), TICK_INTERVAL)
 
-wss.on('connection', ws => {
+const dbPromise = connect()
+
+wss.on('connection', async ws => {
 	const sessionId = randomUUID()
 	log('%s connected', sessionId)
 	const player = new Player()
 	game.addPlayer(player)
-	const ctx = new Context(sessionId, ws, game, player, eventQueue)
+	const ctx = new Context(sessionId, ws, game, player, eventQueue, await dbPromise)
 	contexts.set(sessionId, ctx)
 	ws.on('message', rawData => {
 		const msg: ServerMessage = JSON.parse(rawData.toString())
