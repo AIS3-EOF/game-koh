@@ -1,10 +1,9 @@
 import { ServerMessage } from '../protocol/server'
 import { Context } from '../context'
-import { handle as handle_login } from './login'
 import { handle as handle_move } from './move'
 
 const HANDLERS = {
-	login: handle_login,
+	login: null,
 	move: handle_move
 }
 Object.setPrototypeOf(HANDLERS, null)
