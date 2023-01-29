@@ -3,11 +3,15 @@ import config from './config';
 import GameScene from './scenes/Game';
 
 declare global {
-  interface Window { events: any; }
+  interface Window {
+    state: any;
+    events: any;
+    ws: any;
+  }
 }
 
 
-const ws = new WebSocket('ws://localhost:8080');
+window.ws = new WebSocket('ws://localhost:8080');
 ws.onopen = event => {
   const login_input = document.getElementById("login-input");
   login_input?.removeAttribute("disabled");
@@ -47,7 +51,9 @@ ws.onmessage = event => {
         // document.getElementById("login-error-message").innerText = "Login Failed";
       }
       break;
+    case "init":
     case "join":
+    case "move":
       window.events.push(message);
       break;
     default:

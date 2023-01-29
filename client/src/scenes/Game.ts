@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
+import Player from '../resources/Player';
 
 export default class Game extends Phaser.Scene {
 
   layer: any;
   rt: any;
   map: any;
-  player: any;
+  players: any;
   cursors: any;
 
   constructor() {
@@ -18,8 +19,6 @@ export default class Game extends Phaser.Scene {
     this.load.image('tiles', 'assets/images/tmw_desert_spacing.png');
     this.load.image('player', 'assets/images/black.png');
     this.load.tilemapTiledJSON('map', 'assets/map.json');
-
-    this.load.image('logo', 'assets/phaser3-logo.png');
   }
 
   create() {
@@ -28,15 +27,11 @@ export default class Game extends Phaser.Scene {
     var tiles = this.map.addTilesetImage('Desert', 'tiles');
     this.layer = this.map.createLayer('Ground', tiles, 0, 0).setVisible(false);
     this.rt = this.add.renderTexture(0, 0, 800, 600);
+    this.rt.draw(this.layer);
     
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.player = this.physics.add.image(0, 0, 'player');
-    window.p = this.physics;
-    this.player.setCollideWorldBounds(true);
-    this.playerText = this.add.text(this.player.x, this.player.y, '我');
 
-
-    this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
+    this.players = new Map();
   }
 
   update(time: number, delta: number): void {
@@ -44,43 +39,38 @@ export default class Game extends Phaser.Scene {
     // pop from event queue, then handle
     const event = window.events.shift();
     if (event !== undefined) {
-      console.log("update", event);
       switch (event.type) {
+        case "init":
+          const me = event.data.player;
+
+          event.data.players.forEach(player => {
+            const playerText = player.identifier === me.identifier ? '我': '他';
+            const playerObj = new Player(this, ...player.pos , playerText, player.identifier);
+            this.players.set(player.identifier, playerObj);
+          });
+
+          this.cameras.main.startFollow(this.players.get(me.identifier), true, 0.05, 0.05);
+          break;
         case "join":
+          const player = event.data.player;
+          const other = new Player(this, ...player.pos , '他', player.identifier);
+          this.players.set(player.identifier, other);
+          break;
+        case "move":
+          this.players.get(event.data.player.identifier)?.setPosition(...event.data.player.pos);
           break;
         default:
       }
     }
-    // this.rt.camera.rotation -= 0.01;
-
-    this.rt.clear();
-    this.rt.draw(this.layer);
 
     // player control
-    this.player.setVelocity(0);
-
-    if (this.cursors.left.isDown)
-    {
-        this.player.setVelocityX(-500);
-    }
-    else if (this.cursors.right.isDown)
-    {
-        this.player.setVelocityX(500);
-    }
-
-    if (this.cursors.up.isDown)
-    {
-        this.player.setVelocityY(-500);
-    }
-    else if (this.cursors.down.isDown)
-    {
-        this.player.setVelocityY(500);
-    }
-
-    //update player text position
-    this.playerText.setPosition(this.player.x, this.player.y);
+    var vec = [(this.cursors.right.isDown - this.cursors.left.isDown)*10,
+               (this.cursors.down.isDown - this.cursors.up.isDown)*10]
+    if(vec.some(Boolean))
+      ws.send(JSON.stringify({type: "move", data: {vec}}))
 
 
+    /*
     const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
     // Rounds down to nearest tile
     const pointerTileX = this.map.worldToTileX(worldPoint.x);
@@ -90,5 +80,6 @@ export default class Game extends Phaser.Scene {
         // Fill the tiles within an area with sign posts (tile id = 46)
         this.map.fill(46, pointerTileX, pointerTileY, 6, 6);
     }
+    */
   }
 }
