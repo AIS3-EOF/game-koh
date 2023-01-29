@@ -7,7 +7,11 @@ export class GameMap {
 	static generate(width: number, height: number): GameMap {
 		// map generation
 		const map = new GameMap(width, height)
-		map.tiles = Array.from({ length: height }, () => Array.from({ length: width }, () => new MapObject([0, 0])))
+		map.tiles = Array.from({ length: height }, (_, i) =>
+			Array.from({ length: width }, (_, j) =>
+				new MapObject([i, j])
+			)
+		)
 		return map
 	}
 }

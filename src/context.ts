@@ -1,7 +1,8 @@
 import { WebSocket } from 'ws'
 import { ClientMessage } from './protocol/client'
-import { Game } from './game'
+import { Game } from './game/game'
 import { Player } from './game/player'
+import { GameObject } from './game_objects/game_object'
 import { EventQueue } from './event_queue'
 import { Db } from 'mongodb'
 
@@ -23,7 +24,16 @@ export class Context {
 	send(msg: ClientMessage) {
 		this.ws.send(JSON.stringify(msg))
 	}
-	scheduleSync() {
-		// this function must be called after the game state has been updated
+	sendError(msg: string) {
+		this.send({
+			type: 'error',
+			data: msg
+		})
+	}
+	getObject(uuid: string) {
+		return this.game.getObject(uuid) ?? this.player.getObject(uuid)
+	}
+	removeObject(object: GameObject) {
+		return this.game.removeObject(object) || this.player.removeObject(object)
 	}
 }

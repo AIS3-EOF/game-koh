@@ -17,4 +17,32 @@ export interface MoveMessage {
 	data: MoveMessageData
 }
 
-export type ServerMessage = LoginMessage | MoveMessage
+export interface AttackMessageData {
+	facing: Vec2
+}
+export interface AttackMessage {
+	type: 'attack'
+	data: AttackMessageData
+}
+
+export interface UseMessageData {
+	uuid: string
+	event?: string
+}
+export interface UseMessage {
+	type: 'use'
+	data: UseMessageData
+}
+
+export interface ChatMessageData {
+	from: string
+	to: string
+	message?: string
+	html?: string
+}
+export interface ChatMessage {
+	type: 'chat'
+	data: ChatMessageData
+}
+
+export type ServerMessage = LoginMessage | MoveMessage | AttackMessage | UseMessage | ChatMessage

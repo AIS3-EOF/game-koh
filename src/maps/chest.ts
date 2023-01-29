@@ -9,7 +9,7 @@ export class Chest extends MapObject {
 
     constructor(loc: Vec2, items: GameObject[]) {
         super(loc)
-        this.identifier = 'MapObject::Chest'
+        this.identifier += '::Chest'
         // TODO: Replace texture here
         this.texture = 'chest'
         this.can_walk = true

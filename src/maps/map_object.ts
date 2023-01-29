@@ -7,7 +7,7 @@ const log = debug('server:MapObject')
 
 
 export class MapObject {
-    identifier: string = 'MapObject::MapObject';
+    identifier: string = 'MapObject';
     can_walk: boolean;
     texture: string;
     location: Vec2;
