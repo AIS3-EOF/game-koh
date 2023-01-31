@@ -4,6 +4,7 @@ import { handle as handle_move } from './move'
 import { handle as handle_attack } from './attack'
 import { handle as handle_use } from './use'
 import { handle as handle_chat } from './chat'
+import { handle as handle_achievement } from './achievement'
 
 const HANDLERS = new Map<string, null | ((ctx: Context, data: any) => void)>([
 	['login', null],
@@ -20,5 +21,8 @@ export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 	if (typeof fn === 'function') {
 		// idk how to fix this without hack
 		await fn(ctx, msg.data)
+
+		// achievement progression
+		await handle_achievement(ctx, msg)
 	}
 }

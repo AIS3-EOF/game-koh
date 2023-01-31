@@ -29,6 +29,7 @@ export interface UseMessageData {
 	uuid: string
 	event?: string
 }
+
 export interface UseMessage {
 	type: 'use'
 	data: UseMessageData

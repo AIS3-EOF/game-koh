@@ -3,7 +3,7 @@ import { Player } from "../game/player"
 import { Weapon } from "../game_objects/equipments/weapon"
 import { GameObject } from "../game_objects/game_object"
 import { Item } from "../game_objects/items/item"
-import { Archievement } from "../achieve/archieve"
+import { Achievement } from "../achievement/achievement"
 import { ChatMessageData } from './server'
 import { Vec2 } from "./shared"
 
@@ -67,13 +67,13 @@ export type ChatEvent = {
     data: ChatData
 }
 
-export interface ArchieveData {
+export interface AchieveData {
     player: Player
-    archieve: Archievement
+    archieve: Achievement
 }
 export interface ArchieveEvent {
     type: 'archieve'
-    data: ArchieveData
+    data: AchieveData
 }
 
 export interface ErrorEvent {
