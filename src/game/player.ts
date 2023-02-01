@@ -29,15 +29,15 @@ export class Player {
 
 	achievements: Achievement[] = [];
 
-	addObject(object: GameObject) {
+	addObjectToInventory(object: GameObject) {
 		this.inventory.push(object)
 	}
-	getObject(uuid: string) {
+	getObjectFromInventory(uuid: string) {
 		return this.inventory.find((obj) => obj.uuid === uuid)
 	}
-	removeObject(object: GameObject | string) {
+	removeObjectFromInventory(object: GameObject | string) {
 		if (typeof object === 'string') {
-			const tmp = this.getObject(object)
+			const tmp = this.getObjectFromInventory(object)
 			if (!tmp) return false
 			object = tmp
 		}

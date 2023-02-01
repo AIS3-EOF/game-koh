@@ -6,6 +6,7 @@ import { Item } from "../game_objects/items/item"
 import { Achievement } from "../achievement/achievement"
 import { ChatMessageData } from './server'
 import { Vec2 } from "./shared"
+import { MapObject } from "../maps/map_object"
 
 export interface InitData {
     player: Player
@@ -44,12 +45,30 @@ export interface AttackEvent {
     data: AttackData
 }
 
-export interface NewObjectData {
+export interface NewObjectSpawnedData {
     object: GameObject
 }
-export interface NewObjectEvent {
-    type: 'new_object'
-    data: NewObjectData
+export interface NewObjectSpawnedEvent {
+    type: 'new_object_spawned'
+    data: NewObjectSpawnedData
+}
+
+export interface InteractMapData {
+    player: Player
+    pos: Vec2   
+}
+export interface InteractMapEvent {
+    type: 'interact_map'
+    data: InteractMapData
+}
+
+export interface UpdateMapEventData {
+    pos: Vec2
+    map_object: MapObject
+}
+export interface UpdateMapEvent {
+    type: 'update_map'
+    data: UpdateMapEventData
 }
 
 export interface UseData extends Record<string, any> {
@@ -67,13 +86,13 @@ export type ChatEvent = {
     data: ChatData
 }
 
-export interface AchieveData {
+export interface AchievementData {
     player: Player
     archieve: Achievement
 }
-export interface ArchieveEvent {
+export interface AchievementEvent {
     type: 'archieve'
-    data: AchieveData
+    data: AchievementData
 }
 
 export interface ErrorEvent {
@@ -81,4 +100,4 @@ export interface ErrorEvent {
     data: string
 }
 
-export type Event = InitEvent | JoinEvent | MoveEvent | AttackEvent | NewObjectEvent | UseEvent | ChatEvent | ArchieveEvent | ErrorEvent
+export type Event = InitEvent | JoinEvent | MoveEvent | AttackEvent | NewObjectSpawnedEvent | UseEvent | ChatEvent | AchievementEvent | ErrorEvent | InteractMapEvent

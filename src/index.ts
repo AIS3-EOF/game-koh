@@ -31,14 +31,16 @@ setInterval(() => {
 			config.TICK_ACTION_MAX_COUNT
 		)
 	})
+
 	if (Math.random() <= config.TICK_GEN_PROBABILITY) {
 		const object = generateObject()
 		game.addObject(object)
 		eventQueue.push({
-			type: 'new_object',
+			type: 'new_object_spawned',
 			data: { object },
 		})
 	}
+
 }, config.TICK_INTERVAL)
 
 connect().then(db => {

@@ -13,14 +13,9 @@ export class GameObject {
     texture: string = 'null'
     
     constructor(
-        public pos: Pos = randomVec2()
     ) {}
 
     use(ctx: Context) {
         log(`${ctx.player.identifier} used ${this.identifier}`)
-    }
-
-    useEvent(ctx: Context, event: string) {
-        log(`${ctx.player.identifier} used ${this.identifier} with event ${event}`)
     }
 };

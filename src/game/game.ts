@@ -19,6 +19,7 @@ export class Game {
 	}
 	addObject(object: GameObject) {
 		this.objects.set(object.uuid, object)
+		this.map.dropGameObject(object)
 	}
 	getObject(uuid: string) {
 		return this.objects.get(uuid)

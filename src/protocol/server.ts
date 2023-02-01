@@ -29,10 +29,17 @@ export interface UseMessageData {
 	uuid: string
 	event?: string
 }
-
 export interface UseMessage {
 	type: 'use'
 	data: UseMessageData
+}
+
+export interface InteractMapMessageData {
+	pos: Vec2
+}
+export interface InteractMapMessage {
+	type: 'interact_map'
+	data: InteractMapMessageData
 }
 
 export interface ChatMessageData {
@@ -46,4 +53,4 @@ export interface ChatMessage {
 	data: ChatMessageData
 }
 
-export type ServerMessage = LoginMessage | MoveMessage | AttackMessage | UseMessage | ChatMessage
+export type ServerMessage = LoginMessage | MoveMessage | AttackMessage | UseMessage | ChatMessage | InteractMapMessage

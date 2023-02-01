@@ -2,10 +2,11 @@ import { MapObject } from './map_object'
 import { Vec2 } from '../protocol/shared'
 import { Player } from '../game/player'
 import { GameObject } from '../game_objects/game_object'
+import { Context } from '../context';
 
 
 export class Chest extends MapObject {
-    contains: GameObject[] = [];
+    chest_inventory: GameObject[] = [];
 
     constructor(loc: Vec2, items: GameObject[]) {
         super(loc)
@@ -13,12 +14,15 @@ export class Chest extends MapObject {
         // TODO: Replace texture here
         this.texture = 'chest'
         this.can_walk = true
-        this.contains = items
+        this.chest_inventory = items
     }
 
-    interact(player: Player) {
-        super.interact(player)
+    interact(ctx: Context) {
+        super.interact(ctx)
 
-        // TODO: Add the item to the player's inventory
+        ctx.player.inventory.push(...this.chest_inventory)
+        this.chest_inventory = []
+
+        // TODO: Notify the player
     }
 }

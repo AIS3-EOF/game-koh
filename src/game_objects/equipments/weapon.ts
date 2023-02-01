@@ -47,8 +47,8 @@ export class Weapon extends Equipment {
     use(ctx: Context) {
         super.use(ctx)
 
-        if (ctx.player.removeObject(this)) {
-            ctx.player.addObject(ctx.player.current_weapon)
+        if (ctx.player.removeObjectFromInventory(this)) {
+            ctx.player.addObjectToInventory(ctx.player.current_weapon)
             ctx.player.current_weapon = this
         }
     }

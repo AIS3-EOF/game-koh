@@ -2,6 +2,7 @@ import { Vec2 } from '../protocol/shared'
 import { Player } from '../game/player'
 
 import { debug } from 'debug'
+import { Context } from '../context';
 
 const log = debug('server:MapObject')
 
@@ -19,7 +20,7 @@ export class MapObject {
         this.texture = 'null';
     }
 
-    interact(player: Player) {
-        log(`${player.identifier} interacted with ${this.identifier}`)
+    interact(ctx: Context) {
+        log(`${ctx.player.identifier} interacted with ${this.identifier}`)
     }
 }

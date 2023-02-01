@@ -1,3 +1,4 @@
+import { Context } from "../../context";
 import { GameObject } from "../game_object"
 
 export class Equipment extends GameObject {

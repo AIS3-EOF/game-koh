@@ -31,9 +31,9 @@ export class Context {
 		})
 	}
 	getObject(uuid: string) {
-		return this.game.getObject(uuid) ?? this.player.getObject(uuid)
+		return this.game.getObject(uuid) ?? this.player.getObjectFromInventory(uuid)
 	}
 	removeObject(object: GameObject) {
-		return this.game.removeObject(object) || this.player.removeObject(object)
+		return this.game.removeObject(object) || this.player.removeObjectFromInventory(object)
 	}
 }
