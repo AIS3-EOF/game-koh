@@ -1,3 +1,4 @@
 {
-    "git.enableCommitSigning": false
+    "git.enableCommitSigning": false,
+    "editor.tabSize": 4
 }
