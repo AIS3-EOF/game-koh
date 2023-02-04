@@ -1,11 +1,12 @@
 import Phaser from 'phaser'
 import Player from '../resources/Player'
+import { Vec2 } from '../types'
 
 export default class Game extends Phaser.Scene {
 	layer: any
 	rt: any
 	map: any
-	players: Map<string, Player>
+	players = new Map<string, Player>()
 	cursors: any
 
 	me: any
@@ -34,7 +35,7 @@ export default class Game extends Phaser.Scene {
 
 		this.cursors = this.input.keyboard.createCursorKeys()
 
-		this.players = new Map()
+		this.players.clear()
 	}
 
 	update(time: number, delta: number): void {
@@ -52,7 +53,7 @@ export default class Game extends Phaser.Scene {
 						this.players.set(player.identifier, playerObj)
 					})
 
-					this.cameras.main.startFollow(this.players.get(me.identifier), true, 0.05, 0.05)
+					this.cameras.main.startFollow(this.players.get(me.identifier)!, true, 0.05, 0.05)
 					break
 				case 'join':
 					const player = event.data.player
@@ -62,7 +63,9 @@ export default class Game extends Phaser.Scene {
 				case 'move':
 					// if (event.data.player.identifier === window.me.identifier) return
 					const playerObj = this.players.get(event.data.player.identifier)
-					playerObj?.setPosition(...event.data.player.pos)
+					if (!playerObj) return
+
+					playerObj.setPosition(...event.data.player.pos)
 
 					// draw arrow to indicate direction
 					const { facing } = event.data.player
@@ -91,11 +94,11 @@ export default class Game extends Phaser.Scene {
 						const { graphics } = attackerObj
 						graphics.clear()
 						// draw block to indicate attack
-            graphics.lineStyle(32, 0x990000, 1)
-            graphics.beginPath()
-            graphics.moveTo(ax, ay)
-            graphics.lineTo(tx, ty)
-            graphics.strokePath()
+						graphics.lineStyle(32, 0x990000, 1)
+						graphics.beginPath()
+						graphics.moveTo(ax, ay)
+						graphics.lineTo(tx, ty)
+						graphics.strokePath()
 
 					}
 
@@ -107,19 +110,19 @@ export default class Game extends Phaser.Scene {
 		const vec = [
 			this.cursors.right.isDown - this.cursors.left.isDown,
 			this.cursors.down.isDown - this.cursors.up.isDown
-		]
-    const me = this.players.get(window.me?.identifier)
+		] as Vec2
+		const me = this.players.get(window.me?.identifier)!
 
 		// attack
 		if (this.input.keyboard.checkDown(this.cursors.space, 100)) {
-			ws.send(JSON.stringify({ type: 'attack', data: { facing: me?.facing } }))
+			window.send({ type: 'attack', data: { facing: me.facing } })
 		}
 
 		// player control
 		if (vec.some(Boolean)) {
-			// me?.setPosition(me.x + vec[0], me.y + vec[1])
-      me?.face(vec)
-			ws.send(JSON.stringify({ type: 'move', data: { vec, facing:me?.facing } }))
+			// me.setPosition(me.x + vec[0], me.y + vec[1])
+			me.face(vec)
+			window.send({ type: 'move', data: { vec, facing: me.facing } })
 		}
 	}
 }

@@ -1,7 +1,9 @@
+import { Vec2 } from '../types';
+
 export default class Player extends Phaser.GameObjects.Container{
     public identifier: string;
     public graphics: Phaser.GameObjects.Graphics;
-    public facing: [number, number];
+    public facing: Vec2 = [0, 1];
     constructor(scene, x, y, text, identifier){
         const playerText = scene.add.text(0, 0, text);
         playerText.setOrigin(0.5);
@@ -18,7 +20,7 @@ export default class Player extends Phaser.GameObjects.Container{
         this.graphics = scene.add.graphics();
     }
 
-    face(facing: [number, number]){
+    face(facing: Vec2) {
         this.facing = facing;
     }
 }

@@ -2,32 +2,41 @@ import Phaser from 'phaser';
 import config from './config';
 import GameScene from './scenes/Game';
 
+import parser from '../../parser'
+
+import { ClientMessage, ServerMessage, Player } from './types'
+
 declare global {
   interface Window {
-    state: any;
-    events: any;
-    ws: any;
-    me: any;
+    state: any
+    events: ClientMessage[]
+    ws: WebSocket
+    me: Player
+    send: (message: ServerMessage) => void
   }
 }
 
+window.send = (message: ServerMessage) => {
+  return window.ws.send(parser.stringify(message))
+}
 
 window.ws = new WebSocket('ws://localhost:8080');
-ws.onopen = event => {
+window.ws.onopen = event => {
   const login_input = document.getElementById("login-input");
-  login_input?.removeAttribute("disabled");
-  login_input?.focus();
-  login_input?.addEventListener("keydown", event => {
+  if (!login_input) return;
+  login_input.removeAttribute("disabled");
+  login_input.focus();
+  login_input.addEventListener("keydown", event => {
     if (event.code === "Enter") {
       const token = (login_input as HTMLInputElement).value
-      ws.send(JSON.stringify({ type: "login", data: { token } }));
+      window.send({ type: "login", data: { token } });
       login_input.setAttribute("disabled", "true");
     }
   })
 }
 
-ws.onmessage = event => {
-  const message = JSON.parse(event.data);
+window.ws.onmessage = event => {
+  const message = parser.parse(event.data) as ClientMessage
   switch (message.type) {
     case "login":
       if (message.data.success === true) {
