@@ -6,6 +6,8 @@ import { GameObject } from './game_objects/game_object'
 import { EventQueue } from './event_queue'
 import { Db } from 'mongodb'
 
+import parser from './parser'
+
 /**
  * Per-connection context
  * Player data

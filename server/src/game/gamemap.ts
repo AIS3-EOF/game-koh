@@ -21,13 +21,14 @@ export class GameMap {
 		return map
 	}
 
-	getTile(pos: Vec2): MapObject {
-		return this.tiles[pos[0]][pos[1]]
+	getTile(pos: Vec2) {
+		return this.tiles.at(pos[0])?.at(pos[1])
 	}
 
 	// randomly choose chest position and put it in the chest inventory
 	dropGameObject(game_object: GameObject) {
 		const pos = this.chest_positions[Math.floor(Math.random() * this.chest_positions.length)]
+		if (!pos) return
 		const chest = this.getTile(pos) as Chest
 		chest.chest_inventory.push(game_object)
 	}
