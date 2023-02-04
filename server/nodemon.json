@@ -1,0 +1,5 @@
+{
+    "watch": ["src"],
+    "ext": "ts,json",
+    "exec": "DEBUG=server:* ts-node src/index.ts"
+  }
