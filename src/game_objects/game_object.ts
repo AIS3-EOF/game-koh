@@ -18,4 +18,9 @@ export class GameObject {
     use(ctx: Context) {
         log(`${ctx.player.identifier} used ${this.identifier}`)
     }
+
+    useEvent(ctx: Context, event: string) {
+        log(`${ctx.player.identifier} used ${this.identifier} with event ${event}`)
+    }
+
 };

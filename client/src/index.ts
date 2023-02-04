@@ -7,6 +7,7 @@ declare global {
     state: any;
     events: any;
     ws: any;
+    me: any;
   }
 }
 
