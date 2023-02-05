@@ -16,7 +16,8 @@
     "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
-      "~/*": ["../server/src/*"]
+      "~/*": ["../server/src/*"],
+      "parser": ["../parser"],
     },
   },
   "include": [

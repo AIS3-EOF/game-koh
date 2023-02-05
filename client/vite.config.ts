@@ -21,8 +21,9 @@ export default defineConfig({
   resolve: {
     preserveSymlinks: true,
     alias: {
-      '@': 'src',
+      '@': path.resolve(__dirname, 'src'),
       '~': path.resolve(__dirname, '../server/src'),
+      'parser': path.resolve(__dirname, '../parser'),
     }
   },
 });

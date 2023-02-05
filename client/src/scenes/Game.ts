@@ -1,12 +1,13 @@
 import Phaser from 'phaser'
-import Player from '../resources/Player'
-import { Vec2 } from '../types'
 import { throttle } from 'underscore'
+import Player from '@/resources/Player'
+import Weapon from '@/resources/Weapon';
+import * as inventory from '@/resources/inventory'
+import { Vec2 } from '@/types'
 import { rotate, add } from '~/utils'
 
 export default class Game extends Phaser.Scene {
 	layer: any
-	rt: any
 	map: any
 	players = new Map<string, Player>()
 	me = {} as Player
@@ -15,7 +16,10 @@ export default class Game extends Phaser.Scene {
 	updateVec = throttle((vec: Vec2) => {
 		// me.setPosition(me.x + vec[0], me.y + vec[1])
 		this.me.face(vec)
+		let newPos = add(this.me.pos, vec)
+
 		window.send({ type: 'move', data: { vec, facing: this.me.facing } })
+
 	}, 150, {trailing: false})
 
 	faceAry: Vec2[] = []
@@ -24,63 +28,73 @@ export default class Game extends Phaser.Scene {
 		this.faceAry = []
 		if (vec[0] === 0 && vec[1] === 0) return
 		this.updateVec(vec)
-	}, 10, {trailing: false})
+	}, 10)
+
+	attack = throttle(()=>{
+		window.send({ type: 'attack', data: { facing: this.me.facing } })
+	}, 500, {trailing: false})
+
+	interact = throttle(()=>{
+		let pos = add(this.me.pos, this.me.facing)
+		window.send({ type: 'interact_map', data: { pos } })
+	}, 500, {trailing: false})
 
 	constructor() {
 		super('GameScene')
 	}
 
 	preload() {
-		// this.load.tilemap('mapTile', 'assets/map.json', null, Phaser.Tilemap.TILED_JSON);
-		// this.load.image('map', 'assets/images/maptile.png', 46, 46);
-		this.load.image('tiles', 'assets/images/tiles.png')
-		this.load.tilemapTiledJSON('map', JSON.parse(window.sessionStorage.getItem('map')||'{}'))
-		
+		this.load.image('lab_tiles', 'assets/images/lab.png')
+		this.load.tilemapTiledJSON('map', JSON.parse(window.sessionStorage.getItem('map') ?? '{}'))
 	}
 
 	create() {
 		// render the initial map
 		this.map = this.make.tilemap({ key: 'map' })
-		var tiles = this.map.addTilesetImage('Maze', 'tiles', 32, 32, 0, 0)
+		var tiles = this.map.addTilesetImage('Lab', 'lab_tiles', 32, 32, 0, 0)
 
 		this.map.createLayer('Ground', tiles, 0, 0)
 		
-		this.cameras.main.setBackgroundColor('#990000')
+		this.cameras.main.setBackgroundColor('#222222')
 
 		this.cursors = this.input.keyboard.createCursorKeys()
+		this.cursors.x = this.input.keyboard.addKey('X');
+		this.cursors.i = this.input.keyboard.addKey('I');
 
 		this.players.clear()
+		console.log(this.raycasterPlugin)
 	}
 
 	update(time: number, delta: number): void {
 		// pop from event queue, then handle
-		const event = window.events.shift()
-		if (event !== undefined) {
+		let event = undefined
+		while ((event = window.events.shift()) !== undefined) {
 			switch (event.type) {
 				case 'init':
 					const me = event.data.player
-					// window.me = me
+
 					event.data.players.forEach(player => {
 						const playerText = player.identifier === me.identifier ? '我' : '他'
-						const playerObj = new Player(this, player.pos.map( x=> x*32+16 ) as Vec2, playerText, player.identifier, player.current_weapon.weapon_type, [[1,0],[2,0]])
+						const playerObj = new Player(this, playerText, player)
 						this.players.set(player.identifier, playerObj)
 					})
 
 					this.me = this.players.get(me.identifier)!
 					this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
 					break
+
 				case 'join':
 					const player = event.data.player
-					const other = new Player(this, player.pos, '他', player.identifier,  player.current_weapon.weapon_type, [[1,0],[2,0]])
+					const other = new Player(this, '他', player)
 					this.players.set(player.identifier, other)
 					break
+
 				case 'move':
-					// if (event.data.identifier === window.me.identifier) return
 					const { identifier, pos, facing } = event.data
 					const playerObj = this.players.get(identifier)
-					if (!playerObj) return
+					if (!playerObj) break
 
-					playerObj.setPosition( ...event.data.pos.map(x=>x*32+16) )
+					playerObj.setPositionTo( event.data.pos )
 
 					// draw arrow to indicate direction
 					const { x, y } = playerObj
@@ -95,58 +109,74 @@ export default class Game extends Phaser.Scene {
 					graphics.lineTo(x + (fx * (width + 30)) / 2, y + (fy * (height + 30)) / 2)
 					graphics.strokePath()
 					break
+
 				case 'attack':
 					{
 						const { attacker, targets } = event.data
 						const attackerObj = this.players.get(attacker)
-						if (!attackerObj) return
+						if (!attackerObj) break
 
-						const { x, y, graphics, weapon, facing } = attackerObj
+						// show some light with weapon demageRange
+						const { x, y, weapon, facing } = attackerObj
 						const [fx, fy] = facing
 						const angle = Math.atan2(fy, fx) * 180.0 / Math.PI
 						for (const [rx, ry] of weapon.damageRange) {
-							// const drawX = x + (16 * fx) + (rx * 32 * fx)
-							// const drawY = y + (16 * fy) + (ry * 32 * fx)
-							// console.log(x, y, rx, ry, fx, fy, drawX, drawY)
-							let rv = rotate([ry, rx], facing).map(v => v * 32) as Vec2
-							console.log(rx, ry, facing, rv, add([x,y], rv))
-							let d = this.add.rectangle(...add([x,y], rv), 32, 32, 0x00FF00)
+							let rv = rotate([rx, ry], facing).map(v => v * 32) as Vec2
+							// console.log(rx, ry, facing, rv, add([x,y], rv))
+							let d = this.add.rectangle(...add(event.data.attacker_pos.map(x=>x*32+16) as Vec2, rv), 32, 32, 0x990000)
 							d.angle = angle
 							let opacity: number = 1;
 							setInterval(() => {
 								d.setAlpha(opacity -= 0.1)
-							}, 30)
+							}, 10)
 							setTimeout(() => {
 								d.destroy();
-							}, 300);
+							}, 100);
 						}
+						for(const target of targets){
+							const targetObj = this.players.get(target.identifier)
+							if (!targetObj) continue
+							let opacity: boolean = false
+							let flash = setInterval(() => {
+								targetObj.setAlpha(opacity? 1: 0.5)
+								opacity = !opacity
+							}, 50)
+							setTimeout(()=>{
+								clearInterval(flash)
+								targetObj.setAlpha(1)
+							}, 200)
 
-						// for (const target of targets) {
-						// 	const targetObj = this.players.get(target.identifier)
-						// 	if (!targetObj) continue
-
-						// 	const { x: ax, y: ay } = attackerObj
-						// 	const { x: tx, y: ty } = targetObj
-
-						// 	const { graphics } = attackerObj
-						// 	graphics.clear()
-						// 	// draw block to indicate attack
-						// 	graphics.lineStyle(32, 0x990000, 1)
-						// 	graphics.beginPath()
-						// 	graphics.moveTo(ax, ay)
-						// 	graphics.lineTo(tx, ty)
-						// 	graphics.strokePath()
-						// }
+						}
 					}
-
 					break
+
+				case 'interact_map':
+					console.log('interact_map', event.data)
+					this.players.get(event.data.player)?.updatePlayer(event.data.player)
+					break
+				
+				case 'use':
+					console.log('use', event.data)
+					break
+
 				default:
 			}
 		}
 
 		// attack
 		if (this.input.keyboard.checkDown(this.cursors.space, 100)) {
-			window.send({ type: 'attack', data: { facing: this.me.facing } })
+			this.attack()
+		}
+
+		// interact
+		if (this.input.keyboard.checkDown(this.cursors.x, 100)) {
+			this.interact()
+		}
+
+		// inventory
+		if (this.input.keyboard.checkDown(this.cursors.i, 100)) {
+			console.log(this.me)
+			inventory.toggle(this.me.inventory)
 		}
 
 		// player control

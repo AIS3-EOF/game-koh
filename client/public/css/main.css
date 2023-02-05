@@ -7,10 +7,22 @@ body {
   align-items: center;
 }
 
-#login-container>p{
-    color: white;
+#login-container > p {
+  color: white;
 }
 
-#login-container>#login-error-message{
-    color: red;
+#login-container > #login-error-message {
+  color: red;
+}
+
+#inventory {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvw;
+  height: 100dvh;
+}
+#inventory.open {
+  display: block;
 }
