@@ -1,20 +1,20 @@
 import { WebSocketServer, WebSocket } from 'ws'
-import { dispatch } from './handlers'
-import { Context } from './context'
-import { ServerMessage } from './protocol/server'
-import { Game } from './game/game'
-import { GameMap } from './game/gamemap'
-import { Player } from './game/player'
-import { EventQueue } from './event_queue'
-import { generateObject } from './game_objects'
-import { connect } from './db'
-import { handleLogin } from './handle_login'
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
-import * as config from './config'
-
-import parser from './parser'
 import * as poisson from 'poisson-process'
+
+import { dispatch } from '@/handlers'
+import { Context } from '@/context'
+import { ServerMessage } from '@/protocol/server'
+import { Game } from '@/game/game'
+import { GameMap } from '@/game/gamemap'
+import { Player } from '@/game/player'
+import { EventQueue } from '@/event_queue'
+import { generateObject } from '@/game_objects'
+import { connect } from '@/db'
+import { handleLogin } from '@/handle_login'
+import * as config from '@/config'
+import parser from '@/parser'
 
 const log = debug('server:main')
 const wss = new WebSocketServer({ port: 8080 })
@@ -92,7 +92,7 @@ connect().then(db => {
 	})
 })
 
-if (require.main === module) {
+// if (require.main === module) {
 	const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 	;(async () => {
 		await sleep(1000)
@@ -116,4 +116,4 @@ if (require.main === module) {
 			console.log(new Date().toLocaleString(), parser.parse(data.toString()))
 		})
 	})()
-}
+// }

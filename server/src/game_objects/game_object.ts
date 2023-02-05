@@ -1,8 +1,8 @@
-import { Context } from "../context"
+import { Context } from "@/context"
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
-import { Pos } from '../protocol/shared'
-import { randomVec2 } from '../utils'
+import { Pos } from '@/protocol/shared'
+import { randomVec2 } from '@/utils'
 
 const log = debug('server:GameObject');
 
@@ -11,7 +11,7 @@ export class GameObject {
     identifier: string = 'GameObject'
     uuid: string = randomUUID()
     texture: string = 'null'
-    
+
     constructor(
     ) {}
 

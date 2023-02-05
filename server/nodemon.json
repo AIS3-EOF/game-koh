@@ -1,5 +1,5 @@
 {
     "watch": ["src"],
     "ext": "x",
-    "exec": "DEBUG=server:* ts-node src/index.ts"
+    "exec": "tsx src/index.ts"
   }

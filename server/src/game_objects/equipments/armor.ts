@@ -1,5 +1,5 @@
 import { Equipment } from "./equipment"
-import { Context } from "../../context"
+import { Context } from "@/context"
 
 export function generateArmor() {
     return new Armor();

@@ -1,5 +1,5 @@
 import { GameObject } from "../game_object"
-import { Context } from "../../context";
+import { Context } from "@/context";
 
 
 export class Item extends GameObject {

@@ -1,7 +1,7 @@
 import { GameObject } from "@/game_objects/game_object"
 import { Chest } from "@/maps/chest"
-import { Ground as Floor } from "../maps/ground"
-import { Wall } from "../maps/wall"
+import { Ground as Floor } from "@/maps/ground"
+import { Wall } from "@/maps/wall"
 import { MapObject } from "@/maps/map_object"
 import { Vec2 } from "@/protocol/shared"
 
@@ -40,7 +40,7 @@ export class GameMap {
 				unvisitedNeighbors.push(direction);
 			}
 		}
-		
+
 		if (unvisitedNeighbors.length > 0) {
 			let randomIndex = Math.floor(Math.random() * unvisitedNeighbors.length);
 			let nextCell = [currentCell[0] + unvisitedNeighbors[randomIndex][0], currentCell[1] + unvisitedNeighbors[randomIndex][1]];
@@ -101,7 +101,7 @@ export class GameMap {
 				if (maze[i][j] === 1) {
 					if (Math.random() < 0.30) {
 						maze[i][j] = 0
-					} 
+					}
 				}
 			}
 		}
@@ -111,7 +111,7 @@ export class GameMap {
 				if (maze[i][j] === 0 && Math.random() < 0.05) {
 					if (Math.random() < 0.1) {
 						maze[i][j] = 1
-					} 
+					}
 				}
 			}
 		}
@@ -134,7 +134,7 @@ export class GameMap {
 
 	canMoveTo(pos: Vec2) : boolean {
 		// check if out of bounds
-		if (pos == null || pos[0] < 0 || pos[1] < 0 || pos[0] >= this.width || pos[1] >= this.height) {	
+		if (pos == null || pos[0] < 0 || pos[1] < 0 || pos[0] >= this.width || pos[1] >= this.height) {
 			return false
 		}
 

@@ -1,8 +1,8 @@
+import { Vec2 } from '@/protocol/shared'
+import { Player } from '@/game/player'
+import { GameObject } from '@/game_objects/game_object'
+import { Context } from '@/context'
 import { MapObject } from './map_object'
-import { Vec2 } from '../protocol/shared'
-import { Player } from '../game/player'
-import { GameObject } from '../game_objects/game_object'
-import { Context } from '../context';
 
 
 export class Chest extends MapObject {

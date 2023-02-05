@@ -1,5 +1,5 @@
-import { ServerMessage } from '../protocol/server'
-import { Context } from '../context'
+import { ServerMessage } from '@/protocol/server'
+import { Context } from '@/context'
 import { handle as handle_move } from './move'
 import { handle as handle_attack } from './attack'
 import { handle as handle_use } from './use'

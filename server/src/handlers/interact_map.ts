@@ -1,5 +1,5 @@
-import { InteractMapMessageData } from '../protocol/server'
-import { Context } from '../context'
+import { InteractMapMessageData } from '@/protocol/server'
+import { Context } from '@/context'
 
 export const handle = async (ctx: Context, data: InteractMapMessageData) => {
     // vulnerable code. Fix: validate the position
@@ -17,4 +17,3 @@ export const handle = async (ctx: Context, data: InteractMapMessageData) => {
         })
     }
 }
-

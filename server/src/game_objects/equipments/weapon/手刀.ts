@@ -1,5 +1,5 @@
-import { Weapon } from '../weapon'
 import { Vec2 } from '@/protocol/shared'
+import { Weapon } from '../weapon'
 
 export const identifier = '手刀'
 export const texture = 'hand_sword'

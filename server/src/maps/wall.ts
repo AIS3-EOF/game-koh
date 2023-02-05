@@ -1,5 +1,5 @@
 import { MapObject } from './map_object'
-import { Vec2 } from '../protocol/shared'
+import { Vec2 } from '@/protocol/shared'
 
 
 export class Wall extends MapObject {

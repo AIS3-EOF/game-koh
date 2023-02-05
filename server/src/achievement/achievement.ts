@@ -1,7 +1,7 @@
-import { Player } from "../game/player";
-import { ServerMessage } from '../protocol/server'
 import { debug } from 'debug'
 
+import { Player } from "@/game/player";
+import { ServerMessage } from '@/protocol/server'
 
 const log = debug('server:Achievement');
 
@@ -25,7 +25,7 @@ export class Achievement {
     constructor(
         public type: AchievementType,
     ) {}
-    
+
     isCompleted: boolean = false;
     // Ranging from 0 to 100
     progress: number = 0;

@@ -1,10 +1,10 @@
-import { LoginMessageData } from './protocol/server'
-import { Player } from './game/player'
-import { ServerMessage } from './protocol/server'
+import { LoginMessageData } from '@/protocol/server'
+import { Player } from '@/game/player'
+import { ServerMessage } from '@/protocol/server'
 import { Db } from 'mongodb'
 import { WebSocket } from 'ws'
 
-import parser from './parser'
+import parser from '@/parser'
 
 const players = new Map<string, Player>()
 

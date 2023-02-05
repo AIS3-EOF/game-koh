@@ -1,12 +1,12 @@
-import { GameMap } from "../game/gamemap"
-import { Player } from "../game/player"
-import { Weapon } from "../game_objects/equipments/weapon"
-import { GameObject } from "../game_objects/game_object"
-import { Item } from "../game_objects/items/item"
-import { Achievement } from "../achievement/achievement"
+import { GameMap } from "@/game/gamemap"
+import { Player } from "@/game/player"
+import { Weapon } from "@/game_objects/equipments/weapon"
+import { GameObject } from "@/game_objects/game_object"
+import { Item } from "@/game_objects/items/item"
+import { Achievement } from "@/achievement/achievement"
+import { MapObject } from "@/maps/map_object"
 import { ChatMessageData } from './server'
 import { Vec2 } from "./shared"
-import { MapObject } from "../maps/map_object"
 
 export interface InitData {
     player: Player
@@ -61,7 +61,7 @@ export interface NewObjectSpawnedEvent {
 
 export interface InteractMapData {
     player: Player
-    pos: Vec2   
+    pos: Vec2
 }
 export interface InteractMapEvent {
     type: 'interact_map'

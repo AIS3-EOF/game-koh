@@ -2,7 +2,7 @@ import { Equipment } from "./equipment"
 import { Player } from "@/game/player";
 import { Context } from "@/context"
 import { Vec2 } from "@/protocol/shared";
-import { calcDistance, ChebyshevDistance } from '../../utils'
+import { calcDistance, ChebyshevDistance } from '@/utils'
 
 import * as 手刀 from './weapon/手刀'
 
@@ -66,7 +66,7 @@ export class Weapon extends Equipment {
 
         // switch (this.weapon_type) {
         //     case WeaponType.手刀:
-        //         inside = 
+        //         inside =
         //         break
         //     case WeaponType.半月刀:
         //         inside = -TILE_SIZE*1.5 <= dx && dx <= TILE_SIZE*1.5 && -TILE_SIZE/2 <= dy && dy <= TILE_SIZE/2
