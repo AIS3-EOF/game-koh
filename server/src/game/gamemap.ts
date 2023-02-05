@@ -158,7 +158,8 @@ export class GameMap {
 		if (!tile.can_walk) {
 			return this.getRandomSpawnPosition()
 		}
-		return pos as Vec2
+		// return pos as Vec2
+		return [1,1] as Vec2
 	}
 
 	// randomly choose chest position and put it in the chest inventory

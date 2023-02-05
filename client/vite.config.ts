@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import replace from '@rollup/plugin-replace';
+import path from 'path'
 
 export default defineConfig({
   build: {
@@ -16,5 +17,12 @@ export default defineConfig({
         })
       ]
     }
-  }
+  },
+  resolve: {
+    preserveSymlinks: true,
+    alias: {
+      '@': 'src',
+      '~': path.resolve(__dirname, '../server/src'),
+    }
+  },
 });

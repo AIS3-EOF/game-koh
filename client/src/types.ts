@@ -1,4 +1,4 @@
-export type { ClientMessage } from '../../server/src/protocol/client'
-export type { ServerMessage } from '../../server/src/protocol/server'
-export type { Vec2 } from '../../server/src/protocol/shared'
-export type { Player } from '../../server/src/game/player'
+export type { ClientMessage } from '~/protocol/client'
+export type { ServerMessage } from '~/protocol/server'
+export type { Vec2 } from '~/protocol/shared'
+export type { Player } from '~/game/player'

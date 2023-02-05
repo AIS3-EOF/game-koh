@@ -22,7 +22,5 @@ export class Chest extends MapObject {
 
         ctx.player.inventory.push(...this.chest_inventory)
         this.chest_inventory = []
-
-        // TODO: Notify the player
     }
 }

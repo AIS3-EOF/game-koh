@@ -29,11 +29,8 @@ export class Achievement {
     isCompleted: boolean = false;
     // Ranging from 0 to 100
     progress: number = 0;
+    maxProgress: number = 100;
     achievementType: AchievementType | undefined;
-
-    makeProgress() {
-        this.progress += 1;
-    }
 
     updateProgress(player: Player, data: ServerMessage) {
         log(`Updating progress for achievement: ${this.achievementType}`);
@@ -45,9 +42,5 @@ export class Achievement {
 
     setCompleted() {
         this.isCompleted = true;
-    }
-
-    getProgress() : number {
-        return this.progress;
     }
 }

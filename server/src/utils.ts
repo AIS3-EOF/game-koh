@@ -2,16 +2,27 @@ import { Vec2 } from './protocol/shared'
 import { MAP_SIZE } from './config'
 
 export const add = (a: Vec2, b: Vec2): Vec2 => [a[0] + b[0], a[1] + b[1]]
+export const sub = (a: Vec2, b: Vec2): Vec2 => [a[0] - b[0], a[1] - b[1]]
 export const dot = (a: Vec2, b: Vec2): number => a[0] * b[0] + a[1] * b[1]
 export const length = (a: Vec2): number => Math.sqrt(dot(a, a))
 export const normalize = (a: Vec2): Vec2 => [a[0] / length(a), a[1] / length(a)]
 
-export const calcDistance = (a: Vec2, b: Vec2, facing: Vec2): Vec2 => {
+export const rotate = (v: Vec2, facing: Vec2): Vec2 => {
     const [cos, sin] = normalize(facing)
-    const dx = b[0] - a[0], dy = b[1] - a[1]
-    const x = dy * cos - dx * sin 
-    const y = dx * cos + dy * sin
-    return [Math.round(x), Math.round(y)]
+    const x = v[1] * cos - v[0] * sin
+    const y = v[0] * cos + v[1] * sin
+    return [x, y]
+}
+
+export const calcDistance = (a: Vec2, b: Vec2, facing: Vec2): Vec2 => {
+    return rotate(sub(a, b), facing)
+}
+
+export function distance(a: Vec2, b: Vec2): number {
+    return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+}
+export function ChebyshevDistance(a: Vec2, b: Vec2): number {
+    return Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]))
 }
 
 export function randomVec2(): Vec2 {

@@ -1388,6 +1388,11 @@ picomatch@^2.0.4, picomatch@^2.2.1:
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.3.1.tgz#3ba3833733646d9d3e4995946c1365a67fb07a42"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
+poisson-process@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/poisson-process/-/poisson-process-1.0.1.tgz#7cd54b021700c4b7198a90a1e185b2867ded601e"
+  integrity sha512-xUZZi5kOZlRyYWoQ/2wxSUGpTEh+d+FcogG1N1wxq3masPDGuoAcJzn5Ny/xCRPrv4/UCz8aNV0vCojuZrFKKw==
+
 prettier@^2.8.2:
   version "2.8.2"
   resolved "https://registry.npmjs.org/prettier/-/prettier-2.8.2.tgz"

@@ -28,17 +28,23 @@ export interface JoinEvent {
 }
 
 export interface MoveData {
-    player: Player
+    identifier: string
+    facing: Vec2
+    pos: Vec2
 }
 export interface MoveEvent {
     type: 'move'
     data: MoveData
 }
 
-export interface AttackData {
-    attacker: Player
-    target: Player
+export interface AttackTarget {
+    identifier: string
     damage: number
+}
+export interface AttackData {
+    attacker: string
+    attacker_pos: Vec2
+    targets: AttackTarget[]
 }
 export interface AttackEvent {
     type: 'attack'
@@ -91,7 +97,7 @@ export interface AchievementData {
     archieve: Achievement
 }
 export interface AchievementEvent {
-    type: 'archieve'
+    type: 'achievement'
     data: AchievementData
 }
 

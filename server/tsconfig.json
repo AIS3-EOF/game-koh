@@ -6,6 +6,10 @@
 		"moduleResolution": "Node",
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"module": "CommonJS"
+		"module": "CommonJS",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
 	}
 }

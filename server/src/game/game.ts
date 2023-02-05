@@ -1,6 +1,6 @@
 import { GameMap } from './gamemap'
 import { Player } from './player'
-import { GameObject } from '../game_objects/game_object'
+import { GameObject } from '@/game_objects/game_object'
 
 export class Game {
 	players = new Set<Player>()
@@ -10,8 +10,10 @@ export class Game {
 		public map: GameMap
 	) {}
 	addPlayer(player: Player) {
-		if (player.login_count++ == 0)
+		if (player.login_count++ == 0) {
+			player.pos = this.map.getRandomSpawnPosition()
 			this.players.add(player)
+		}
 	}
 	removePlayer(player: Player) {
 		if (--player.login_count === 0)

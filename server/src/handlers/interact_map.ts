@@ -8,7 +8,6 @@ export const handle = async (ctx: Context, data: InteractMapMessageData) => {
     if (object) {
 
         object.interact(ctx)
-
         ctx.eventQueue.push({
             type: 'interact_map',
             data: {

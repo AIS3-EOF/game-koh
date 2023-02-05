@@ -6,6 +6,7 @@ import { TICK_ACTION_COUNT } from '../config'
 import { Achievement } from '../achievement/achievement'
 
 export const DEFAULT_HP = 100
+export const DEFAULT_POS: Vec2 = [1, 1]
 
 export class Player {
 	constructor(
@@ -16,7 +17,7 @@ export class Player {
 	exp: number = 0
 	atk: number = 1
 	def: number = 1
-	pos: Vec2 = [0, 0]
+	pos: Vec2 = DEFAULT_POS
 	facing: Vec2 = [1, 0]
 
 	current_weapon: Weapon = new Weapon();

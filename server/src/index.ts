@@ -14,6 +14,7 @@ import { randomUUID } from 'crypto'
 import * as config from './config'
 
 import parser from './parser'
+import * as poisson from 'poisson-process'
 
 const log = debug('server:main')
 const wss = new WebSocketServer({ port: 8080 })
@@ -34,16 +35,16 @@ setInterval(() => {
 		)
 	})
 
-	if (Math.random() <= config.TICK_GEN_PROBABILITY) {
-		const object = generateObject()
-		game.addObject(object)
-		eventQueue.push({
-			type: 'new_object_spawned',
-			data: { object },
-		})
-	}
-
 }, config.TICK_INTERVAL)
+
+poisson.create(config.GEN_DURATION, () => {
+	const object = generateObject()
+	game.addObject(object)
+	eventQueue.push({
+		type: 'new_object_spawned',
+		data: { object },
+	})
+}).start()
 
 connect().then(db => {
 	log('connected to database')
@@ -110,8 +111,9 @@ if (require.main === module) {
 			await sleep(3000)
 			// ws.close()
 		})
+		const log = debug('client:message')
 		ws.on('message', data => {
-			console.log(data.toString())
+			console.log(new Date().toLocaleString(), parser.parse(data.toString()))
 		})
 	})()
 }
