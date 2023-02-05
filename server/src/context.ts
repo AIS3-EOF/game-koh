@@ -24,7 +24,7 @@ export class Context {
 		public db: Db
 	) {}
 	send(msg: ClientMessage) {
-		this.ws.send(JSON.stringify(msg))
+		this.ws.send(parser.stringify(msg))
 	}
 	sendError(msg: string) {
 		this.send({

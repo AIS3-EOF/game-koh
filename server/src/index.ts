@@ -13,6 +13,8 @@ import { debug } from 'debug'
 import { randomUUID } from 'crypto'
 import * as config from './config'
 
+import parser from './parser'
+
 const log = debug('server:main')
 const wss = new WebSocketServer({ port: 8080 })
 const game = new Game(GameMap.generate(config.MAP_SIZE, config.MAP_SIZE))
@@ -69,7 +71,7 @@ connect().then(db => {
 			contexts.set(sessionId, ctx)
 			ws.on('message', rawData => {
 				try {
-					const msg: ServerMessage = JSON.parse(rawData.toString())
+					const msg: ServerMessage = parser.parse(rawData.toString())
 					log('%s received %o', sessionId, msg)
 					dispatch(ctx, msg)
 				} catch (e) {
@@ -96,7 +98,7 @@ if (require.main === module) {
 		const ws = new WebSocket('ws://localhost:8080')
 		ws.on('open', async () => {
 			ws.send(
-				JSON.stringify({
+				parser.stringify({
 					type: 'login',
 					data: {
 						token: 'test'
@@ -104,7 +106,7 @@ if (require.main === module) {
 				})
 			)
 			await sleep(1000)
-			ws.send(JSON.stringify({ type: 'move', data: { facing: [1, 0], vec: [1, 0] } }))
+			ws.send(parser.stringify({ type: 'move', data: { facing: [1, 0], vec: [1, 0] } }))
 			await sleep(3000)
 			// ws.close()
 		})
