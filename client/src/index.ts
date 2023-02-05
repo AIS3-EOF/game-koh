@@ -5,14 +5,14 @@ import Map from '@/resources/map'
 
 import parser from 'parser'
 
-import { ClientMessage, ServerMessage, Player } from '@/types'
+import { ClientMessage, ServerMessage } from '@/types'
 
 declare global {
   interface Window {
     state: any
     events: ClientMessage[]
     ws: WebSocket
-    me: Player
+    me: string
     gameMap: Map
     send: (message: ServerMessage) => void
   }
@@ -70,6 +70,7 @@ window.ws.onmessage = event => {
             scene: [GameScene]
           })
         );
+        window.me = message.data.player.identifier
     case "join":
     case "move":
     case "attack":

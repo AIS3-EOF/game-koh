@@ -1,5 +1,6 @@
 import { Vec2, GameObject, Player as Server_Player } from '../types';
 import Weapon from './Weapon';
+import { drawInventory } from '@/resources/inventory';
 
 export default class Player extends Phaser.GameObjects.Container {
     public graphics: Phaser.GameObjects.Graphics;
@@ -14,7 +15,7 @@ export default class Player extends Phaser.GameObjects.Container {
         text: string,
         player: Server_Player,
     ) {
-        const playerText = scene.add.text(0, 0, text);
+        const playerText = scene.add.text(0, 0, text, { fill: "#ff0000" });
         playerText.setOrigin(0.5);
         super(scene, ...player.pos.map((x: number) => x*32+16), playerText); // The frame is optional 
         this.scene.add.existing(this);
@@ -35,9 +36,16 @@ export default class Player extends Phaser.GameObjects.Container {
             player.current_weapon.weapon_type,
             player.current_weapon.range
         )
-        this.inventory = player.inventory
+        this.setInventory(player.inventory)
         this.face(player.facing)
         this.setPositionTo(player.pos)
+    }
+
+    setInventory(inventory: GameObject[]) {
+        this.inventory = inventory
+        if (this.identifier == window.me) {
+            drawInventory(inventory)
+        }
     }
 
     face(facing: Vec2) {

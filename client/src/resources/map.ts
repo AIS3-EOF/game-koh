@@ -3,6 +3,7 @@ import { MapObject } from '@/types'
 export default class Map{
     public tiles: any
     public tilesData: any
+    public topTilesData: any
     public chests: any
     public height: any
     public width: any
@@ -11,14 +12,16 @@ export default class Map{
         this.height = map.height
         this.width = map.width
 
+        
         // x, y transpose
         this.tiles = this.tiles[0].map((_: any, colIndex: number) => this.tiles.map((row: MapObject[])=> row[colIndex]))
         // 
         this.generateTilesData()
     }
-
+    
     generateTilesData(){
         this.tilesData = []
+        this.topTilesData = []
         for(let i = 0; i < this.height; i++){
             for(let j = 0; j < this.width; j++){
                 if (this.tiles[i][j]['texture'] === 'chest'){
@@ -96,6 +99,9 @@ export default class Map{
                 } else{
                     this.tilesData.push(100)
                 }
+
+                // update topTilesData
+                this.topTilesData.push(this.tiles[i][j]['texture'] === 'wall'? this.tilesData[i*this.height + j]: null)
             }
         }
     }
@@ -117,10 +123,10 @@ export default class Map{
                     "y":0
                 },
                 {
-                    "data": [1,2,3,9,10,11,17,18,19],
-                    "height":3,
-                    "width":3,
-                    "name":"Lab_Ground",
+                    "data": this.topTilesData,
+                    "height": this.height,
+                    "width": this.width,
+                    "name":"Top",
                     "opacity":1,
                     "type":"tilelayer",
                     "visible":true,

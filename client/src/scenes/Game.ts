@@ -8,10 +8,18 @@ import { rotate, add } from '~/utils'
 
 export default class Game extends Phaser.Scene {
 	layer: any
+	topLayer: any
 	map: any
 	players = new Map<string, Player>()
 	me = {} as Player
 	cursors: any
+
+	raycaster: any
+	ray: any
+	intersections: any
+	graphics: any
+	maskGraphics: any
+	fow: any
 
 	updateVec = throttle((vec: Vec2) => {
 		// me.setPosition(me.x + vec[0], me.y + vec[1])
@@ -39,6 +47,21 @@ export default class Game extends Phaser.Scene {
 		window.send({ type: 'interact_map', data: { pos } })
 	}, 500, {trailing: false})
 
+	createFOV(){
+		this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 }});
+		let mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics);
+		mask.setInvertAlpha();
+		this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 1 } });
+		this.fow.setMask(mask);
+		this.fow.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels);
+	}
+
+	draw(){
+		this.maskGraphics.clear();
+		//draw fov mask
+		this.maskGraphics.fillPoints(this.intersections);
+	}
+
 	constructor() {
 		super('GameScene')
 	}
@@ -49,11 +72,15 @@ export default class Game extends Phaser.Scene {
 	}
 
 	create() {
+		
 		// render the initial map
 		this.map = this.make.tilemap({ key: 'map' })
 		var tiles = this.map.addTilesetImage('Lab', 'lab_tiles', 32, 32, 0, 0)
 
-		this.map.createLayer('Ground', tiles, 0, 0)
+		this.layer = this.map.createLayer('Ground', tiles, 0, 0)
+		this.topLayer = this.map.createLayer('Top', tiles, 0, 0)
+
+		this.physics.world.setBounds(0, 0, this.map.heightInPixels, this.map.widthInPixels)
 		
 		this.cameras.main.setBackgroundColor('#222222')
 
@@ -62,10 +89,29 @@ export default class Game extends Phaser.Scene {
 		this.cursors.i = this.input.keyboard.addKey('I');
 
 		this.players.clear()
-		console.log(this.raycasterPlugin)
+
+
+		this.raycaster = this.raycasterPlugin.createRaycaster();
+		this.ray = this.raycaster.createRay({autoSlice: true})
+
+		//map tilemap layer
+		this.raycaster.mapGameObjects(this.layer, false, {
+			collisionTiles: [...Array(400).keys(), 416, 418, 446, 448, 450, 476, 478, 480] //array of tile types which collide with rays
+		});
+		//cast ray in all directions
+		this.intersections = this.ray.castCircle();
+
+		this.createFOV()
+		this.topLayer.setDepth(3);
+		this.fow.setDepth(2);
+
+		//draw rays
+		this.draw();
+
 	}
 
 	update(time: number, delta: number): void {
+
 		// pop from event queue, then handle
 		let event = undefined
 		while ((event = window.events.shift()) !== undefined) {
@@ -80,6 +126,13 @@ export default class Game extends Phaser.Scene {
 					})
 
 					this.me = this.players.get(me.identifier)!
+
+					this.ray.setOrigin(this.me.x, this.me.y);
+					//cast ray in all directions
+					this.intersections = this.ray.castCircle();
+					//redraw
+					this.draw();
+
 					this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
 					break
 
@@ -95,6 +148,14 @@ export default class Game extends Phaser.Scene {
 					if (!playerObj) break
 
 					playerObj.setPositionTo( event.data.pos )
+
+					if (identifier === this.me.identifier){
+						this.ray.setOrigin(this.me.x, this.me.y);
+						//cast ray in all directions
+						this.intersections = this.ray.castCircle();
+						//redraw
+						this.draw();
+					}
 
 					// draw arrow to indicate direction
 					const { x, y } = playerObj
@@ -151,12 +212,8 @@ export default class Game extends Phaser.Scene {
 					break
 
 				case 'interact_map':
-					console.log('interact_map', event.data)
-					this.players.get(event.data.player)?.updatePlayer(event.data.player)
-					break
-				
 				case 'use':
-					console.log('use', event.data)
+					this.players.get(event.data.player.identifier)?.updatePlayer(event.data.player)
 					break
 
 				default:
@@ -174,9 +231,8 @@ export default class Game extends Phaser.Scene {
 		}
 
 		// inventory
-		if (this.input.keyboard.checkDown(this.cursors.i, 100)) {
-			console.log(this.me)
-			inventory.toggle(this.me.inventory)
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.i)) {
+			inventory.toggle()
 		}
 
 		// player control
