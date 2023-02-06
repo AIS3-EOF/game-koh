@@ -1,8 +1,8 @@
 import { debug } from 'debug'
 
-import { Player } from "@/game"
-import { ServerMessage } from '@/protocol'
-import { Context } from '@/context'
+import { Player } from "~/game"
+import { ServerMessage } from '~/protocol'
+import { Context } from '~/context'
 
 import { AchievementType, Achievement } from './achievement'
 

@@ -1,7 +1,7 @@
 import { debug } from 'debug'
 
-import { Player } from "@/game/player";
-import { ServerMessage } from '@/protocol'
+import { Player } from "~/game/player";
+import { ServerMessage } from '~/protocol'
 
 const log = debug('server:Achievement');
 

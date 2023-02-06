@@ -1,7 +1,7 @@
-import { GameObject } from "@/game_objects/game_object"
-import { MapObject, MapObjectType, MapObjectClass, Chest } from "@/maps"
-import { Vec2 } from "@/protocol"
-import { CHEST_SIZE, ROOM_SIZE } from '@/config'
+import { GameObject } from "~/game_objects/game_object"
+import { MapObject, MapObjectType, MapObjectClass, Chest } from "~/maps"
+import { Vec2 } from "~/protocol"
+import { CHEST_SIZE, ROOM_SIZE } from '~/config'
 
 export class GameMap {
 	tiles: MapObject[][] = []

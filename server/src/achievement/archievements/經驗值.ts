@@ -1,6 +1,6 @@
 import { debug } from 'debug'
-import { Player } from "@/game"
-import { ServerMessage } from '@/protocol'
+import { Player } from "~/game"
+import { ServerMessage } from '~/protocol'
 import { Achievement, AchievementType } from "../achievements"
 
 export class Experienced extends Achievement {

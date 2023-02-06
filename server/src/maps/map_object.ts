@@ -1,8 +1,8 @@
-import { Vec2 } from '@/protocol'
-import { Player } from '@/game'
+import { Vec2 } from '~/protocol'
+import { Player } from '~/game'
 
 import { debug } from 'debug'
-import { Context } from '@/context';
+import { Context } from '~/context';
 
 const log = debug('server:MapObject')
 

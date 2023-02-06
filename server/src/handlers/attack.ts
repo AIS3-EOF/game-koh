@@ -1,7 +1,7 @@
-import { AttackMessageData } from '@/protocol'
-import { AttackTarget } from '@/protocol'
-import { Context } from '@/context'
-import { normalize } from '@/utils'
+import { AttackMessageData } from '~/protocol'
+import { AttackTarget } from '~/protocol'
+import { Context } from '~/context'
+import { normalize } from '~/utils'
 
 export const handle = async (ctx: Context, data: AttackMessageData) => {
     const { player: attacker } = ctx

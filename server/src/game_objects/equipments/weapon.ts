@@ -1,8 +1,8 @@
 import { Equipment } from "./equipment"
-import { Player } from "@/game"
-import { Context } from "@/context"
-import { Vec2 } from "@/protocol";
-import { calcDistance, ChebyshevDistance } from '@/utils'
+import { Player } from "~/game"
+import { Context } from "~/context"
+import { Vec2 } from "~/protocol";
+import { calcDistance, ChebyshevDistance } from '~/utils'
 
 import * as 手刀 from './weapon/手刀'
 import * as 半月刀 from './weapon/半月刀'

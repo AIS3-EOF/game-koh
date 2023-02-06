@@ -1,5 +1,5 @@
 import { Vec2 } from './shared'
-import { LFIType } from '@/config'
+import { LFIType } from '~/config'
 
 export interface LoginMessageData {
 	token: string

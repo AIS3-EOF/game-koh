@@ -1,9 +1,9 @@
-import { Vec2 } from '@/protocol'
-import { GameObject } from '@/game_objects/game_object'
-import { Weapon } from '@/game_objects/equipments/weapon'
-import { Armor } from '@/game_objects/equipments/armor'
-import { TICK_ACTION_COUNT } from '@/config'
-import { Achievements } from '@/achievement'
+import { Vec2 } from '~/protocol'
+import { GameObject } from '~/game_objects/game_object'
+import { Weapon } from '~/game_objects/equipments/weapon'
+import { Armor } from '~/game_objects/equipments/armor'
+import { TICK_ACTION_COUNT } from '~/config'
+import { Achievements } from '~/achievement'
 
 export const DEFAULT_HP = 10
 export const DEFAULT_POS: Vec2 = [1, 1]

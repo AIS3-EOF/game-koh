@@ -1,5 +1,5 @@
-import { UseMessageData } from '@/protocol'
-import { Context } from '@/context'
+import { UseMessageData } from '~/protocol'
+import { Context } from '~/context'
 
 export const handle = async (ctx: Context, data: UseMessageData) => {
     const object = ctx.getObject(data.uuid)

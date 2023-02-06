@@ -1,11 +1,11 @@
 import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 
-import { ClientMessage } from '@/protocol'
-import { Game, Player } from '@/game'
-import { GameObject } from '@/game_objects/game_object'
-import { EventQueue } from '@/event_queue'
-import parser from '@/parser'
+import { ClientMessage } from '~/protocol'
+import { Game, Player } from '~/game'
+import { GameObject } from '~/game_objects/game_object'
+import { EventQueue } from '~/event_queue'
+import parser from '~/parser'
 
 /**
  * Per-connection context

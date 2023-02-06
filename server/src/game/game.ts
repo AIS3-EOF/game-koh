@@ -1,6 +1,6 @@
 import { GameMap } from './gamemap'
 import { Player } from './player'
-import { GameObject } from '@/game_objects/game_object'
+import { GameObject } from '~/game_objects/game_object'
 
 export class Game {
 	players = new Set<Player>()

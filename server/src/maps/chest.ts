@@ -1,7 +1,7 @@
-import { Vec2 } from '@/protocol'
-import { Player } from '@/game'
-import { GameObject } from '@/game_objects/game_object'
-import { Context } from '@/context'
+import { Vec2 } from '~/protocol'
+import { Player } from '~/game'
+import { GameObject } from '~/game_objects/game_object'
+import { Context } from '~/context'
 import { MapObject } from './map_object'
 
 import { debug } from 'debug'

@@ -9,7 +9,7 @@
 		"module": "CommonJS",
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["src/*"]
+			"~/*": ["src/*"]
 		}
 	},
 	"include": [

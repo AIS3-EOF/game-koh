@@ -1,4 +1,4 @@
-import { Vec2 } from '@/protocol'
+import { Vec2 } from '~/protocol'
 import { Weapon } from '../weapon'
 
 export const identifier = '冰桶挑戰'

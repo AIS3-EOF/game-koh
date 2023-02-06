@@ -1,6 +1,6 @@
-import { Vec2 } from '@/protocol'
-import { Player } from "@/game"
-import { Context } from '@/context'
+import { Vec2 } from '~/protocol'
+import { Player } from "~/game"
+import { Context } from '~/context'
 import { Weapon } from '../weapon'
 
 export const identifier = 'Nyancat'

@@ -1,6 +1,6 @@
-import { MoveMessageData } from '@/protocol'
-import { Context } from '@/context'
-import { add } from '@/utils'
+import { MoveMessageData } from '~/protocol'
+import { Context } from '~/context'
+import { add } from '~/utils'
 
 export const handle = async (ctx: Context, data: MoveMessageData) => {
     let moved: boolean = false

@@ -1,6 +1,6 @@
-import { InteractMapMessageData } from '@/protocol'
-import { Context } from '@/context'
-import { MapObject } from '@/maps'
+import { InteractMapMessageData } from '~/protocol'
+import { Context } from '~/context'
+import { MapObject } from '~/maps'
 
 export const handle = async (ctx: Context, data: InteractMapMessageData) => {
     // Fix: validate the position
