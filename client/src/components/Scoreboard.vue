@@ -1,17 +1,34 @@
 <script setup lang="ts">
-import { ScoreItem } from '@/types'
+import { computed } from 'vue'
+import { ScoreItem, RoundData } from '@/types'
 
 interface Props {
     scores: ScoreItem[]
+    round: RoundData
 }
 
 const props = defineProps<Props>()
 
+const roundMessage = computed(() => {
+    switch (props.round.status as string) {
+        case 'preinit':
+            return 'Waiting for init...'
+        case 'init':
+            return `Round ${props.round.number} initializing...`
+        case 'start':
+            return `Round ${props.round.number} running!`
+        case 'end':
+            return `Round ${props.round.number} ended.`
+        default:
+            return 'Unknown round status'
+    }
+})
 </script>
 
 <template>
     <div class="scoreboard">
         <h2 class="header">Scoreboard</h2>
+        <h3 class="text">{{   roundMessage  }}</h3>
         <div class="list">
             <TransitionGroup name="scoreboard">
                 <template

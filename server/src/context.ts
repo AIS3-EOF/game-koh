@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 
-import { ClientMessage } from '~/protocol'
+import { ClientMessage, RoundData } from '~/protocol'
 import { Game, Player } from '~/game'
 import { GameObject } from '~/game_objects/game_object'
 import { EventQueue } from '~/event_queue'
@@ -22,6 +22,18 @@ export class Context {
 		public eventQueue: EventQueue,
 		public db: Db
 	) {}
+	init(round: RoundData) {
+		this.send({
+			type: 'init',
+			data: {
+				player: this.player,
+				players: Array.from(this.game.players.values()),
+				objects: Array.from(this.game.objects.values()),
+				map: this.game.map,
+				round,
+			},
+		})
+	}
 	send(msg: ClientMessage) {
 		this.ws.send(parser.stringify(msg))
 	}

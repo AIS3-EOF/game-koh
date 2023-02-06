@@ -1,5 +1,8 @@
-export const ROUND_TIME_PREPARE = 1000 * 5
-export const ROUND_TIME = 1000 * 60 * 5
+export const ROUND_TIME_INIT = 1000 * 5
+export const ROUND_TIME = 1000 * 30
+export const ROUND_TIME_END = 1000 * 5
+
+export const ROUND_PER_CYCLE = 3
 
 export const TICK_INTERVAL = 1000
 
@@ -13,6 +16,7 @@ export const TICK_ACTION_MAX_COUNT = TICK_ACTION_COUNT * 20
 
 export const TICK_LIVE_SCORE = 1
 export const KILL_SCORE = 10
+export const DAMAGE_SCORE = 1
 export const MOVE_SCORE = 1
 
 export const GEN_DURATION = 10000

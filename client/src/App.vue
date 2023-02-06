@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
-import { ClientMessage, GameObject, ScoreItem } from '@/types'
+import { ClientMessage, GameObject, ScoreItem, RoundData, RoundStatus } from '@/types'
 
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
@@ -12,6 +12,10 @@ const inventory = reactive({
     items: [] as GameObject[],
 })
 const scores = ref([] as ScoreItem[])
+const round = ref<RoundData>({
+    number: -1,
+    status: 'preinit' as RoundStatus,
+})
 
 function handleEvent(event: any) {
     if (event instanceof CustomEvent && event.detail) {
@@ -21,6 +25,7 @@ function handleEvent(event: any) {
             case 'init':
                 init.value = true
                 me.value = message.data.player.identifier
+                round.value = message.data.round
 
             case 'interact_map':
             case 'use':
@@ -30,6 +35,10 @@ function handleEvent(event: any) {
             
             case 'tick':
                 scores.value = message.data.scores
+                break
+            
+            case 'round':
+                round.value = message.data
                 break
         }
     }
@@ -55,7 +64,7 @@ onBeforeUnmount(() => {
 <template>
     <div class="container" v-if="init">
         <Inventory :show="inventory.show" :items="inventory.items" />
-        <Scoreboard :scores="scores" />
+        <Scoreboard :scores="scores" :round="round" />
     </div>
 </template>
 

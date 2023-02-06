@@ -128,6 +128,7 @@ export default class Game extends Phaser.Scene {
 				if (!playerObj) break
 
 				playerObj.setPositionTo( event.data.pos )
+				playerObj.face(facing)
 
 				if (identifier === this.me.identifier){
 					this.updateFOV()

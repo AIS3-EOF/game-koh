@@ -11,6 +11,7 @@ export interface InitData {
     players: Player[]
     objects: GameObject[]
     map: GameMap
+    round: RoundData
 }
 export interface InitEvent {
     type: 'init'
@@ -50,7 +51,8 @@ export interface AttackEvent {
 }
 
 export interface DeathData {
-    player_identifier: string
+    victim_identifier: string
+    attacker_identifier: string
     despawn_time: number
 }
 export interface DeathEvent {
@@ -141,10 +143,26 @@ export interface TickEvent {
     data: TickData
 }
 
+export enum RoundStatus {
+    PREINIT = 'preinit',
+    INIT = 'init',
+    START = 'start',
+    END = 'end',
+}
+export interface RoundData {
+    number: number
+    status: RoundStatus
+}
+export interface RoundEvent {
+    type: 'round'
+    data: RoundData
+}
+
 export type Event = 
     InitEvent | JoinEvent |
     MoveEvent | AttackEvent | UseEvent | InteractMapEvent | 
     ChatEvent | AchievementEvent | 
     NewObjectSpawnedEvent | UpdateMapEvent | 
     ErrorEvent | LFIEvent |
-    DeathEvent | RespawnEvent | TickEvent
+    DeathEvent | RespawnEvent |
+    TickEvent | RoundEvent

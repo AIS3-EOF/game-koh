@@ -6,7 +6,6 @@ import { randomVec2 } from '~/utils'
 
 const log = debug('server:GameObject');
 
-
 export class GameObject {
     identifier: string = 'GameObject'
     uuid: string = randomUUID()

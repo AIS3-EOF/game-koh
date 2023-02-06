@@ -1,22 +1,37 @@
+import { debug } from 'debug'
+import * as dotenv from 'dotenv'
+dotenv.config()
+
+const log = debug('server:index')
+
+import { connect } from '~/db'
 import { EventQueue } from '~/event_queue'
 import { Manager } from '~/manager'
 
-const eventQueue = new EventQueue()
-const manager = new Manager(eventQueue)
-
-import { ROUND_TIME_PREPARE, ROUND_TIME } from '~/config'
+import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 import { sleep } from '~/utils'
 
-async function run() {
+async function run(manager: Manager) {
 	while (true) {
-		await eventQueue.manage('round_init')
-		await sleep(ROUND_TIME_PREPARE)
-		await eventQueue.manage('round_start')
+		manager.roundInit()
+		await sleep(ROUND_TIME_INIT)
+		manager.roundStart()
 		await sleep(ROUND_TIME)
-		await eventQueue.manage('round_end')
+		manager.roundEnd()
+		await sleep(ROUND_TIME_END)
 	}
 }
-run()
+
+async function setup() {
+	const db = await connect()
+	const eventQueue = new EventQueue()
+	log('connected to database')
+
+	const manager = new Manager(db, eventQueue)
+	
+	run(manager)
+}
+setup()
 
 if (require.main === module)
 	require('~/tester').run()

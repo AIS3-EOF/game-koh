@@ -25,15 +25,17 @@ export class Player {
 	pos: Vec2 = DEFAULT_POS
 	facing: Vec2 = [1, 0]
 
-	alive = true
+	alive: boolean = true
+	// player identifier of attacker
+	last_damage_from: string = ''
 
 	current_weapon: Weapon = new Weapon();
 	current_armor: Armor = new Armor();
 	inventory: GameObject[] = [];
 
 	login_count: number = 0;
-	action_count = TICK_ACTION_COUNT;
 	// should decrement this after received action from client reset each game tick
+	action_count = TICK_ACTION_COUNT;
 
 	achievements = new Achievements()
 

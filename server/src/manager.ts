@@ -7,11 +7,10 @@ import { throttle } from 'underscore'
 
 import { dispatch } from '~/handlers'
 import { Context } from '~/context'
-import { ServerMessage } from '~/protocol'
+import { ServerMessage, RoundStatus, RoundData } from '~/protocol'
 import { Game, GameMap, Player } from '~/game'
 import { EventQueue } from '~/event_queue'
 import { generateObject } from '~/game_objects'
-import { connect } from '~/db'
 import { handleLogin } from '~/handle_login'
 import * as config from '~/config'
 import parser from '~/parser'
@@ -19,11 +18,11 @@ import parser from '~/parser'
 const log = debug('server:manager')
 
 export type ManagerEvent = 'round_init' | 'round_start' | 'round_end' | 'round_tick' | 'check_death'
-export enum RoundStatus {
-    PREINIT,
-    INIT,
-    START,
-    END,
+export const roundMessage = {
+    [RoundStatus.PREINIT]: 'not initialized',
+    [RoundStatus.INIT]: 'not started',
+    [RoundStatus.START]: 'started',
+    [RoundStatus.END]: 'ended',
 }
 
 export class Manager {
@@ -31,17 +30,14 @@ export class Manager {
     private contexts: Map<string, Context>
     private game: Game
     private generator: poisson.PoissonInstance
-    private db: Db | null = null
-    private roundStatus: RoundStatus = RoundStatus.PREINIT
-    private roundMessage = {
-        [RoundStatus.PREINIT]: 'Round not initialized',
-        [RoundStatus.INIT]: 'Round not started',
-        [RoundStatus.START]: 'Round started',
-        [RoundStatus.END]: 'Round ended',
-    }
     
     constructor(
-        private eventQueue: EventQueue = new EventQueue()
+        public db: Db,
+        public eventQueue: EventQueue,
+        private round: RoundData = {
+            number: 1,
+            status: RoundStatus.PREINIT,
+        },
     ) {
         this.wss = new WebSocketServer({ port: 8080 })
         this.contexts = new Map<string, Context>()
@@ -55,11 +51,7 @@ export class Manager {
 
         this.eventQueue.on('manage', this.handleEvent.bind(this))
 
-        connect().then(db => {
-            log('connected to database')
-            this.db = db
-            this.wss.on('connection', this.handleConnection.bind(this))
-        })
+        this.wss.on('connection', this.handleConnection.bind(this))
 
         this.generator = poisson.create(config.GEN_DURATION, () => {
             const object = generateObject()
@@ -75,30 +67,25 @@ export class Manager {
         log('handle event %s', event)
         switch (event) {
             case 'round_init':
-                this.roundInit()
+                this.roundInitImpl()
                 break
             case 'round_start':
-                this.roundStart()
+                this.roundStartImpl()
                 break
             case 'round_end':
-                this.roundEnd()
+                this.roundEndImpl()
                 break
             case 'round_tick':
                 this.roundTick()
                 break
             case 'check_death':
-                throttle(this.checkDeath.bind(this), 1)
+                this.checkDeath()
                 break
         }
     }
 
     async handleConnection(ws: WebSocket) {
         try {
-            if (this.db === null) {
-                ws.send('database not connected')
-                throw new Error('database not connected')
-            }
-
             const sessionId = randomUUID()
             log('%s connected', sessionId)
             const player = await handleLogin(ws, this.db)
@@ -109,26 +96,18 @@ export class Manager {
             this.game.addPlayer(player)
             log('%s logined', sessionId)
             const ctx = new Context(sessionId, ws, this.game, player, this.eventQueue, this.db)
-            ctx.send({
-                type: 'init',
-                data: {
-                    player,
-                    players: Array.from(this.game.players.values()),
-                    objects: Array.from(this.game.objects.values()),
-                    map: this.game.map,
-                },
-            })
+            ctx.init(this.round)
             this.contexts.set(sessionId, ctx)
             ws.on('message', rawData => {
                 try {
                     const msg: ServerMessage = parser.parse(rawData.toString())
                     log('%s received %o', sessionId, msg)
-                    if (this.roundStatus === RoundStatus.START) {
+                    if (this.round.status === RoundStatus.START) {
                         dispatch(ctx, msg)
                     } else {
                         ctx.send({
                             type: 'error',
-                            data: this.roundMessage[this.roundStatus],
+                            data: `Round ${this.round.number} ${roundMessage[this.round.status]}`,
                         })
                     }
                 } catch (e) {
@@ -147,17 +126,20 @@ export class Manager {
         }
     }
 
-
-    checkDeath() {
+    public checkDeath = throttle(this.checkDeathImpl.bind(this), 1)
+    private checkDeathImpl() {
+        log('check death impl')
         this.game.players.forEach((current_player: Player) => {
             if (current_player.alive && current_player.hp <= 0) {
                 // sentence death
                 current_player.death()
                 const despawn_time = 30000// TODO: random here OuO?
+                
                 this.eventQueue.push({
                     type: 'death',
                     data: {
-                        player_identifier: current_player.identifier,
+                        victim_identifier: current_player.identifier,
+                        attacker_identifier: current_player.last_damage_from,
                         despawn_time
                     }
                 })
@@ -179,14 +161,37 @@ export class Manager {
 
     private tickInterval: NodeJS.Timeout | undefined
 
-    async roundInit() {
-        if (this.roundStatus === RoundStatus.INIT) return
-        this.roundStatus = RoundStatus.INIT
+    roundInit() {
+        this.eventQueue.manage('round_init')
+    }
+    private async roundInitImpl() {
+        if (this.round.status === RoundStatus.INIT) return
+        this.updateStatus(RoundStatus.INIT)
+
+        this.game.scores.clear()
+
+        if (this.round.number % config.ROUND_PER_CYCLE == 1) {
+            this.game.map = new GameMap(config.MAP_SIZE, config.MAP_SIZE)
+
+            this.game.objects.clear()
+
+            this.game.players.forEach(player => {
+                player.respawn()
+                player.pos = this.game.map.getRandomSpawnPosition()
+            })
+
+            this.contexts.forEach(ctx => {
+                ctx.init(this.round)
+            })
+        }
     }
 
-    async roundStart() {
-        if (this.roundStatus === RoundStatus.START) return
-        this.roundStatus = RoundStatus.START
+    roundStart() {
+        this.eventQueue.manage('round_start')
+    }
+    private async roundStartImpl() {
+        if (this.round.status === RoundStatus.START) return
+        this.updateStatus(RoundStatus.START)
 
         this.tickInterval = setInterval(() => {
             this.eventQueue.manage('round_tick')
@@ -195,8 +200,8 @@ export class Manager {
         this.generator.start()
     }
 
-    async roundTick() {
-        if (this.roundStatus !== RoundStatus.START) return
+    private async roundTick() {
+        if (this.round.status !== RoundStatus.START) return
 
         this.game.players.forEach(player => {
             player.action_count = Math.min(
@@ -216,12 +221,25 @@ export class Manager {
         })
     }
 
-    async roundEnd() {
-        if (this.roundStatus === RoundStatus.END) return
-        this.roundStatus = RoundStatus.END
+    roundEnd() {
+        this.eventQueue.manage('round_end')
+    }
+    private async roundEndImpl() {
+        if (this.round.status === RoundStatus.END) return
+        this.updateStatus(RoundStatus.END)
 
         clearInterval(this.tickInterval)
         this.tickInterval = undefined
         this.generator.stop()
+
+        this.round.number++
+    }
+
+    private updateStatus(status: RoundStatus) {
+        this.round.status = status
+        this.eventQueue.push({
+            type: 'round',
+            data: this.round
+        })
     }
 }

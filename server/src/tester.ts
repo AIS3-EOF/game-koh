@@ -6,7 +6,7 @@ import { sleep } from '~/utils'
 const log = debug('server:tester')
 
 export async function run() {
-    await sleep(1000)
+    await sleep(5000)
     const ws = new WebSocket('ws://localhost:8080')
     ws.on('open', async () => {
         ws.send(
