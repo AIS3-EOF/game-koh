@@ -11,6 +11,8 @@ import { Manager } from '~/manager'
 import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 import { sleep } from '~/utils'
 
+globalThis.eventQueue = new EventQueue()
+
 async function run(manager: Manager) {
 	while (true) {
 		manager.roundInit()
@@ -24,10 +26,9 @@ async function run(manager: Manager) {
 
 async function setup() {
 	const db = await connect()
-	const eventQueue = new EventQueue()
 	log('connected to database')
 
-	const manager = new Manager(db, eventQueue)
+	const manager = new Manager(db)
 	
 	run(manager)
 }

@@ -21,7 +21,7 @@ export function calc(attacker: Player, target: Player): { damage: number, effect
 }
 
 export function hit(ctx: Context) {
-    ctx.eventQueue.push({
+    eventQueue.push({
         type: 'chat',
         data: {
             from: 'Nyancat',

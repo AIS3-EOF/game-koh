@@ -1,5 +1,5 @@
 export const ROUND_TIME_INIT = 1000 * 5
-export const ROUND_TIME = 1000 * 30
+export const ROUND_TIME = 1000 * 300
 export const ROUND_TIME_END = 1000 * 5
 
 export const ROUND_PER_CYCLE = 3

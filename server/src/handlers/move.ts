@@ -18,7 +18,7 @@ export const handle = async (ctx: Context, data: MoveMessageData) => {
 
     if (moved) {
         ctx.addScore(MOVE_SCORE)
-        ctx.eventQueue.push({
+        eventQueue.push({
             type: 'move',
             data: {
                 identifier: ctx.player.identifier,

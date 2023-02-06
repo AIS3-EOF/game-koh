@@ -7,7 +7,7 @@ export const handle = async (ctx: Context, data: InteractMapMessageData) => {
     const object = ctx.game.map.getTile(data.pos) as MapObject
     if (object) {
         object.interact(ctx)
-        ctx.eventQueue.push({
+        eventQueue.push({
             type: 'interact_map',
             data: {
                 player: ctx.player,

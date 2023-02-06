@@ -6,11 +6,13 @@ import { DAMAGE_SCORE, KILL_SCORE } from '~/config'
 
 export const handle = async (ctx: Context, data: AttackMessageData) => {
     const { player: attacker } = ctx
+
     attacker.facing = data.facing
     let sideEffect = 0
     const targets = [] as AttackTarget[]
     for (const target of ctx.game.players) {
-        if (target === attacker) {
+        // ignore if the target isn't alive
+        if (target === attacker || !target.alive) {
             continue
         }
 
@@ -20,7 +22,7 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
         }
 
         // dealing damage to victims
-        target.hp -= damage
+        const killed = target.dealDamage(damage)
         sideEffect += effect
         targets.push({
             identifier: target.identifier,
@@ -32,16 +34,22 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
 
         // add attack bonus
         ctx.addScore(DAMAGE_SCORE)
-
         // if the damage kill the victim, give attack KILL_SCORE
-        if (target.hp <= 0) {
+        if (killed) {
             ctx.addScore(KILL_SCORE)
         }
-        
     }
     
     attacker.current_weapon.detail.hit?.(ctx)
-    ctx.eventQueue.push({
+    if (sideEffect) {
+        attacker.dealDamage(sideEffect)
+        attacker.last_damage_from = attacker.identifier
+        targets.push({
+            identifier: attacker.identifier,
+            damage: sideEffect,
+        })
+    }
+    eventQueue.push({
         type: 'attack',
         data: {
             attacker: attacker.identifier,
@@ -49,19 +57,4 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
             targets,
         }
     })
-    if (sideEffect) {
-        attacker.hp -= sideEffect
-        attacker.last_damage_from = attacker.identifier
-        ctx.eventQueue.push({
-            type: 'attack',
-            data: {
-                attacker: attacker.identifier,
-                attacker_pos: attacker.pos,
-                targets: [{
-                    identifier: attacker.identifier,
-                    damage: sideEffect,
-                }]
-            }
-        })
-    }
 }

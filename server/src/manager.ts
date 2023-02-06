@@ -9,7 +9,6 @@ import { dispatch } from '~/handlers'
 import { Context } from '~/context'
 import { ServerMessage, RoundStatus, RoundData } from '~/protocol'
 import { Game, GameMap, Player } from '~/game'
-import { EventQueue } from '~/event_queue'
 import { generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
 import * as config from '~/config'
@@ -30,10 +29,9 @@ export class Manager {
     private contexts: Map<string, Context>
     private game: Game
     private generator: poisson.PoissonInstance
-    
+
     constructor(
         public db: Db,
-        public eventQueue: EventQueue,
         private round: RoundData = {
             number: 1,
             status: RoundStatus.PREINIT,
@@ -41,22 +39,22 @@ export class Manager {
     ) {
         this.wss = new WebSocketServer({ port: 8080 })
         this.contexts = new Map<string, Context>()
-        this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE), this.eventQueue)
+        this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
 
-        this.eventQueue.on('event', event => {
+        eventQueue.on('event', event => {
             for (const ctx of this.contexts.values()) {
                 ctx.send(event)
             }
         })
 
-        this.eventQueue.on('manage', this.handleEvent.bind(this))
+        eventQueue.on('manage', this.handleEvent.bind(this))
 
         this.wss.on('connection', this.handleConnection.bind(this))
 
         this.generator = poisson.create(config.GEN_DURATION, () => {
             const object = generateObject()
             this.game.addObject(object)
-            this.eventQueue.push({
+            eventQueue.push({
                 type: 'new_object_spawned',
                 data: { object },
             })
@@ -89,13 +87,13 @@ export class Manager {
             const sessionId = randomUUID()
             log('%s connected', sessionId)
             const player = await handleLogin(ws, this.db)
-            this.eventQueue.push({
+            eventQueue.push({
                 type: 'join',
                 data: { player },
             })
             this.game.addPlayer(player)
             log('%s logined', sessionId)
-            const ctx = new Context(sessionId, ws, this.game, player, this.eventQueue, this.db)
+            const ctx = new Context(sessionId, ws, this.game, player, this.db)
             ctx.init(this.round)
             this.contexts.set(sessionId, ctx)
             ws.on('message', rawData => {
@@ -104,6 +102,9 @@ export class Manager {
                     log('%s received %o', sessionId, msg)
                     if (this.round.status === RoundStatus.START) {
                         dispatch(ctx, msg)
+                        this.game.players.forEach((p) => {
+                            console.log(p)
+                        })
                     } else {
                         ctx.send({
                             type: 'error',
@@ -130,31 +131,20 @@ export class Manager {
     private checkDeathImpl() {
         log('check death impl')
         this.game.players.forEach((current_player: Player) => {
-            if (current_player.alive && current_player.hp <= 0) {
+            if (!current_player.alive && !this.game.isPlayerRespawn(current_player)) {
                 // sentence death
-                current_player.death()
-                const despawn_time = 30000// TODO: random here OuO?
-                
-                this.eventQueue.push({
+                // respawn_time is game tick
+                const respawn_time = 10// TODO: random here OuO?
+                this.game.respawnPlayer(current_player, respawn_time)
+
+                eventQueue.push({
                     type: 'death',
                     data: {
                         victim_identifier: current_player.identifier,
                         attacker_identifier: current_player.last_damage_from,
-                        despawn_time
+                        respawn_time
                     }
                 })
-    
-                // respawn player
-                setTimeout(() => {
-                    current_player.respawn()
-                    current_player.pos = this.game.map.getRandomSpawnPosition()
-                    this.eventQueue.push({
-                        type: 'respawn',
-                        data: {
-                            player: current_player
-                        }
-                    })
-                }, despawn_time)
             }
         })
     }
@@ -162,7 +152,7 @@ export class Manager {
     private tickInterval: NodeJS.Timeout | undefined
 
     roundInit() {
-        this.eventQueue.manage('round_init')
+        eventQueue.manage('round_init')
     }
     private async roundInitImpl() {
         if (this.round.status === RoundStatus.INIT) return
@@ -174,6 +164,7 @@ export class Manager {
             this.game.map = new GameMap(config.MAP_SIZE, config.MAP_SIZE)
 
             this.game.objects.clear()
+            this.game.respawn_players.clear()
 
             this.game.players.forEach(player => {
                 player.respawn()
@@ -187,14 +178,14 @@ export class Manager {
     }
 
     roundStart() {
-        this.eventQueue.manage('round_start')
+        eventQueue.manage('round_start')
     }
     private async roundStartImpl() {
         if (this.round.status === RoundStatus.START) return
         this.updateStatus(RoundStatus.START)
 
         this.tickInterval = setInterval(() => {
-            this.eventQueue.manage('round_tick')
+            eventQueue.manage('round_tick')
         }, config.TICK_INTERVAL)
         
         this.generator.start()
@@ -213,7 +204,18 @@ export class Manager {
             }
         })
 
-        this.eventQueue.push({
+        this.game.tickRespawn().forEach((respawned_player) => {
+            respawned_player.respawn()
+            respawned_player.pos = this.game.map.getRandomSpawnPosition()
+            eventQueue.push({
+                type: 'respawn',
+                data: {
+                    player: respawned_player
+                }
+            })
+        })
+
+        eventQueue.push({
             type: 'tick',
             data: {
                 scores: this.game.getScores(),
@@ -222,7 +224,7 @@ export class Manager {
     }
 
     roundEnd() {
-        this.eventQueue.manage('round_end')
+        eventQueue.manage('round_end')
     }
     private async roundEndImpl() {
         if (this.round.status === RoundStatus.END) return
@@ -237,7 +239,7 @@ export class Manager {
 
     private updateStatus(status: RoundStatus) {
         this.round.status = status
-        this.eventQueue.push({
+        eventQueue.push({
             type: 'round',
             data: this.round
         })

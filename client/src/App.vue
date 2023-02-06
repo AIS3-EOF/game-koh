@@ -17,10 +17,15 @@ const round = ref<RoundData>({
     status: 'preinit' as RoundStatus,
 })
 
+const events = ref<ClientMessage[]>([])
+
 function handleEvent(event: any) {
     if (event instanceof CustomEvent && event.detail) {
         const message = event.detail as ClientMessage
         console.log('event', message)
+        if (!['init', 'tick', 'move'].includes(message.type))
+            events.value = [message, ...events.value.slice(0, 30)]
+
         switch (message.type) {
             case 'init':
                 init.value = true
@@ -63,6 +68,12 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="container" v-if="init">
+        <div class="debug">
+            <template v-for="(event, idx) in events" :key="idx">
+                <div>{{ event.type }}</div>
+                <pre>{{ event.data }}</pre>
+            </template>
+        </div>
         <Inventory :show="inventory.show" :items="inventory.items" />
         <Scoreboard :scores="scores" :round="round" />
     </div>
@@ -76,5 +87,16 @@ onBeforeUnmount(() => {
     left: 0;
     width: 100dvw;
     height: 100dvh;
+}
+
+.debug {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 600px;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    color: black;
+    overflow-y: scroll;
 }
 </style>

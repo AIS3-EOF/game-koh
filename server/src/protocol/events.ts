@@ -53,7 +53,7 @@ export interface AttackEvent {
 export interface DeathData {
     victim_identifier: string
     attacker_identifier: string
-    despawn_time: number
+    respawn_time: number
 }
 export interface DeathEvent {
     type: 'death'

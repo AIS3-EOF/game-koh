@@ -4,7 +4,6 @@ import { Db } from 'mongodb'
 import { ClientMessage, RoundData } from '~/protocol'
 import { Game, Player } from '~/game'
 import { GameObject } from '~/game_objects/game_object'
-import { EventQueue } from '~/event_queue'
 import parser from '~/parser'
 
 /**
@@ -19,7 +18,6 @@ export class Context {
 		private ws: WebSocket,
 		public game: Game,
 		public player: Player,
-		public eventQueue: EventQueue,
 		public db: Db
 	) {}
 	init(round: RoundData) {

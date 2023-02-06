@@ -11,3 +11,7 @@ export class EventQueue extends EventEmitter {
 		this.emit('manage', structuredClone(event))
 	}
 }
+
+declare global {
+	var eventQueue: EventQueue
+}

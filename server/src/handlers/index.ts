@@ -29,6 +29,6 @@ export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 		ctx.player.achievements.update(ctx, msg)
 
 		// check death player and despawn them for certain time
-		ctx.eventQueue.manage('check_death')
+		eventQueue.manage('check_death')
 	}
 }

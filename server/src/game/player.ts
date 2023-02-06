@@ -12,10 +12,6 @@ export class Player {
 	constructor(
 		public identifier: string = ''
 	) {
-		for (let i = 0; i < 10; i++) {
-			this.inventory.push(new Weapon())
-			this.inventory.push(new Armor())
-		}
 	}
 
 	hp: number = DEFAULT_HP
@@ -55,6 +51,16 @@ export class Player {
 		if (idx === -1) return false
 		this.inventory.splice(idx, 1)
 		return true
+	}
+
+	dealDamage(damage: number): boolean {
+		if (!this.alive) return false
+		this.hp -= damage
+		if (this.hp <= 0) {
+			this.death()
+			return true
+		}
+		return false
 	}
 
 	death() {

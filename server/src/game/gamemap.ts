@@ -133,7 +133,7 @@ export class GameMap {
 	}
 
 	getRandomSpawnPosition() : Vec2 {
-		// return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
+		return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
 		while (true) {
 			const pos = [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
 			// check if tile is walkable

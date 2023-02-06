@@ -1,17 +1,17 @@
 import { GameMap } from './gamemap'
 import { Player } from './player'
 import { GameObject } from '~/game_objects/game_object'
-import { EventQueue } from '~/event_queue'
 
 export class Game {
 	players = new Set<Player>()
 	objects = new Map<string, GameObject>()
 	scores = new Map<string, number>()
+	respawn_players = new Map<Player, number>()
 
 	constructor(
 		public map: GameMap,
-		public eventQueue: EventQueue,
 	) {}
+
 	addPlayer(player: Player) {
 		if (player.login_count++ == 0) {
 			player.pos = this.map.getRandomSpawnPosition()
@@ -22,6 +22,30 @@ export class Game {
 		if (--player.login_count === 0) {
 			this.players.delete(player)
 		}
+	}
+
+	isPlayerRespawn(player: Player): boolean {
+		return this.respawn_players.has(player)
+	}
+
+	respawnPlayer(player: Player, respawn_time: number) {
+		this.respawn_players.set(player, respawn_time)
+	}
+
+	tickRespawn(): Player[] {
+		let respawned = [] as Player[]
+		this.respawn_players.forEach((time, player, map) => {
+			time -= 1
+			if (time > 0) {
+				map.set(player, time)
+			} else {
+				player.respawn()
+				respawned.push(player)
+				map.delete(player)
+			}
+		})
+
+		return respawned
 	}
 
 	addObject(object: GameObject) {
