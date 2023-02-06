@@ -57,9 +57,30 @@ export default class Game extends Phaser.Scene {
 	}
 
 	draw(){
+		// remove this line if cast Circle
+		this.intersections.push(this.ray.origin);
+
 		this.maskGraphics.clear();
 		//draw fov mask
 		this.maskGraphics.fillPoints(this.intersections);
+	}
+
+	updateFOV(){
+		this.ray.setOrigin(this.me.x, this.me.y);
+
+		this.ray.setConeDeg(90);
+		console.log(this.me.facing)
+		if (this.me.facing){
+			this.ray.setAngle(Math.atan2( this.me.facing[1], this.me.facing[0]))
+		}
+		//cast ray in a cone
+		this.intersections = this.ray.castCone();
+
+		// or cast ray in all directions
+		// this.intersections = this.ray.castCircle();
+
+		//redraw
+		this.draw();
 	}
 
 	constructor() {
@@ -92,21 +113,22 @@ export default class Game extends Phaser.Scene {
 
 
 		this.raycaster = this.raycasterPlugin.createRaycaster();
-		this.ray = this.raycaster.createRay({autoSlice: true})
+		this.ray = this.raycaster.createRay({autoSlice: false})
 
 		//map tilemap layer
 		this.raycaster.mapGameObjects(this.layer, false, {
 			collisionTiles: [...Array(400).keys(), 416, 418, 446, 448, 450, 476, 478, 480] //array of tile types which collide with rays
 		});
-		//cast ray in all directions
-		this.intersections = this.ray.castCircle();
+
+
+		// or cast ray in all directions
+		// this.intersections = this.ray.castCircle();
 
 		this.createFOV()
 		this.topLayer.setDepth(3);
 		this.fow.setDepth(2);
 
-		//draw rays
-		this.draw();
+		this.updateFOV()
 
 	}
 
@@ -127,11 +149,7 @@ export default class Game extends Phaser.Scene {
 
 					this.me = this.players.get(me.identifier)!
 
-					this.ray.setOrigin(this.me.x, this.me.y);
-					//cast ray in all directions
-					this.intersections = this.ray.castCircle();
-					//redraw
-					this.draw();
+					this.updateFOV()
 
 					this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
 					break
@@ -150,11 +168,7 @@ export default class Game extends Phaser.Scene {
 					playerObj.setPositionTo( event.data.pos )
 
 					if (identifier === this.me.identifier){
-						this.ray.setOrigin(this.me.x, this.me.y);
-						//cast ray in all directions
-						this.intersections = this.ray.castCircle();
-						//redraw
-						this.draw();
+						this.updateFOV()
 					}
 
 					// draw arrow to indicate direction
