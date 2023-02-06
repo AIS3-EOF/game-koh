@@ -1,10 +1,14 @@
 import Phaser from 'phaser'
 import PhaserRaycaster from 'phaser-raycaster'
+import GameScene from '@/scenes/Game'
 
 export default {
 	type: Phaser.AUTO,
 	parent: 'game',
 	backgroundColor: '#000000',
+	scene: [
+		GameScene
+	],
 	scale: {
 		width: window.innerWidth,
 		height: window.innerHeight,

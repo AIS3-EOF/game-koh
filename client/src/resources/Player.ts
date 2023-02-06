@@ -1,6 +1,5 @@
 import { Vec2, GameObject, Player as Server_Player } from '../types';
 import Weapon from './Weapon';
-import { drawInventory } from '@/resources/inventory';
 
 export default class Player extends Phaser.GameObjects.Container {
     public graphics: Phaser.GameObjects.Graphics;
@@ -36,16 +35,9 @@ export default class Player extends Phaser.GameObjects.Container {
             player.current_weapon.weapon_type,
             player.current_weapon.range
         )
-        this.setInventory(player.inventory)
+        this.inventory = player.inventory
         this.face(player.facing)
         this.setPositionTo(player.pos)
-    }
-
-    setInventory(inventory: GameObject[]) {
-        this.inventory = inventory
-        if (this.identifier == window.me) {
-            drawInventory(inventory)
-        }
     }
 
     face(facing: Vec2) {

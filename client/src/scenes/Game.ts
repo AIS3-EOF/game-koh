@@ -2,9 +2,9 @@ import Phaser from 'phaser'
 import { throttle } from 'underscore'
 import Player from '@/resources/Player'
 import Weapon from '@/resources/Weapon';
-import * as inventory from '@/resources/inventory'
 import { Vec2 } from '@/types'
 import { rotate, add } from '~/utils'
+import { ClientMessage } from '@/types'
 
 export default class Game extends Phaser.Scene {
 	layer: any
@@ -69,7 +69,7 @@ export default class Game extends Phaser.Scene {
 		this.ray.setOrigin(this.me.x, this.me.y);
 
 		this.ray.setConeDeg(90);
-		console.log(this.me.facing)
+		// console.log(this.me.facing)
 		if (this.me.facing){
 			this.ray.setAngle(Math.atan2( this.me.facing[1], this.me.facing[0]))
 		}
@@ -81,6 +81,104 @@ export default class Game extends Phaser.Scene {
 
 		//redraw
 		this.draw();
+	}
+
+	handleEvent(event: ClientMessage) {
+		switch (event.type) {
+			case 'init':
+				const me = event.data.player
+
+				event.data.players.forEach(player => {
+					const playerText = player.identifier === me.identifier ? '我' : '他'
+					const playerObj = new Player(this, playerText, player)
+					this.players.set(player.identifier, playerObj)
+				})
+
+				this.me = this.players.get(me.identifier)!
+
+				this.updateFOV()
+
+				this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
+				break
+
+			case 'join':
+				const player = event.data.player
+				const other = new Player(this, '他', player)
+				this.players.set(player.identifier, other)
+				break
+
+			case 'move':
+				const { identifier, pos, facing } = event.data
+				const playerObj = this.players.get(identifier)
+				if (!playerObj) break
+
+				playerObj.setPositionTo( event.data.pos )
+
+				if (identifier === this.me.identifier){
+					this.updateFOV()
+				}
+
+				// draw arrow to indicate direction
+				const { x, y } = playerObj
+				const { width, height } = playerObj
+				const { graphics } = playerObj
+				graphics.clear()
+				graphics.lineStyle(2, 0x009900, 1)
+				graphics.beginPath()
+				// begin from the center of the player
+				const [fx, fy] = facing
+				graphics.moveTo(x, y)
+				graphics.lineTo(x + (fx * (width + 30)) / 2, y + (fy * (height + 30)) / 2)
+				graphics.strokePath()
+				break
+
+			case 'attack':
+				{
+					const { attacker, targets } = event.data
+					const attackerObj = this.players.get(attacker)
+					if (!attackerObj) break
+
+					// show some light with weapon demageRange
+					const { x, y, weapon, facing } = attackerObj
+					const [fx, fy] = facing
+					const angle = Math.atan2(fy, fx) * 180.0 / Math.PI
+					for (const [rx, ry] of weapon.damageRange) {
+						let rv = rotate([rx, ry], facing).map(v => v * 32) as Vec2
+						// console.log(rx, ry, facing, rv, add([x,y], rv))
+						let d = this.add.rectangle(...add(event.data.attacker_pos.map(x=>x*32+16) as Vec2, rv), 32, 32, 0x990000)
+						d.angle = angle
+						let opacity: number = 1;
+						setInterval(() => {
+							d.setAlpha(opacity -= 0.1)
+						}, 10)
+						setTimeout(() => {
+							d.destroy();
+						}, 100);
+					}
+					for(const target of targets){
+						const targetObj = this.players.get(target.identifier)
+						if (!targetObj) continue
+						let opacity: boolean = false
+						let flash = setInterval(() => {
+							targetObj.setAlpha(opacity? 1: 0.5)
+							opacity = !opacity
+						}, 50)
+						setTimeout(()=>{
+							clearInterval(flash)
+							targetObj.setAlpha(1)
+						}, 200)
+
+					}
+				}
+				break
+
+			case 'interact_map':
+			case 'use':
+				this.players.get(event.data.player.identifier)?.updatePlayer(event.data.player)
+				break
+
+			default:
+		}
 	}
 
 	constructor() {
@@ -107,7 +205,6 @@ export default class Game extends Phaser.Scene {
 
 		this.cursors = this.input.keyboard.createCursorKeys()
 		this.cursors.x = this.input.keyboard.addKey('X');
-		this.cursors.i = this.input.keyboard.addKey('I');
 
 		this.players.clear()
 
@@ -135,104 +232,9 @@ export default class Game extends Phaser.Scene {
 	update(time: number, delta: number): void {
 
 		// pop from event queue, then handle
-		let event = undefined
-		while ((event = window.events.shift()) !== undefined) {
-			switch (event.type) {
-				case 'init':
-					const me = event.data.player
-
-					event.data.players.forEach(player => {
-						const playerText = player.identifier === me.identifier ? '我' : '他'
-						const playerObj = new Player(this, playerText, player)
-						this.players.set(player.identifier, playerObj)
-					})
-
-					this.me = this.players.get(me.identifier)!
-
-					this.updateFOV()
-
-					this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
-					break
-
-				case 'join':
-					const player = event.data.player
-					const other = new Player(this, '他', player)
-					this.players.set(player.identifier, other)
-					break
-
-				case 'move':
-					const { identifier, pos, facing } = event.data
-					const playerObj = this.players.get(identifier)
-					if (!playerObj) break
-
-					playerObj.setPositionTo( event.data.pos )
-
-					if (identifier === this.me.identifier){
-						this.updateFOV()
-					}
-
-					// draw arrow to indicate direction
-					const { x, y } = playerObj
-					const { width, height } = playerObj
-					const { graphics } = playerObj
-					graphics.clear()
-					graphics.lineStyle(2, 0x009900, 1)
-					graphics.beginPath()
-					// begin from the center of the player
-					const [fx, fy] = facing
-					graphics.moveTo(x, y)
-					graphics.lineTo(x + (fx * (width + 30)) / 2, y + (fy * (height + 30)) / 2)
-					graphics.strokePath()
-					break
-
-				case 'attack':
-					{
-						const { attacker, targets } = event.data
-						const attackerObj = this.players.get(attacker)
-						if (!attackerObj) break
-
-						// show some light with weapon demageRange
-						const { x, y, weapon, facing } = attackerObj
-						const [fx, fy] = facing
-						const angle = Math.atan2(fy, fx) * 180.0 / Math.PI
-						for (const [rx, ry] of weapon.damageRange) {
-							let rv = rotate([rx, ry], facing).map(v => v * 32) as Vec2
-							// console.log(rx, ry, facing, rv, add([x,y], rv))
-							let d = this.add.rectangle(...add(event.data.attacker_pos.map(x=>x*32+16) as Vec2, rv), 32, 32, 0x990000)
-							d.angle = angle
-							let opacity: number = 1;
-							setInterval(() => {
-								d.setAlpha(opacity -= 0.1)
-							}, 10)
-							setTimeout(() => {
-								d.destroy();
-							}, 100);
-						}
-						for(const target of targets){
-							const targetObj = this.players.get(target.identifier)
-							if (!targetObj) continue
-							let opacity: boolean = false
-							let flash = setInterval(() => {
-								targetObj.setAlpha(opacity? 1: 0.5)
-								opacity = !opacity
-							}, 50)
-							setTimeout(()=>{
-								clearInterval(flash)
-								targetObj.setAlpha(1)
-							}, 200)
-
-						}
-					}
-					break
-
-				case 'interact_map':
-				case 'use':
-					this.players.get(event.data.player.identifier)?.updatePlayer(event.data.player)
-					break
-
-				default:
-			}
-		}
+		let event: ClientMessage | undefined
+		while (event = window.events.shift())
+			this.handleEvent(event)
 
 		// attack
 		if (this.input.keyboard.checkDown(this.cursors.space, 100)) {
@@ -242,11 +244,6 @@ export default class Game extends Phaser.Scene {
 		// interact
 		if (this.input.keyboard.checkDown(this.cursors.x, 100)) {
 			this.interact()
-		}
-
-		// inventory
-		if (Phaser.Input.Keyboard.JustDown(this.cursors.i)) {
-			inventory.toggle()
 		}
 
 		// player control
