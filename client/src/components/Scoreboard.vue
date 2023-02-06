@@ -46,20 +46,21 @@ const roundMessage = computed(() => {
 
 <style scoped lang="scss">
 .scoreboard {
+    font-family: 'Roboto', sans-serif;
     position: absolute;
-    right: 0;
-    top: 0;
-    width: 300px;
+    right: 16px;
+    top: 16px;
+    width: 250px;
     height: 50%;
-    background-color: #fff;
-    color: black;
+    background-color: rgba(200, 200, 200, 0.7);
+    color: white;
     padding: 8px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 
     > .header {
-        margin: 4px;
+        margin: 1rem;
     }
 
     > .list {
@@ -70,6 +71,14 @@ const roundMessage = computed(() => {
         grid-template-columns: max-content auto max-content;
         align-content: flex-start;
         grid-gap: 8px;
+
+        // hidden scroll bar
+        &::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        scrollbar-width: none;
 
         > .rank {
             font-weight: bold;

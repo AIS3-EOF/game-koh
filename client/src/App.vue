@@ -6,6 +6,7 @@ import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
 
 const init = ref(false)
+const debug = ref(false)
 const me = ref('')
 const inventory = reactive({
     show: false,
@@ -52,6 +53,9 @@ function handleEvent(event: any) {
             case 'i':
                 inventory.show = !inventory.show
                 break
+            case 'd':
+                debug.value = !debug.value
+                break
         }
     }
 }
@@ -68,7 +72,7 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="container" v-if="init">
-        <div class="debug">
+        <div class="debug" v-if="debug">
             <template v-for="(event, idx) in events" :key="idx">
                 <div>{{ event.type }}</div>
                 <pre>{{ event.data }}</pre>

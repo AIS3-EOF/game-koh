@@ -163,6 +163,7 @@ export default class Game extends Phaser.Scene {
 						// console.log(rx, ry, facing, rv, add([x,y], rv))
 						let d = this.add.rectangle(...add(event.data.attacker_pos.map(x=>x*32+16) as Vec2, rv), 32, 32, 0x990000)
 						d.angle = angle
+						d.setDepth(3)
 						let opacity: number = 1;
 						setInterval(() => {
 							d.setAlpha(opacity -= 0.1)
@@ -238,7 +239,7 @@ export default class Game extends Phaser.Scene {
 		// this.intersections = this.ray.castCircle();
 
 		this.createFOV()
-		this.topLayer.setDepth(3);
+		this.topLayer.setDepth(4);
 		this.fow.setDepth(2);
 
 		this.updateFOV()
