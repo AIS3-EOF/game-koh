@@ -1,7 +1,7 @@
 import { debug } from 'debug'
 import { Player } from "~/game"
 import { ServerMessage } from '~/protocol'
-import { Achievement, AchievementType } from "../achievements"
+import { Achievement, AchievementType } from "../achievement"
 
 export class Experienced extends Achievement {
     EXP_THRESHOLD = 1000;
@@ -15,7 +15,6 @@ export class Experienced extends Achievement {
 
         if (!this.isCompleted && player.exp >= this.EXP_THRESHOLD) {
             this.progress = this.maxProgress;
-            this.setCompleted();
             this.reward(player);
         } else if (player.exp < this.EXP_THRESHOLD) {
             this.progress = player.exp / this.EXP_THRESHOLD * 100;

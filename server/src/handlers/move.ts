@@ -1,6 +1,7 @@
 import { MoveMessageData } from '~/protocol'
 import { Context } from '~/context'
 import { add } from '~/utils'
+import { MOVE_SCORE } from '~/config'
 
 export const handle = async (ctx: Context, data: MoveMessageData) => {
     let moved: boolean = false
@@ -16,6 +17,7 @@ export const handle = async (ctx: Context, data: MoveMessageData) => {
     }
 
     if (moved) {
+        ctx.addScore(MOVE_SCORE)
         ctx.eventQueue.push({
             type: 'move',
             data: {

@@ -27,32 +27,8 @@ export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 
 		// achievement progression
 		ctx.player.achievements.update(ctx, msg)
+
+		// check death player and despawn them for certain time
+		ctx.eventQueue.manage('check_death')
 	}
-
-	// check death player and despawn them for certain time
-	ctx.game.players.forEach((current_player: Player) => {
-		if (current_player.alive && current_player.hp <= 0) {
-			// sentence death
-			current_player.death()
-			ctx.eventQueue.push({
-				type: 'death',
-				data: {
-					player_identifier: current_player.identifier,
-					despawn_time: 30000 	// TODO: random here OuO?
-				}
-			})
-
-			// respawn player
-			setTimeout(() => {
-				current_player.respawn()
-				current_player.pos = ctx.game.map.getRandomSpawnPosition()
-				ctx.eventQueue.push({
-					type: 'respawn',
-					data: {
-						player: current_player
-					}
-				})
-			}, 30000) // TODO: random here OuO?
-		}
-	})
 }

@@ -1,34 +1,22 @@
-import { WebSocket } from 'ws'
-import { debug } from 'debug'
-import parser from '~/parser'
+import { EventQueue } from '~/event_queue'
 import { Manager } from '~/manager'
 
-const log = debug('server:main')
+const eventQueue = new EventQueue()
+const manager = new Manager(eventQueue)
 
-const manager = new Manager()
+import { ROUND_TIME_PREPARE, ROUND_TIME } from '~/config'
+import { sleep } from '~/utils'
 
-// if (require.main === module) {
-	const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-	;(async () => {
-		await sleep(1000)
-		const ws = new WebSocket('ws://localhost:8080')
-		ws.on('open', async () => {
-			ws.send(
-				parser.stringify({
-					type: 'login',
-					data: {
-						token: 'test'
-					}
-				})
-			)
-			await sleep(1000)
-			ws.send(parser.stringify({ type: 'move', data: { facing: [1, 0], vec: [1, 0] } }))
-			await sleep(3000)
-			// ws.close()
-		})
-		const log = debug('client:message')
-		ws.on('message', data => {
-			console.log(new Date().toLocaleString(), parser.parse(data.toString()))
-		})
-	})()
-// }
+async function run() {
+	while (true) {
+		await eventQueue.manage('round_init')
+		await sleep(ROUND_TIME_PREPARE)
+		await eventQueue.manage('round_start')
+		await sleep(ROUND_TIME)
+		await eventQueue.manage('round_end')
+	}
+}
+run()
+
+if (require.main === module)
+	require('~/tester').run()

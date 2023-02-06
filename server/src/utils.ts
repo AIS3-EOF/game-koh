@@ -1,5 +1,7 @@
-import { Vec2 } from './protocol/shared'
-import { MAP_SIZE } from './config'
+import { Vec2 } from '~/protocol/shared'
+import { MAP_SIZE } from '~/config'
+
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const add = (a: Vec2, b: Vec2): Vec2 => [a[0] + b[0], a[1] + b[1]]
 export const sub = (a: Vec2, b: Vec2): Vec2 => [a[0] - b[0], a[1] - b[1]]

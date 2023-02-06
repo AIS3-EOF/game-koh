@@ -25,7 +25,6 @@ export class Player {
 	pos: Vec2 = DEFAULT_POS
 	facing: Vec2 = [1, 0]
 
-	score: number = 0
 	alive = true
 
 	current_weapon: Weapon = new Weapon();

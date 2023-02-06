@@ -37,4 +37,7 @@ export class Context {
 	removeObject(object: GameObject) {
 		return this.game.removeObject(object) || this.player.removeObjectFromInventory(object)
 	}
+	addScore(score: number) {
+		this.game.addScore(this.player, score)
+	}
 }

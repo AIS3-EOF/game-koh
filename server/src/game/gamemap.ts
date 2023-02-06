@@ -134,14 +134,13 @@ export class GameMap {
 
 	getRandomSpawnPosition() : Vec2 {
 		// return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
-		const pos = [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
-
-		// check if tile is walkable
-		const tile = this.getTile(pos as Vec2) as MapObject
-		if (!tile.can_walk) {
-			return this.getRandomSpawnPosition()
+		while (true) {
+			const pos = [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
+			// check if tile is walkable
+			const tile = this.getTile(pos as Vec2) as MapObject
+			if (tile.can_walk)
+				return pos as Vec2
 		}
-		return pos as Vec2
 	}
 
 	// randomly choose chest position and put it in the chest inventory

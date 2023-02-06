@@ -51,6 +51,7 @@ const props = defineProps<Props>()
         overflow-y: scroll;
         display: grid;
         grid-template-columns: max-content auto max-content;
+        align-content: flex-start;
         grid-gap: 8px;
 
         > .rank {
