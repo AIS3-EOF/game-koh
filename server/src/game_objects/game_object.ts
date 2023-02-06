@@ -1,7 +1,7 @@
 import { Context } from "@/context"
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
-import { Pos } from '@/protocol/shared'
+import { Pos } from '@/protocol'
 import { randomVec2 } from '@/utils'
 
 const log = debug('server:GameObject');

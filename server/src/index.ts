@@ -5,10 +5,8 @@ import * as poisson from 'poisson-process'
 
 import { dispatch } from '@/handlers'
 import { Context } from '@/context'
-import { ServerMessage } from '@/protocol/server'
-import { Game } from '@/game/game'
-import { GameMap } from '@/game/gamemap'
-import { Player } from '@/game/player'
+import { ServerMessage } from '@/protocol'
+import { Game, GameMap, Player } from '@/game'
 import { EventQueue } from '@/event_queue'
 import { generateObject } from '@/game_objects'
 import { connect } from '@/db'
@@ -18,7 +16,7 @@ import parser from '@/parser'
 
 const log = debug('server:main')
 const wss = new WebSocketServer({ port: 8080 })
-const game = new Game(GameMap.generate(config.MAP_SIZE, config.MAP_SIZE))
+const game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
 
 const contexts = new Map<string, Context>()
 const eventQueue = new EventQueue()

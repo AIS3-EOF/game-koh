@@ -1,33 +1,26 @@
 import { GameObject } from "@/game_objects/game_object"
-import { Chest } from "@/maps/chest"
-import { Ground as Floor } from "@/maps/ground"
-import { Wall } from "@/maps/wall"
-import { MapObject } from "@/maps/map_object"
-import { Vec2 } from "@/protocol/shared"
-
+import { MapObject, MapObjectType, MapObjectClass, Chest } from "@/maps"
+import { Vec2 } from "@/protocol"
+import { CHEST_SIZE, ROOM_SIZE } from '@/config'
 
 export class GameMap {
 	tiles: MapObject[][] = []
 	chest_positions: Vec2[] = []
-	width: number = 256
-	height: number = 256
 
-	constructor(width: number, height: number) {}
-
-	static generate(width: number, height: number, minRoomSize = 5, maxRoomSize = 15): GameMap {
-		const map = new GameMap(width, height)
-		let maze = [];
-		for (let i = 0; i < height; i++) {
-			let row = [];
-			for (let j = 0; j < width; j++) {
-				row.push(1);
-			}
-			maze.push(row);
-		}
+	constructor(
+		public width: number,
+		public height: number,
+		minRoomSize = 5,
+		maxRoomSize = 15
+	) {
+		// Randomized DFS to generate a maze
+		let maze = Array.from({ length: height }, () =>
+			Array.from({ length: width }, () => MapObjectType.Wall)
+		)
 
 		let stack = [];
 		let currentCell = [Math.floor(Math.random() * (height - 1) / 2) * 2 + 1, Math.floor(Math.random() * (width - 1) / 2) * 2 + 1];
-		maze[currentCell[0]][currentCell[1]] = 0;
+		maze[currentCell[0]][currentCell[1]] = MapObjectType.Ground
 
 		let directions = [[-2, 0], [2, 0], [0, -2], [0, 2]];
 
@@ -55,8 +48,8 @@ export class GameMap {
 			}
 		}
 
-		// generate rooms
-		for (let i = 0; i < 500; i++) {
+		// Generate rooms
+		for (let i = 0; i < ROOM_SIZE; i++) {
 			let roomWidth = Math.floor(Math.random() * (maxRoomSize - minRoomSize + 1)) + minRoomSize;
 			let roomHeight = Math.floor(Math.random() * (maxRoomSize - minRoomSize + 1)) + minRoomSize;
 			let roomX = Math.floor(Math.random() * (width - roomWidth));
@@ -67,69 +60,58 @@ export class GameMap {
 					if (x == 0 || x == width - 1 || y == 0 || y == height - 1) {
 						continue
 					}
-					maze[x][y] = 0;
+					maze[x][y] = MapObjectType.Ground
 				}
 			}
 
+			// Carve room details
 			for (let x = roomX; x < roomX + roomWidth; x++) {
 				for (let y = roomY; y < roomY + roomHeight; y++) {
 					if (Math.random() < 0.05 && x > 1 && y > 1 && x < width - 2 && y < height - 2) {
 						if (Math.random() < 0.2 ) {
-							maze[x][y] = 1
-							maze[x + 1][y] = 1
-							maze[x][y + 1] = 1
-							maze[x + 1][y + 1] = 1
+							maze[x][y] = MapObjectType.Wall
+							maze[x + 1][y] = MapObjectType.Wall
+							maze[x][y + 1] = MapObjectType.Wall
+							maze[x + 1][y + 1] = MapObjectType.Wall
 						} else if (Math.random() < 0.3) {
-							maze[x][y] = 1
-							maze[x + 1][y] = 1
-							maze[x - 1][y] = 1
+							maze[x][y] = MapObjectType.Wall
+							maze[x + 1][y] = MapObjectType.Wall
+							maze[x - 1][y] = MapObjectType.Wall
 						} else if (Math.random() < 0.3) {
-							maze[x][y] = 1
-							maze[x][y + 1] = 1
-							maze[x][y - 1] = 1
+							maze[x][y] = MapObjectType.Wall
+							maze[x][y + 1] = MapObjectType.Wall
+							maze[x][y - 1] = MapObjectType.Wall
 						} else if (Math.random() < 0.25) {
-							maze[x][y] = 1
+							maze[x][y] = MapObjectType.Wall
 						}
 					}
 				}
 			}
 		}
 
-		// randomly remove 20% walls
-		for (let i = 1; i < height - 1; i++) {
-			for (let j = 1; j < width - 1; j++) {
-				if (maze[i][j] === 1) {
-					if (Math.random() < 0.30) {
-						maze[i][j] = 0
-					}
-				}
+		// randomly remove/add few walls
+		for (let i = 1; i < height - 1; i++)
+			for (let j = 1; j < width - 1; j++)
+				if (maze[i][j] === MapObjectType.Wall && Math.random() < 0.30)
+					maze[i][j] = MapObjectType.Ground
+
+		for (let i = 1; i < height - 1; i++)
+			for (let j = 1; j < width - 1; j++)
+				if (maze[i][j] === MapObjectType.Ground && Math.random() < 0.05 && Math.random() < 0.1)
+					maze[i][j] = MapObjectType.Wall
+
+		for (let k = 0; k < CHEST_SIZE; k++) {
+			const x = Math.floor(Math.random() * (width - 2)) + 1
+			const y = Math.floor(Math.random() * (height - 2)) + 1
+			if (maze[x][y] !== MapObjectType.Ground) {
+				k--
+				continue
 			}
+			maze[x][y] = MapObjectType.Chest
+			this.chest_positions.push([x, y])
 		}
 
-		for (let i = 1; i < height - 1; i++) {
-			for (let j = 1; j < width - 1; j++) {
-				if (maze[i][j] === 0 && Math.random() < 0.05) {
-					if (Math.random() < 0.1) {
-						maze[i][j] = 1
-					}
-				}
-			}
-		}
-
-
-		for (let i = 0; i < height; i++) {
-			for (let j = 0; j < width; j++) {
-				if (maze[i][j] === 1) {
-					map.tiles[i] = map.tiles[i] ?? []
-					map.tiles[i][j] = new Wall([i, j])
-				} else {
-					map.tiles[i] = map.tiles[i] ?? []
-					map.tiles[i][j] = new Floor([i, j])
-				}
-			}
-		}
-
-		return map
+		this.tiles = maze.map((row, i) => row.map((col, j) => new (MapObjectClass.get(col))([i, j])))
 	}
 
 	canMoveTo(pos: Vec2) : boolean {
@@ -151,6 +133,7 @@ export class GameMap {
 	}
 
 	getRandomSpawnPosition() : Vec2 {
+		// return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
 		const pos = [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
 
 		// check if tile is walkable
@@ -158,15 +141,20 @@ export class GameMap {
 		if (!tile.can_walk) {
 			return this.getRandomSpawnPosition()
 		}
-		// return pos as Vec2
-		return [1,1] as Vec2
+		return pos as Vec2
 	}
 
 	// randomly choose chest position and put it in the chest inventory
 	dropGameObject(game_object: GameObject) {
-		const pos = this.chest_positions[Math.floor(Math.random() * this.chest_positions.length)]
-		if (!pos) return
-		const chest = this.getTile(pos) as Chest
-		chest.chest_inventory.push(game_object)
+		// const pos = this.chest_positions[Math.floor(Math.random() * this.chest_positions.length)]
+		// if (!pos) return
+		// const chest = this.getTile(pos) as Chest
+		// chest.chest_inventory.push(game_object)
+
+		// TEST CODE: Place game_object into all chests
+		this.chest_positions.forEach(element => {
+			let chest = this.getTile(element) as Chest
+			chest.chest_inventory.push(game_object)
+		});
 	}
 }

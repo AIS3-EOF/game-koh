@@ -1,9 +1,8 @@
 import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 
-import { ClientMessage } from '@/protocol/client'
-import { Game } from '@/game/game'
-import { Player } from '@/game/player'
+import { ClientMessage } from '@/protocol'
+import { Game, Player } from '@/game'
 import { GameObject } from '@/game_objects/game_object'
 import { EventQueue } from '@/event_queue'
 import parser from '@/parser'

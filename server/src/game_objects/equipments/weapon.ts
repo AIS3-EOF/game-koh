@@ -1,10 +1,16 @@
 import { Equipment } from "./equipment"
-import { Player } from "@/game/player";
+import { Player } from "@/game"
 import { Context } from "@/context"
-import { Vec2 } from "@/protocol/shared";
+import { Vec2 } from "@/protocol";
 import { calcDistance, ChebyshevDistance } from '@/utils'
 
 import * as 手刀 from './weapon/手刀'
+import * as 半月刀 from './weapon/半月刀'
+import * as 小太刀 from './weapon/小太刀'
+import * as 風魔手裡劍 from './weapon/風魔手裡劍'
+import * as Nyancat from './weapon/Nyancat'
+import * as ㄐㄐ from './weapon/ㄐㄐ'
+import * as 冰桶挑戰 from './weapon/冰桶挑戰'
 
 export enum WeaponType {
     '手刀' = '手刀',
@@ -16,14 +22,24 @@ export enum WeaponType {
     '冰桶挑戰' = '冰桶挑戰',
 };
 
-const Weapons = new Map([
+export interface WeaponDetail {
+    identifier: string
+    texture: string
+    can_transfer: boolean
+    attack_modifier: number
+    range: Vec2[]
+    calc?: (attacker: Player, target: Player) => { damage: number, effect: number }
+    hit?: (ctx: Context) => void
+}
+
+const Weapons = new Map<WeaponType, WeaponDetail>([
     [WeaponType.手刀, 手刀],
-    // [WeaponType.半月刀, 2],
-    // [WeaponType.小太刀, 2],
-    // [WeaponType.風魔手裡劍, 2],
-    // [WeaponType.Nyancat, 1],
-    // [WeaponType.ㄐㄐ, 2],
-    // [WeaponType.冰桶挑戰, 2],
+    [WeaponType.半月刀, 半月刀],
+    [WeaponType.小太刀, 小太刀],
+    [WeaponType.風魔手裡劍, 風魔手裡劍],
+    [WeaponType.Nyancat, Nyancat],
+    [WeaponType.ㄐㄐ, ㄐㄐ],
+    [WeaponType.冰桶挑戰, 冰桶挑戰],
 ]);
 
 export function generateWeapon() {
@@ -35,12 +51,12 @@ export function generateWeapon() {
 export class Weapon extends Equipment {
     public range: Vec2[]
     constructor(
-        public weapon_type: WeaponType = WeaponType.手刀
+        public weapon_type: WeaponType = WeaponType.半月刀
     ) {
         super();
-        this.identifier += '::Weapon' + this.detail.identifier
+        this.identifier += '::Weapon::' + this.detail.identifier
         // TODO: Replace texture here
-        this.texture = this.detail.texture ?? 'weapon';
+        this.texture = this.detail.texture ?? 'unknown weapon';
 
         this.can_transfer = this.detail.can_transfer ?? true;
         this.attack_modifier = this.detail.attack_modifier ?? 0;
@@ -61,39 +77,35 @@ export class Weapon extends Equipment {
     }
 
     calc(attacker: Player, target: Player): { damage: number, effect: number } {
-        const dv = calcDistance(attacker.pos, target.pos, attacker.facing)
-        const inside = this.range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
+        if (this.detail.calc)
+            return this.detail.calc(attacker, target)
 
-        // switch (this.weapon_type) {
-        //     case WeaponType.手刀:
-        //         inside =
-        //         break
-        //     case WeaponType.半月刀:
-        //         inside = -TILE_SIZE*1.5 <= dx && dx <= TILE_SIZE*1.5 && -TILE_SIZE/2 <= dy && dy <= TILE_SIZE/2
-        //         break
-        //     case WeaponType.小太刀:
-        //         inside = 0 <= dx && dx <= TILE_SIZE && -TILE_SIZE*1.5 <= dy && dy <= TILE_SIZE*1.5
-        //         break
-        //     case WeaponType.風魔手裡劍:
-        //         inside = 0 <= dx && dx <= TILE_SIZE*5 && -TILE_SIZE/2 <= dy && dy <= TILE_SIZE/2
-        //         break
-        //     case WeaponType.Nyancat:
-        //         inside = true
-        //         break
-        //     case WeaponType.ㄐㄐ:
-        //         inside = 0 <= dx && dx <= TILE_SIZE*40 && -TILE_SIZE/2 <= dy && dy <= TILE_SIZE/2
-        //         break
-        //     case WeaponType.冰桶挑戰:
-        //         inside = Math.max(Math.abs(dx), Math.abs(dy)) <= TILE_SIZE * 2
-        //         break
-        // }
+        const dv = calcDistance(target.pos, attacker.pos, attacker.facing)
+        const inside = this.range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
+ 
+        /*  攻擊範圍 如
+
+            地 地 刀 地
+            人 刀 刀 刀
+            地 地 刀 地
+
+            
+            demageRange (range) 存
+            [[0,1],[0,2],[0,3],[1,2],[-1,2]]
+
+            地 地 地
+            人 刀 地
+            地 刀 地
+
+            
+            demageRange (range) 存
+            [[0,1], [1, 1]]
+
+        */
+
         let damage = 0, effect = 0
-        if (inside) {
-            damage = attacker.atk + this.attack_modifier - target.def;
-            if (this.weapon_type === WeaponType.Nyancat) {
-                effect = damage;
-            }
-        }
+        if (inside)
+            damage = Math.max(0, attacker.atk + this.attack_modifier - target.def)
         return { damage, effect };
     }
 }

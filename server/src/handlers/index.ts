@@ -1,11 +1,11 @@
-import { ServerMessage } from '@/protocol/server'
+import { ServerMessage } from '@/protocol'
 import { Context } from '@/context'
 import { handle as handle_move } from './move'
 import { handle as handle_attack } from './attack'
 import { handle as handle_use } from './use'
 import { handle as handle_chat } from './chat'
-import { handle as handle_achievement } from './achievement'
 import { handle as handle_interact_map } from './interact_map'
+import { Player } from '@/game'
 
 const HANDLERS = new Map<string, null | ((ctx: Context, data: any) => void)>([
 	['login', null],
@@ -17,14 +17,42 @@ const HANDLERS = new Map<string, null | ((ctx: Context, data: any) => void)>([
 ])
 
 export const dispatch = async (ctx: Context, msg: ServerMessage) => {
-	if (ctx.player.action_count <= 0) return
+	if (!ctx.player.alive|| ctx.player.action_count <= 0) return
 	ctx.player.action_count--
+
 	const fn = HANDLERS.get(msg.type)
 	if (typeof fn === 'function') {
 		// idk how to fix this without hack
 		await fn(ctx, msg.data)
 
 		// achievement progression
-		await handle_achievement(ctx, msg)
+		ctx.player.achievements.update(ctx, msg)
 	}
+
+	// check death player and despawn them for certain time
+	ctx.game.players.forEach((current_player: Player) => {
+		if (current_player.alive && current_player.hp <= 0) {
+			// sentence death
+			current_player.death()
+			ctx.eventQueue.push({
+				type: 'death',
+				data: {
+					player_identifier: current_player.identifier,
+					despawn_time: 30000 	// TODO: random here OuO?
+				}
+			})
+
+			// respawn player
+			setTimeout(() => {
+				current_player.respawn()
+				current_player.pos = ctx.game.map.getRandomSpawnPosition()
+				ctx.eventQueue.push({
+					type: 'respawn',
+					data: {
+						player: current_player
+					}
+				})
+			}, 30000) // TODO: random here OuO?
+		}
+	})
 }

@@ -1,12 +1,11 @@
-import { InteractMapMessageData } from '@/protocol/server'
+import { InteractMapMessageData } from '@/protocol'
 import { Context } from '@/context'
+import { MapObject } from '@/maps'
 
 export const handle = async (ctx: Context, data: InteractMapMessageData) => {
-    // vulnerable code. Fix: validate the position
-    const object = ctx.game.map.getTile(data.pos)
-
+    // Fix: validate the position
+    const object = ctx.game.map.getTile(data.pos) as MapObject
     if (object) {
-
         object.interact(ctx)
         ctx.eventQueue.push({
             type: 'interact_map',

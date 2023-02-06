@@ -1,6 +1,6 @@
-import { LoginMessageData } from '@/protocol/server'
-import { Player } from '@/game/player'
-import { ServerMessage } from '@/protocol/server'
+import { LoginMessageData } from '@/protocol'
+import { Player } from '@/game'
+import { ServerMessage } from '@/protocol'
 import { Db } from 'mongodb'
 import { WebSocket } from 'ws'
 

@@ -1,4 +1,4 @@
-import { UseMessageData } from '@/protocol/server'
+import { UseMessageData } from '@/protocol'
 import { Context } from '@/context'
 
 export const handle = async (ctx: Context, data: UseMessageData) => {

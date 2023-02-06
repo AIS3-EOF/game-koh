@@ -1,7 +1,7 @@
 import { debug } from 'debug'
 
 import { Player } from "@/game/player";
-import { ServerMessage } from '@/protocol/server'
+import { ServerMessage } from '@/protocol'
 
 const log = debug('server:Achievement');
 
@@ -26,21 +26,19 @@ export class Achievement {
         public type: AchievementType,
     ) {}
 
-    isCompleted: boolean = false;
     // Ranging from 0 to 100
     progress: number = 0;
     maxProgress: number = 100;
-    achievementType: AchievementType | undefined;
+
+    get isCompleted() {
+        return this.progress >= this.maxProgress;
+    }
 
     updateProgress(player: Player, data: ServerMessage) {
-        log(`Updating progress for achievement: ${this.achievementType}`);
+        log(`Updating progress for achievement: ${this.type}`);
     }
 
     reward(player: Player) {
-        log(`Rewarding player for achievement: ${this.achievementType}`);
-    }
-
-    setCompleted() {
-        this.isCompleted = true;
+        log(`Rewarding player for achievement: ${this.type}`);
     }
 }

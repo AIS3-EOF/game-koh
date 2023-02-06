@@ -1,4 +1,4 @@
-import { MoveMessageData } from '@/protocol/server'
+import { MoveMessageData } from '@/protocol'
 import { Context } from '@/context'
 import { add } from '@/utils'
 

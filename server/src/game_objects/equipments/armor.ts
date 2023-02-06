@@ -5,10 +5,21 @@ export function generateArmor() {
     return new Armor();
 }
 
+export enum ArmorType {
+    '麻布甲' = '麻布甲',
+    '鐵鎧甲' = '鐵鎧甲',
+    '破布' = '破布',
+    '魔法披風' = '魔法披風',
+    '大麻褲子' = '大麻褲子',
+    '紫晶洞' = '紫晶洞',
+    '暗夜之袍' = '暗夜之袍',
+};
+
 export class Armor extends Equipment {
     constructor() {
         super();
-        this.identifier += '::Armor';
+        // TODO: add armor type
+        this.identifier += '::Armor::' + 'TYPE';
         // TODO: Replace texture here
         this.texture = 'armor';
 

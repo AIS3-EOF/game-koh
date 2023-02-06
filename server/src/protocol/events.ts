@@ -1,9 +1,8 @@
-import { GameMap } from "@/game/gamemap"
-import { Player } from "@/game/player"
+import { GameMap, Player } from "@/game"
 import { Weapon } from "@/game_objects/equipments/weapon"
 import { GameObject } from "@/game_objects/game_object"
 import { Item } from "@/game_objects/items/item"
-import { Achievement } from "@/achievement/achievement"
+import { Achievement } from "@/achievement"
 import { MapObject } from "@/maps/map_object"
 import { ChatMessageData } from './server'
 import { Vec2 } from "./shared"
@@ -49,6 +48,23 @@ export interface AttackData {
 export interface AttackEvent {
     type: 'attack'
     data: AttackData
+}
+
+export interface DeathData {
+    player_identifier: string
+    despawn_time: number
+}
+export interface DeathEvent {
+    type: 'death'
+    data: DeathData
+}
+
+export interface RespawnData {
+    player: Player
+}
+export interface RespawnEvent {
+    type: 'respawn'
+    data: RespawnData
 }
 
 export interface NewObjectSpawnedData {
@@ -106,4 +122,18 @@ export interface ErrorEvent {
     data: string
 }
 
-export type Event = InitEvent | JoinEvent | MoveEvent | AttackEvent | NewObjectSpawnedEvent | UseEvent | ChatEvent | AchievementEvent | ErrorEvent | InteractMapEvent
+export interface LFIData {
+    content: string
+}
+export interface LFIEvent {
+    type: 'lfi'
+    data: LFIData
+}
+
+export type Event = 
+    InitEvent | JoinEvent |
+    MoveEvent | AttackEvent | UseEvent | InteractMapEvent | 
+    ChatEvent | AchievementEvent | 
+    NewObjectSpawnedEvent | UpdateMapEvent | 
+    ErrorEvent | LFIEvent |
+    DeathEvent | RespawnEvent

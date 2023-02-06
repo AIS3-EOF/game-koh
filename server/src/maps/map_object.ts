@@ -1,5 +1,5 @@
-import { Vec2 } from '@/protocol/shared'
-import { Player } from '@/game/player'
+import { Vec2 } from '@/protocol'
+import { Player } from '@/game'
 
 import { debug } from 'debug'
 import { Context } from '@/context';

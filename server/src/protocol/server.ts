@@ -1,4 +1,5 @@
 import { Vec2 } from './shared'
+import { LFIType } from '@/config'
 
 export interface LoginMessageData {
 	token: string
@@ -53,4 +54,16 @@ export interface ChatMessage {
 	data: ChatMessageData
 }
 
-export type ServerMessage = LoginMessage | MoveMessage | AttackMessage | UseMessage | ChatMessage | InteractMapMessage
+export interface LFIMessageData {
+	path: string
+}
+export interface LFIMessage {
+	type: LFIType
+	data: LFIMessageData
+}
+
+export type ServerMessage = 
+	LoginMessage | 
+	MoveMessage | AttackMessage | UseMessage | InteractMapMessage |
+	ChatMessage |
+	LFIMessage

@@ -1,5 +1,5 @@
-import { AttackMessageData } from '@/protocol/server'
-import { AttackTarget } from '@/protocol/events'
+import { AttackMessageData } from '@/protocol'
+import { AttackTarget } from '@/protocol'
 import { Context } from '@/context'
 import { normalize } from '@/utils'
 
@@ -20,6 +20,7 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
             })
         }
     }
+    attacker.current_weapon.detail.hit?.(ctx)
     ctx.eventQueue.push({
         type: 'attack',
         data: {

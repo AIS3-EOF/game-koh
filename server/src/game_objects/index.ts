@@ -1,6 +1,8 @@
-import { generateArmor } from './equipments/armor'
-import { generateWeapon } from './equipments/weapon'
+import { generateArmor, generateWeapon } from './equipments'
+export * from './equipments'
+
 import { GameObject } from './game_object'
+export * from './game_object'
 
 const gens = [
     generateArmor,

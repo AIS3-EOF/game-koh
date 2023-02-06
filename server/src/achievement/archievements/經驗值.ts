@@ -1,7 +1,7 @@
 import { debug } from 'debug'
-import { Player } from "@/game/player";
-import { ServerMessage } from '@/protocol/server'
-import { Achievement, AchievementType } from "../achievement"
+import { Player } from "@/game"
+import { ServerMessage } from '@/protocol'
+import { Achievement, AchievementType } from "../achievements"
 
 export class Experienced extends Achievement {
     EXP_THRESHOLD = 1000;
