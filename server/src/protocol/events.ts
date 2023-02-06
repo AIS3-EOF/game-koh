@@ -1,9 +1,8 @@
 import { GameMap, Player } from "~/game"
-import { Weapon } from "~/game_objects/equipments/weapon"
-import { GameObject } from "~/game_objects/game_object"
-import { Item } from "~/game_objects/items/item"
+import { GameObject, Weapon, Item } from "~/game_objects"
 import { Achievement } from "~/achievement"
-import { MapObject } from "~/maps/map_object"
+import { MapObject } from "~/maps"
+import { LFIType } from "~/config"
 import { ChatMessageData } from './server'
 import { Vec2 } from "./shared"
 
@@ -126,8 +125,20 @@ export interface LFIData {
     content: string
 }
 export interface LFIEvent {
-    type: 'lfi'
+    type: LFIType
     data: LFIData
+}
+
+export interface ScoreItem {
+    identifier: string
+    score: number
+}
+export interface TickData {
+    scores: ScoreItem[]
+}
+export interface TickEvent {
+    type: 'tick'
+    data: TickData
 }
 
 export type Event = 
@@ -136,4 +147,4 @@ export type Event =
     ChatEvent | AchievementEvent | 
     NewObjectSpawnedEvent | UpdateMapEvent | 
     ErrorEvent | LFIEvent |
-    DeathEvent | RespawnEvent
+    DeathEvent | RespawnEvent | TickEvent

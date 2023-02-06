@@ -4,6 +4,8 @@ export * from './equipments'
 import { GameObject } from './game_object'
 export * from './game_object'
 
+export * from './items'
+
 const gens = [
     generateArmor,
     generateWeapon,

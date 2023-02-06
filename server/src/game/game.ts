@@ -16,8 +16,9 @@ export class Game {
 		}
 	}
 	removePlayer(player: Player) {
-		if (--player.login_count === 0)
-			this.players.delete(player)
+		if (--player.login_count === 0) {
+			// this.players.delete(player)
+		}
 	}
 	addObject(object: GameObject) {
 		this.objects.set(object.uuid, object)
