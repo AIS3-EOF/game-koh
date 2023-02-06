@@ -20,6 +20,8 @@ export default class Game extends Phaser.Scene {
 	graphics: any
 	maskGraphics: any
 	fow: any
+	fovRange: any
+	viewableRange: any
 
 	updateVec = throttle((vec: Vec2) => {
 		// me.setPosition(me.x + vec[0], me.y + vec[1])
@@ -50,10 +52,21 @@ export default class Game extends Phaser.Scene {
 	createFOV(){
 		this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 }});
 		let mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics);
-		mask.setInvertAlpha();
+		mask.invertAlpha = true;
+
 		this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 1 } });
 		this.fow.setMask(mask);
 		this.fow.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels);
+
+
+		this.viewableRange = this.add.circle(0, 0, 350, 0x000000, 0);
+		let mask2 = new Phaser.Display.Masks.GeometryMask(this, this.viewableRange);
+		mask2.invertAlpha = true;
+
+		this.fovRange = this.add.graphics({ fillStyle: { color: 0, alpha: .85 } });
+		this.fovRange.setMask(mask2);
+		this.fovRange.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels);
+		this.fovRange.setDepth(40);
 	}
 
 	draw(){
@@ -63,10 +76,12 @@ export default class Game extends Phaser.Scene {
 		this.maskGraphics.clear();
 		//draw fov mask
 		this.maskGraphics.fillPoints(this.intersections);
+
+		this.viewableRange.setPosition(this.me.x, this.me.y);
 	}
 
 	updateFOV(){
-		this.ray.setOrigin(this.me.x, this.me.y);
+		this.ray.setOrigin(this.me.x - this.me.facing?.[0] * 16, this.me.y - this.me.facing?.[1] * 16);
 
 		this.ray.setConeDeg(90);
 		// console.log(this.me.facing)
