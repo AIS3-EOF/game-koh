@@ -20,10 +20,10 @@ const sendMessage = () => {
         message: message.value,
     }
     if (message.value.length > 0) {
-        window.send({ type: 'chat', data})
+        window.send({ type: 'chat', data })
         message.value = ''
+        props.messages.push(data)
     }
-    props.messages.push(data)
 }
 
 // make list scrolled to bottom when new messages arrive
@@ -47,14 +47,18 @@ onMounted(() => {
     <div class="chatroom">
         <div class="list" ref="list">
             <TransitionGroup name="chatroom">
-                <div class="message" v-for="message in messages" :key="message.timestamp+message.from">
+                <div class="message" v-for="message in messages" :key="message.timestamp + message.from">
                     <div class="message__user">
                         <span v-if="message.from === '(server)'">{{ message.from }}:</span>
                         <span v-else-if="message.to === '(all)'">{{ message.from }} 📢:</span>
                         <span v-else>{{ message.from }} &rarr; {{ message.to }}:</span>
                     </div>
                     <div class="message__text" v-html="message.message"></div>
-                    <div class="message__timestamp">{{ new Date(message.timestamp).toLocaleTimeString('en-US', { hour12: false })}}</div>
+                    <div class="message__timestamp">{{
+                        new Date(message.timestamp || 0).toLocaleTimeString('en-US', {
+                            hour12: false
+                        })
+                    }}</div>
                 </div>
                 <div class="message" v-if="messages.length === 0">
                     <div class="message__text">No messages yet</div>
@@ -86,16 +90,20 @@ onMounted(() => {
     flex-direction: column;
     justify-content: flex-end;
     padding: 10px;
+
     .list {
         height: 100%;
         overflow-y: scroll;
+
         .message {
             display: flex;
             flex-direction: row;
+
             .message__user {
                 font-weight: bold;
                 margin-right: 10px;
             }
+
             .message__text {
                 flex: 1;
             }
@@ -103,6 +111,7 @@ onMounted(() => {
             .message__text::before {
                 content: '"';
             }
+
             .message__text::after {
                 content: '"';
             }
@@ -114,8 +123,11 @@ onMounted(() => {
         &::-webkit-scrollbar {
             display: none;
         }
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
 
 }
@@ -123,9 +135,11 @@ onMounted(() => {
 .input-group {
     display: flex;
     flex-direction: row;
+
     select {
         flex: 1;
     }
+
     input {
         flex: 3;
     }

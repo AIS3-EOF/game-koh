@@ -1,6 +1,6 @@
 import { MapObject } from '@/types'
 
-export default class Map{
+export default class GameMap{
     public tiles: any
     public tilesData: any
     public topTilesData: any

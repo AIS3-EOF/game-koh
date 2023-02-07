@@ -14,7 +14,7 @@ export default class Player extends Phaser.GameObjects.Container {
         text: string,
         player: Server_Player,
     ) {
-        const playerText = scene.add.text(0, 0, text, { fill: "#ff0000" });
+        const playerText = scene.add.text(0, 0, text, {color: 'white'});
         playerText.setOrigin(0.5);
         super(scene, ...player.pos.map((x: number) => x*32+16), playerText); // The frame is optional 
         this.scene.add.existing(this);

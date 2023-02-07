@@ -37,7 +37,7 @@ export class Manager {
             status: RoundStatus.PREINIT,
         },
     ) {
-        this.wss = new WebSocketServer({ port: 8080 })
+        this.wss = new WebSocketServer({ port: process.env.WS_PORT || 8080 })
         this.contexts = new Map<string, Context>()
         this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
 

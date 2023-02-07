@@ -1,5 +1,6 @@
 import { setupWS } from '@/ws'
 import { setupVue } from '@/vue'
 
-setupWS('ws://localhost:8080')
+console.log(import.meta.env)
+setupWS(`ws://localhost:${import.meta.env.VITE_WS_PORT || 8080}`)
 setupVue()
