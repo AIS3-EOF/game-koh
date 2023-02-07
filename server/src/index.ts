@@ -12,6 +12,7 @@ import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 import { sleep } from '~/utils'
 
 globalThis.eventQueue = new EventQueue()
+globalThis.sockets = new Map()
 
 async function run(manager: Manager) {
 	while (true) {

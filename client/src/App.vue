@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
-import { ClientMessage, GameObject, ScoreItem, RoundData, RoundStatus } from '@/types'
+import { ClientMessage, GameObject, ScoreItem, RoundData, RoundStatus, ChatMessageData } from '@/types'
 
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
+import Chatroom from './components/Chatroom.vue'
 
 const init = ref(false)
 const debug = ref(false)
@@ -17,13 +18,15 @@ const round = ref<RoundData>({
     number: -1,
     status: 'preinit' as RoundStatus,
 })
+const chatMessages = ref([] as ChatMessageData[])
+const players = ref([] as string[])
 
 const events = ref<ClientMessage[]>([])
 
 function handleEvent(event: any) {
     if (event instanceof CustomEvent && event.detail) {
         const message = event.detail as ClientMessage
-        console.log('event', message)
+        // console.log('event', message)
         if (!['init', 'tick', 'move'].includes(message.type))
             events.value = [message, ...events.value.slice(0, 30)]
 
@@ -41,10 +44,15 @@ function handleEvent(event: any) {
             
             case 'tick':
                 scores.value = message.data.scores
+                players.value = message.data.scores.map((score) => score.identifier)
                 break
             
             case 'round':
                 round.value = message.data
+                break
+            
+            case 'chat':
+                chatMessages.value = [...chatMessages.value, message.data]
                 break
         }
     }
@@ -80,6 +88,7 @@ onBeforeUnmount(() => {
         </div>
         <Inventory :show="inventory.show" :items="inventory.items" />
         <Scoreboard :scores="scores" :round="round" />
+        <Chatroom :players="players" :messages="chatMessages" />
     </div>
 </template>
 

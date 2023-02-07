@@ -25,7 +25,7 @@ export function hit(ctx: Context) {
         type: 'chat',
         data: {
             from: 'Nyancat',
-            to: 'everyone',
+            to: '(all)',
             message: 'meow',
         },
     })

@@ -24,6 +24,7 @@ export const handleLogin = async (ws: WebSocket, db: Db): Promise<Player> =>
 					const player = players.get(data.token) ?? new Player(data.token)
 					if (!players.has(data.token))
 						players.set(data.token, player)
+					sockets.set(data.token, ws)
 					resolve(player)
 				}
 			} else {

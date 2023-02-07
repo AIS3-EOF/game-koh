@@ -1,7 +1,7 @@
 import Phaser from 'phaser'
 import parser from 'parser'
 import config from '@/config';
-import Map from '@/resources/map'
+import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
 
 function onopen(event: Event) {
@@ -43,7 +43,7 @@ function onmessage(event: MessageEvent<string>) {
             }
             break;
         case "init":
-            window.gameMap = new Map(message.data.map)
+            window.gameMap = new GameMap(message.data.map)
             let mapJSON = window.gameMap.getJSON()
             window.sessionStorage.setItem('map', JSON.stringify(mapJSON))
             //Init Game

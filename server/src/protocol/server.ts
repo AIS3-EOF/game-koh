@@ -44,10 +44,11 @@ export interface InteractMapMessage {
 }
 
 export interface ChatMessageData {
+	timestamp?: number
 	from: string
 	to: string
 	message?: string
-	html?: string
+	advanced?: boolean
 }
 export interface ChatMessage {
 	type: 'chat'
