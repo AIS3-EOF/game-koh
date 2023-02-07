@@ -1,7 +1,7 @@
 import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 
-import { RoundData } from '~/manager.d'
+import { RoundData } from '~/round'
 import { ClientMessage } from '~/protocol'
 import { Game, Player } from '~/game'
 import { GameObject } from '~/game_objects/game_object'
@@ -20,7 +20,7 @@ export class Context {
 		public game: Game,
 		public player: Player,
 		public db: Db,
-	) {}
+	) { }
 	init(round: RoundData) {
 		this.send({
 			type: 'init',

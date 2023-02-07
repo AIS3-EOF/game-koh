@@ -1,16 +1,22 @@
 {
 	"compilerOptions": {
 		"strict": true,
-		"lib": ["ES2022"],
-		"target": "ES2022",
+		"lib": [
+			"ESNext"
+		],
+		"target": "ESNext",
 		"moduleResolution": "Node",
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"module": "CommonJS",
+		"module": "ESNext",
 		"baseUrl": ".",
 		"paths": {
-			"~/*": ["src/*"]
-		}
+			"~/*": [
+				"src/*"
+			]
+		},
+		"removeComments": true,
+		"allowSyntheticDefaultImports": true,
 	},
 	"include": [
 		"src/**/*",

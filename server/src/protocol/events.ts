@@ -3,7 +3,7 @@ import { GameObject } from '~/game_objects'
 import { Achievement } from '~/achievement'
 import { MapObject } from '~/maps'
 import { LFIType } from '~/config'
-import { RoundData } from '~/manager.d'
+import { RoundData } from '~/round'
 import { ChatMessageData } from './server'
 import { Vec2 } from './shared'
 

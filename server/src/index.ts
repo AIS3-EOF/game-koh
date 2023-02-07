@@ -1,8 +1,17 @@
 import { debug } from 'debug'
 import * as dotenv from 'dotenv'
 import { WebSocketServer } from 'ws'
-dotenv.config({ path: require('path').resolve(__dirname, '../../share.env') })
-dotenv.config()
+import express from 'express'
+import logger from 'morgan'
+
+// @ts-ignore
+const DEVELOPMENT = typeof BUILD === 'undefined'
+const PRODUCTION = !DEVELOPMENT
+
+if (DEVELOPMENT) {
+	dotenv.config({ path: require('path').resolve(__dirname, '../../share.env') })
+	dotenv.config()
+}
 
 const log = debug('server:index')
 
@@ -28,12 +37,39 @@ async function run(manager: Manager) {
 }
 
 async function setup() {
+	log('connecting to database...')
 	const db = await connect()
 	log('connected to database')
 
 	const manager = new Manager(db)
 
-	const wss = new WebSocketServer({ port: Number(process.env.WS_PORT) })
+	const app = express()
+	app.use(logger('tiny'))
+
+	if (PRODUCTION) {
+		app.use(express.static('/app/client/dist'))
+	}
+
+
+	app.use('/api/', async (req, res) => {
+		manager.handleApi(req, res)
+	})
+
+	const server = app.listen(Number(process.env.SERVER_PORT), () => {
+		console.log(`listening on port ${process.env.SERVER_PORT}`)
+	})
+
+	if (PRODUCTION) {
+		server.on('upgrade', (req, socket, head) => {
+			wss.handleUpgrade(req, socket, head, ws => {
+				wss.emit('connection', ws, req)
+			})
+		})
+	}
+
+	const wss = new WebSocketServer(
+		DEVELOPMENT ? { port: Number(process.env.WS_PORT) } : { noServer: true }
+	)
 	wss.on('connection', ws => {
 		log('new connection')
 		manager.handleConnection(ws)
@@ -41,6 +77,8 @@ async function setup() {
 
 	run(manager)
 }
+
 setup()
 
-if (require.main === module) require('~/tester').run()
+if (DEVELOPMENT)
+	import('~/tester').then(tester => tester.run())

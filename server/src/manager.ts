@@ -4,11 +4,12 @@ import { debug } from 'debug'
 import { randomUUID } from 'crypto'
 import * as poisson from 'poisson-process'
 import { throttle } from 'underscore'
+import type { Request, Response } from 'express'
 
 import { dispatch } from '~/handlers'
 import { Context } from '~/context'
 import { ServerMessage } from '~/protocol'
-import { ManagerEvent, RoundData, RoundStatus } from '~/manager.d'
+import { ManagerEvent, RoundData, RoundStatus } from '~/round'
 import { Game, GameMap, Player } from '~/game'
 import { generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
@@ -98,9 +99,6 @@ export class Manager {
 					log('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
-						this.game.players.forEach(p => {
-							console.log(p)
-						})
 					} else {
 						ctx.send({
 							type: 'error',
@@ -129,6 +127,14 @@ export class Manager {
 			log('error: %s', e)
 			ws.close()
 		}
+	}
+
+	async handleApi(req: Request, res: Response) {
+		res.json({
+			round: this.round,
+			players: this.game.players,
+			objects: this.game.objects,
+		})
 	}
 
 	public checkDeath = throttle(this.checkDeathImpl.bind(this), 1)

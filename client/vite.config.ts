@@ -33,6 +33,9 @@ export default defineConfig({
 	},
 	server: {
 		proxy: {
+			'/api': {
+				target: `http://localhost:${process.env.SERVER_PORT}`,
+			},
 			'/ws': {
 				target: `ws://localhost:${process.env.WS_PORT}`,
 				ws: true,
