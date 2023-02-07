@@ -1,7 +1,8 @@
 import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 
-import { ClientMessage, RoundData } from '~/protocol'
+import { RoundData } from '~/manager.d'
+import { ClientMessage } from '~/protocol'
 import { Game, Player } from '~/game'
 import { GameObject } from '~/game_objects/game_object'
 import parser from '~/parser'
@@ -18,7 +19,7 @@ export class Context {
 		private ws: WebSocket,
 		public game: Game,
 		public player: Player,
-		public db: Db
+		public db: Db,
 	) {}
 	init(round: RoundData) {
 		this.send({
@@ -38,14 +39,20 @@ export class Context {
 	sendError(msg: string) {
 		this.send({
 			type: 'error',
-			data: msg
+			data: msg,
 		})
 	}
 	getObject(uuid: string) {
-		return this.game.getObject(uuid) ?? this.player.getObjectFromInventory(uuid)
+		return (
+			this.game.getObject(uuid) ??
+			this.player.getObjectFromInventory(uuid)
+		)
 	}
 	removeObject(object: GameObject) {
-		return this.game.removeObject(object) || this.player.removeObjectFromInventory(object)
+		return (
+			this.game.removeObject(object) ||
+			this.player.removeObjectFromInventory(object)
+		)
 	}
 	addScore(score: number) {
 		this.game.addScore(this.player, score)

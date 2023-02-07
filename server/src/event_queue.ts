@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events'
 import { Event } from '~/protocol'
-import { ManagerEvent } from '~/manager'
+import { ManagerEvent } from '~/manager.d'
 import { WebSocket } from 'ws'
 
 export class EventQueue extends EventEmitter {

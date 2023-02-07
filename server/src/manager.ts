@@ -7,7 +7,8 @@ import { throttle } from 'underscore'
 
 import { dispatch } from '~/handlers'
 import { Context } from '~/context'
-import { ServerMessage, RoundStatus, RoundData } from '~/protocol'
+import { ServerMessage } from '~/protocol'
+import { ManagerEvent, RoundData, RoundStatus } from '~/manager.d'
 import { Game, GameMap, Player } from '~/game'
 import { generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
@@ -16,25 +17,24 @@ import parser from '~/parser'
 
 const log = debug('server:manager')
 
-export type ManagerEvent = 'round_init' | 'round_start' | 'round_end' | 'round_tick' | 'check_death'
 export const roundMessage = {
 	[RoundStatus.PREINIT]: 'not initialized',
 	[RoundStatus.INIT]: 'not started',
-	[RoundStatus.START]: 'started',
-	[RoundStatus.END]: 'ended'
+	[RoundStatus.RUNNING]: 'running',
+	[RoundStatus.END]: 'ended',
 }
 
 export class Manager {
-	private contexts: Map<string, Context>
-	private game: Game
-	private generator: poisson.PoissonInstance
+	public contexts: Map<string, Context>
+	public game: Game
+	public generator: poisson.PoissonInstance
 
 	constructor(
 		public db: Db,
-		private round: RoundData = {
+		public round: RoundData = {
 			number: 1,
-			status: RoundStatus.PREINIT
-		}
+			status: RoundStatus.PREINIT,
+		},
 	) {
 		this.contexts = new Map<string, Context>()
 		this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
@@ -52,7 +52,7 @@ export class Manager {
 			this.game.addObject(object)
 			eventQueue.push({
 				type: 'new_object_spawned',
-				data: { object }
+				data: { object },
 			})
 		})
 	}
@@ -86,7 +86,7 @@ export class Manager {
 			this.game.addPlayer(player)
 			eventQueue.push({
 				type: 'join',
-				data: { player }
+				data: { player },
 			})
 			log('%s logined', sessionId)
 			const ctx = new Context(sessionId, ws, this.game, player, this.db)
@@ -96,7 +96,7 @@ export class Manager {
 				try {
 					const msg: ServerMessage = parser.parse(rawData.toString())
 					log('%s received %o', sessionId, msg)
-					if (this.round.status === RoundStatus.START) {
+					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
 						this.game.players.forEach(p => {
 							console.log(p)
@@ -104,7 +104,7 @@ export class Manager {
 					} else {
 						ctx.send({
 							type: 'error',
-							data: `Round ${this.round.number} ${roundMessage[this.round.status]}`
+							data: `Round ${this.round.number} ${roundMessage[this.round.status]}`,
 						})
 					}
 				} catch (e) {
@@ -121,7 +121,7 @@ export class Manager {
 					sockets.delete(player.identifier)
 					eventQueue.push({
 						type: 'leave',
-						data: { identifier: player.identifier }
+						data: { identifier: player.identifier },
 					})
 				}
 			})
@@ -146,8 +146,8 @@ export class Manager {
 					data: {
 						victim_identifier: current_player.identifier,
 						attacker_identifier: current_player.last_damage_from,
-						respawn_time
-					}
+						respawn_time,
+					},
 				})
 			}
 		})
@@ -185,8 +185,8 @@ export class Manager {
 		eventQueue.manage('round_start')
 	}
 	private async roundStartImpl() {
-		if (this.round.status === RoundStatus.START) return
-		this.updateStatus(RoundStatus.START)
+		if (this.round.status === RoundStatus.RUNNING) return
+		this.updateStatus(RoundStatus.RUNNING)
 
 		this.tickInterval = setInterval(() => {
 			eventQueue.manage('round_tick')
@@ -196,7 +196,7 @@ export class Manager {
 	}
 
 	private async roundTick() {
-		if (this.round.status !== RoundStatus.START) return
+		if (this.round.status !== RoundStatus.RUNNING) return
 
 		this.game.players.forEach(player => {
 			player.action_count = Math.min(player.action_count + config.TICK_ACTION_COUNT, config.TICK_ACTION_MAX_COUNT)
@@ -211,16 +211,16 @@ export class Manager {
 			eventQueue.push({
 				type: 'respawn',
 				data: {
-					player: respawned_player
-				}
+					player: respawned_player,
+				},
 			})
 		})
 
 		eventQueue.push({
 			type: 'tick',
 			data: {
-				scores: this.game.getScores()
-			}
+				scores: this.game.getScores(),
+			},
 		})
 	}
 
@@ -242,7 +242,7 @@ export class Manager {
 		this.round.status = status
 		eventQueue.push({
 			type: 'round',
-			data: this.round
+			data: this.round,
 		})
 	}
 }
