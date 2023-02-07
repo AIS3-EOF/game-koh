@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from 'ws'
+import { WebSocket } from 'ws'
 import { Db } from 'mongodb'
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
@@ -25,7 +25,6 @@ export const roundMessage = {
 }
 
 export class Manager {
-	private wss: WebSocketServer
 	private contexts: Map<string, Context>
 	private game: Game
 	private generator: poisson.PoissonInstance
@@ -37,7 +36,6 @@ export class Manager {
 			status: RoundStatus.PREINIT
 		}
 	) {
-		this.wss = new WebSocketServer({ port: process.env.WS_PORT || 8080 })
 		this.contexts = new Map<string, Context>()
 		this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
 
@@ -48,8 +46,6 @@ export class Manager {
 		})
 
 		eventQueue.on('manage', this.handleEvent.bind(this))
-
-		this.wss.on('connection', this.handleConnection.bind(this))
 
 		this.generator = poisson.create(config.GEN_DURATION, () => {
 			const object = generateObject()

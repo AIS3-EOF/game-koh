@@ -1,5 +1,7 @@
 import { debug } from 'debug'
 import * as dotenv from 'dotenv'
+import { WebSocketServer } from 'ws'
+dotenv.config({ path: require('path').resolve(__dirname, '../../share.env') })
 dotenv.config()
 
 const log = debug('server:index')
@@ -30,10 +32,15 @@ async function setup() {
 	log('connected to database')
 
 	const manager = new Manager(db)
-	
+
+	const wss = new WebSocketServer({ port: Number(process.env.WS_PORT) })
+	wss.on('connection', ws => {
+		log('new connection')
+		manager.handleConnection(ws)
+	})
+
 	run(manager)
 }
 setup()
 
-if (require.main === module)
-	require('~/tester').run()
+if (require.main === module) require('~/tester').run()
