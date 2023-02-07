@@ -32,12 +32,15 @@ export default class Game extends Phaser.Scene {
 			window.send({ type: 'move', data: { vec, facing: this.me.facing } })
 		},
 		150,
-		{ trailing: false }
+		{ trailing: false },
 	)
 
 	faceAry: Vec2[] = []
 	updateFace = throttle(() => {
-		const vec = this.faceAry.reduce((acc, cur) => [acc[0] || cur[0], acc[1] || cur[1]], [0, 0])
+		const vec = this.faceAry.reduce(
+			(acc, cur) => [acc[0] || cur[0], acc[1] || cur[1]],
+			[0, 0],
+		)
 		this.faceAry = []
 		if (vec[0] === 0 && vec[1] === 0) return
 		this.updateVec(vec)
@@ -48,7 +51,7 @@ export default class Game extends Phaser.Scene {
 			window.send({ type: 'attack', data: { facing: this.me.facing } })
 		},
 		500,
-		{ trailing: false }
+		{ trailing: false },
 	)
 
 	interact = throttle(
@@ -57,25 +60,42 @@ export default class Game extends Phaser.Scene {
 			window.send({ type: 'interact_map', data: { pos } })
 		},
 		500,
-		{ trailing: false }
+		{ trailing: false },
 	)
 
 	createFOV() {
-		this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 } })
-		let mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics)
+		this.maskGraphics = this.add.graphics({
+			fillStyle: { color: 0xffffff, alpha: 0 },
+		})
+		let mask = new Phaser.Display.Masks.GeometryMask(
+			this,
+			this.maskGraphics,
+		)
 		mask.invertAlpha = true
 
-		this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 1 } })
+		this.fow = this.add.graphics({
+			fillStyle: { color: 0x000000, alpha: 1 },
+		})
 		this.fow.setMask(mask)
 		this.fow.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels)
 
 		this.viewableRange = this.add.circle(0, 0, 350, 0x000000, 0)
-		let mask2 = new Phaser.Display.Masks.GeometryMask(this, this.viewableRange)
+		let mask2 = new Phaser.Display.Masks.GeometryMask(
+			this,
+			this.viewableRange,
+		)
 		mask2.invertAlpha = true
 
-		this.fovRange = this.add.graphics({ fillStyle: { color: 0, alpha: 0.85 } })
+		this.fovRange = this.add.graphics({
+			fillStyle: { color: 0, alpha: 0.85 },
+		})
 		this.fovRange.setMask(mask2)
-		this.fovRange.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels)
+		this.fovRange.fillRect(
+			0,
+			0,
+			this.map.heightInPixels,
+			this.map.widthInPixels,
+		)
 		this.fovRange.setDepth(40)
 	}
 
@@ -86,26 +106,44 @@ export default class Game extends Phaser.Scene {
 		this.maskGraphics.clear()
 		//draw fov mask
 		this.maskGraphics.fillPoints(this.intersections)
-
-		this.viewableRange.setPosition(this.me.x, this.me.y)
 	}
 
 	updateFOV() {
-		this.ray.setOrigin(this.me.x - this.me.facing?.[0] * 15, this.me.y - this.me.facing?.[1] * 15)
-
-		this.ray.setConeDeg(90)
-		// console.log(this.me.facing)
-		if (this.me.facing) {
-			this.ray.setAngle(Math.atan2(this.me.facing[1], this.me.facing[0]))
+		const updateOnce = () => {
+			this.ray.setOrigin(
+				this.me.x - this.me.facing?.[0] * 15,
+				this.me.y - this.me.facing?.[1] * 15,
+			)
+			this.ray.setConeDeg(90)
+			if (this.me.facing) {
+				this.ray.setAngle(
+					Math.atan2(this.me.facing[1], this.me.facing[0]),
+				)
+			}
+			this.intersections = this.ray.castCone()
+			this.draw()
 		}
-		//cast ray in a cone
-		this.intersections = this.ray.castCone()
-
-		// or cast ray in all directions
-		// this.intersections = this.ray.castCircle();
-
-		//redraw
-		this.draw()
+		this.tweens.add({
+			targets: this.viewableRange,
+			x: this.me.x || 0,
+			y: this.me.y || 0,
+			duration: 150,
+			ease: 'Linear',
+			onStart: updateOnce,
+			// // animated raycast
+			// onUpdate: (tween: any, target: any) => {
+			// 	if (
+			// 		// (tween.elapsed > 25 && tween.elapsed < 30) ||
+			// 		// (tween.elapsed > 55 && tween.elapsed < 60) ||
+			// 		// (tween.elapsed > 85 && tween.elapsed < 90) ||
+			// 		// (tween.elapsed > 115 && tween.elapsed < 120) ||
+			// 		// (tween.elapsed > 145 && tween.elapsed < 150)
+			// 	) {
+			// 		updateOnce()
+			// 	}
+			// },
+			onComplete: updateOnce,
+		})
 	}
 
 	handleEvent(event: ClientMessage) {
@@ -114,7 +152,8 @@ export default class Game extends Phaser.Scene {
 				const me = event.data.player
 
 				event.data.players.forEach(player => {
-					const playerText = player.identifier === me.identifier ? '我' : '他'
+					const playerText =
+						player.identifier === me.identifier ? '我' : '他'
 					const playerObj = new Player(this, playerText, player)
 					this.players.set(player.identifier, playerObj)
 				})
@@ -128,9 +167,11 @@ export default class Game extends Phaser.Scene {
 				{
 					const player = event.data.player
 					console.log('join', player)
-					const playerObj = this.players.get(player.identifier) || new Player(this, '他', player)
-					playerObj.setPositionTo(player.pos)
+					const playerObj =
+						this.players.get(player.identifier) ||
+						new Player(this, '他', player)
 					playerObj.face(player.facing)
+					playerObj.setPositionTo(player.pos)
 					this.players.set(player.identifier, playerObj)
 				}
 				break
@@ -141,9 +182,10 @@ export default class Game extends Phaser.Scene {
 					const playerObj = this.players.get(player.identifier)
 					if (!playerObj) break
 
-					playerObj.setPositionTo(player.pos)
 					playerObj.face(player.facing)
-					playerObj.visible = true
+					playerObj.setPositionTo(player.pos)
+
+					playerObj.setVisible(true)
 
 					if (player.identifier === this.me.identifier) {
 						this.updateFOV()
@@ -167,25 +209,13 @@ export default class Game extends Phaser.Scene {
 				const playerObj = this.players.get(identifier)
 				if (!playerObj) break
 
-				playerObj.setPositionTo(pos)
 				playerObj.face(facing)
+				playerObj.setPositionTo(pos)
 
 				if (identifier === this.me.identifier) {
 					this.updateFOV()
 				}
 
-				// draw arrow to indicate direction
-				const { x, y } = playerObj
-				const { width, height } = playerObj
-				const { graphics } = playerObj
-				graphics.clear()
-				graphics.lineStyle(2, 0x009900, 1)
-				graphics.beginPath()
-				// begin from the center of the player
-				const [fx, fy] = facing
-				graphics.moveTo(x, y)
-				graphics.lineTo(x + (fx * (width + 30)) / 2, y + (fy * (height + 30)) / 2)
-				graphics.strokePath()
 				break
 
 			case 'attack':
@@ -199,13 +229,20 @@ export default class Game extends Phaser.Scene {
 					const [fx, fy] = facing
 					const angle = (Math.atan2(fy, fx) * 180.0) / Math.PI
 					for (const [rx, ry] of weapon.damageRange) {
-						let rv = rotate([rx, ry], facing).map(v => v * 32) as Vec2
+						let rv = rotate([rx, ry], facing).map(
+							v => v * 32,
+						) as Vec2
 						// console.log(rx, ry, facing, rv, add([x,y], rv))
 						let d = this.add.rectangle(
-							...add(event.data.attacker_pos.map(x => x * 32 + 16) as Vec2, rv),
+							...add(
+								event.data.attacker_pos.map(
+									x => x * 32 + 16,
+								) as Vec2,
+								rv,
+							),
 							32,
 							32,
-							0x990000
+							0x990000,
 						)
 						d.angle = angle
 						d.setDepth(3)
@@ -238,7 +275,11 @@ export default class Game extends Phaser.Scene {
 					let deathScreen: Phaser.GameObjects.Rectangle
 					let deathTexts: Phaser.GameObjects.Text[]
 
-					const { victim_identifier, attacker_identifier, respawn_time } = event.data
+					const {
+						victim_identifier,
+						attacker_identifier,
+						respawn_time,
+					} = event.data
 					const victim = this.players.get(victim_identifier)
 					if (!victim) break
 					if (victim_identifier === this.me.identifier) {
@@ -246,7 +287,14 @@ export default class Game extends Phaser.Scene {
 						this.cameras.main.stopFollow()
 
 						deathScreen = this.add
-							.rectangle(0, 0, this.map.heightInPixels, this.map.widthInPixels, 0x000000, 0.5)
+							.rectangle(
+								0,
+								0,
+								this.map.heightInPixels,
+								this.map.widthInPixels,
+								0x000000,
+								0.5,
+							)
 							.setDepth(100)
 							.setOrigin(0, 0)
 
@@ -254,28 +302,38 @@ export default class Game extends Phaser.Scene {
 							this.add
 								.text(this.me.x, this.me.y - 32, 'You died', {
 									fontSize: '128px',
-									color: '#ff0000'
+									color: '#ff0000',
 								})
 								.setDepth(101)
 								.setOrigin(0.5, 0.5),
 							this.add
-								.text(this.me.x, this.me.y + 128 - 32, `Killed by ${attacker_identifier}`, {
-									fontSize: '64px',
-									color: '#ffffff'
-								})
+								.text(
+									this.me.x,
+									this.me.y + 128 - 32,
+									`Killed by ${attacker_identifier}`,
+									{
+										fontSize: '64px',
+										color: '#ffffff',
+									},
+								)
 								.setDepth(101)
 								.setOrigin(0.5, 0.5),
 							this.add
-								.text(this.me.x, this.me.y + 128 + 64 + 20 - 32, `Respawn in ${respawn_time} seconds`, {
-									fontSize: '64px',
-									color: '#ffffff'
-								})
+								.text(
+									this.me.x,
+									this.me.y + 128 + 64 + 20 - 32,
+									`Respawn in ${respawn_time} seconds`,
+									{
+										fontSize: '64px',
+										color: '#ffffff',
+									},
+								)
 								.setDepth(101)
-								.setOrigin(0.5, 0.5)
+								.setOrigin(0.5, 0.5),
 						]
 					}
 
-					victim.visible = false
+					victim.setVisible(false)
 
 					setTimeout(() => {
 						if (deathScreen) {
@@ -288,7 +346,9 @@ export default class Game extends Phaser.Scene {
 
 			case 'interact_map':
 			case 'use':
-				this.players.get(event.data.player.identifier)?.updatePlayer(event.data.player)
+				this.players
+					.get(event.data.player.identifier)
+					?.updatePlayer(event.data.player)
 				break
 
 			default:
@@ -301,7 +361,10 @@ export default class Game extends Phaser.Scene {
 
 	preload() {
 		this.load.image('lab_tiles', 'assets/images/lab.png')
-		this.load.tilemapTiledJSON('map', JSON.parse(window.sessionStorage.getItem('map') ?? '{}'))
+		this.load.tilemapTiledJSON(
+			'map',
+			JSON.parse(window.sessionStorage.getItem('map') ?? '{}'),
+		)
 	}
 
 	create() {
@@ -312,7 +375,12 @@ export default class Game extends Phaser.Scene {
 		this.layer = this.map.createLayer('Ground', tiles, 0, 0)
 		this.topLayer = this.map.createLayer('Top', tiles, 0, 0)
 
-		this.physics.world.setBounds(0, 0, this.map.heightInPixels, this.map.widthInPixels)
+		this.physics.world.setBounds(
+			0,
+			0,
+			this.map.heightInPixels,
+			this.map.widthInPixels,
+		)
 
 		this.cameras.main.setBackgroundColor('#222222')
 
@@ -326,7 +394,17 @@ export default class Game extends Phaser.Scene {
 
 		//map tilemap layer
 		this.raycaster.mapGameObjects(this.layer, false, {
-			collisionTiles: [...Array(400).keys(), 416, 418, 446, 448, 450, 476, 478, 480] //array of tile types which collide with rays
+			collisionTiles: [
+				...Array(400).keys(),
+				416,
+				418,
+				446,
+				448,
+				450,
+				476,
+				478,
+				480,
+			], //array of tile types which collide with rays
 		})
 
 		// or cast ray in all directions
@@ -357,7 +435,7 @@ export default class Game extends Phaser.Scene {
 		// player control
 		const vec = [
 			this.cursors.right.isDown - this.cursors.left.isDown,
-			this.cursors.down.isDown - this.cursors.up.isDown
+			this.cursors.down.isDown - this.cursors.up.isDown,
 		] as Vec2
 		if (vec.some(Boolean)) {
 			this.faceAry.push(vec)
