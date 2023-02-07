@@ -22,7 +22,9 @@ const sendMessage = () => {
     if (message.value.length > 0) {
         window.send({ type: 'chat', data })
         message.value = ''
-        props.messages.push(data)
+        if (data.to !== '(all)' && data.to !== window.me) {
+            props.messages.push(data)
+        }
     }
 }
 
@@ -70,7 +72,7 @@ onMounted(() => {
                 <option value="(all)">All</option>
                 <option v-for="player in players" :value="player" v-bind:key="player">{{ player }}</option>
             </select>
-            <input type="text" v-model="message" @keyup.enter="sendMessage" />
+            <input type="text" v-model="message" @keyup.enter="sendMessage" @keydown.stop />
         </div>
     </div>
 </template>
