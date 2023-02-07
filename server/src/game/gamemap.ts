@@ -133,7 +133,8 @@ export class GameMap {
 	}
 
 	getRandomSpawnPosition() : Vec2 {
-		return [Math.floor(Math.random() * 4) + 1, Math.floor(Math.random() * 4) + 1]
+		// TEST CODE: limited spawn positions
+		return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
 		while (true) {
 			const pos = [Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height)]
 			// check if tile is walkable
@@ -145,15 +146,15 @@ export class GameMap {
 
 	// randomly choose chest position and put it in the chest inventory
 	dropGameObject(game_object: GameObject) {
-		// const pos = this.chest_positions[Math.floor(Math.random() * this.chest_positions.length)]
-		// if (!pos) return
-		// const chest = this.getTile(pos) as Chest
-		// chest.chest_inventory.push(game_object)
+		const pos = this.chest_positions[Math.floor(Math.random() * this.chest_positions.length)]
+		if (!pos) return
+		const chest = this.getTile(pos) as Chest
+		chest.chest_inventory.push(game_object)
 
 		// TEST CODE: Place game_object into all chests
-		this.chest_positions.forEach(element => {
-			let chest = this.getTile(element) as Chest
-			chest.chest_inventory.push(game_object)
-		});
+		// this.chest_positions.forEach(element => {
+		// 	let chest = this.getTile(element) as Chest
+		// 	chest.chest_inventory.push(game_object)
+		// });
 	}
 }

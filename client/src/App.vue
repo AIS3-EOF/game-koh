@@ -57,7 +57,7 @@ function handleEvent(event: any) {
         }
     }
     if (event instanceof KeyboardEvent && !event.repeat && init.value) {
-        switch (event.key) {
+        switch (event.key.toLowerCase()) {
             case 'i':
                 inventory.show = !inventory.show
                 break

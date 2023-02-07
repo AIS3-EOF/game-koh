@@ -15,8 +15,8 @@ export const TICK_ACTION_COUNT = 10
 export const TICK_ACTION_MAX_COUNT = TICK_ACTION_COUNT * 20
 
 export const TICK_LIVE_SCORE = 1
-export const KILL_SCORE = 10
-export const DAMAGE_SCORE = 1
+export const KILL_SCORE = 15
+export const DAMAGE_SCORE = 2
 export const MOVE_SCORE = 1
 
 export const GEN_DURATION = 10000

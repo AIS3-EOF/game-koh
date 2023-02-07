@@ -14,6 +14,7 @@ export class Player {
 	) {
 	}
 
+	max_hp: number = DEFAULT_HP
 	hp: number = DEFAULT_HP
 	exp: number = 0
 	atk: number = 1
@@ -41,6 +42,21 @@ export class Player {
 	getObjectFromInventory(uuid: string) {
 		return this.inventory.find((obj) => obj.uuid === uuid)
 	}
+
+	addMaxHp(amount: number) {
+		this.max_hp += amount
+		this.hp += amount
+	}
+
+	removeMaxHp(amount: number) {
+		this.max_hp -= amount
+
+		// remove the exceed hp from player
+		if (this.hp > this.max_hp) {
+			this.hp = this.max_hp
+		}
+	}
+
 	removeObjectFromInventory(object: GameObject | string) {
 		if (typeof object === 'string') {
 			const tmp = this.getObjectFromInventory(object)

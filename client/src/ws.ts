@@ -10,7 +10,7 @@ function onopen(event: Event) {
     login_input.removeAttribute("disabled");
     login_input.focus();
     login_input.addEventListener("keydown", event => {
-        if (event.code === "Enter") {
+        if (event.key === "Enter" || event.key === "NumpadEnter") {
             const token = (login_input as HTMLInputElement).value
             window.send({ type: "login", data: { token } });
             login_input.setAttribute("disabled", "true");
