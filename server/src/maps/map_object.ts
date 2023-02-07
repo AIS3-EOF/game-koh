@@ -20,7 +20,7 @@ export class MapObject {
         this.texture = 'null';
     }
 
-    interact(ctx: Context) {
+    interact(ctx: Context, data: any) {
         log(`${ctx.player.identifier} interacted with ${this.identifier}`)
     }
 }
