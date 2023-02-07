@@ -37,6 +37,7 @@ export interface UseMessage {
 
 export interface InteractMapMessageData {
 	pos: Vec2
+	data?: any  // depends on the object
 }
 export interface InteractMapMessage {
 	type: 'interact_map'

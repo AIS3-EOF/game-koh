@@ -6,7 +6,7 @@ export const handle = async (ctx: Context, data: InteractMapMessageData) => {
     // Fix: validate the position
     const object = ctx.game.map.getTile(data.pos) as MapObject
     if (object) {
-        object.interact(ctx)
+        object.interact(ctx, data.data)
         eventQueue.push({
             type: 'interact_map',
             data: {
