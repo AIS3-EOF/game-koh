@@ -46,7 +46,12 @@ export default class Player extends Phaser.GameObjects.Container {
 
     setPositionTo(pos: Vec2){
         this.pos = pos
-        this.setPosition(...pos.map(x=>x*32+16))
+        this.setPosition(...pos.map((x: number) => x*32+16))
+    }
+
+    destroy(fromScene?: boolean | undefined): void {
+        this.graphics.destroy()
+        super.destroy(fromScene);
     }
     
 }

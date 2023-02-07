@@ -91,7 +91,7 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateFOV() {
-		this.ray.setOrigin(this.me.x - this.me.facing?.[0] * 16, this.me.y - this.me.facing?.[1] * 16)
+		this.ray.setOrigin(this.me.x - this.me.facing?.[0] * 15, this.me.y - this.me.facing?.[1] * 15)
 
 		this.ray.setConeDeg(90)
 		// console.log(this.me.facing)
@@ -120,16 +120,19 @@ export default class Game extends Phaser.Scene {
 				})
 
 				this.me = this.players.get(me.identifier)!
-
 				this.updateFOV()
-
 				this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
 				break
 
 			case 'join':
-				const player = event.data.player
-				const other = new Player(this, '他', player)
-				this.players.set(player.identifier, other)
+				{
+					const player = event.data.player
+					console.log('join', player)
+					const playerObj = this.players.get(player.identifier) || new Player(this, '他', player)
+					playerObj.setPositionTo(player.pos)
+					playerObj.face(player.facing)
+					this.players.set(player.identifier, playerObj)
+				}
 				break
 
 			case 'respawn':
@@ -149,12 +152,22 @@ export default class Game extends Phaser.Scene {
 				}
 				break
 
+			case 'leave':
+				{
+					const { identifier } = event.data
+					const playerObj = this.players.get(identifier)
+					if (!playerObj) break
+
+					playerObj.destroy()
+					this.players.delete(identifier)
+				}
+				break
 			case 'move':
 				const { identifier, pos, facing } = event.data
 				const playerObj = this.players.get(identifier)
 				if (!playerObj) break
 
-				playerObj.setPositionTo(event.data.pos)
+				playerObj.setPositionTo(pos)
 				playerObj.face(facing)
 
 				if (identifier === this.me.identifier) {
@@ -239,21 +252,21 @@ export default class Game extends Phaser.Scene {
 
 						deathTexts = [
 							this.add
-								.text(this.me.x, this.me.y, 'You died', {
+								.text(this.me.x, this.me.y - 32, 'You died', {
 									fontSize: '128px',
 									color: '#ff0000'
 								})
 								.setDepth(101)
 								.setOrigin(0.5, 0.5),
 							this.add
-								.text(this.me.x, this.me.y + 128, `Killed by ${attacker_identifier}`, {
+								.text(this.me.x, this.me.y + 128 - 32, `Killed by ${attacker_identifier}`, {
 									fontSize: '64px',
 									color: '#ffffff'
 								})
 								.setDepth(101)
 								.setOrigin(0.5, 0.5),
 							this.add
-								.text(this.me.x, this.me.y + 128 + 64 + 20, `Respawn in ${respawn_time} seconds`, {
+								.text(this.me.x, this.me.y + 128 + 64 + 20 - 32, `Respawn in ${respawn_time} seconds`, {
 									fontSize: '64px',
 									color: '#ffffff'
 								})
@@ -269,7 +282,7 @@ export default class Game extends Phaser.Scene {
 							deathScreen.destroy()
 							deathTexts.forEach(t => t.destroy())
 						}
-					}, respawn_time * 1000)
+					}, (respawn_time - 0.5) * 1000)
 				}
 				break
 

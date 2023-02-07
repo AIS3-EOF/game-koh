@@ -26,6 +26,15 @@ export interface JoinEvent {
     data: JoinData
 }
 
+export interface LeaveData {
+    identifier: string
+}
+
+export interface LeaveEvent {
+    type: 'leave'
+    data: LeaveData
+}
+
 export interface MoveData {
     identifier: string
     facing: Vec2
@@ -159,7 +168,7 @@ export interface RoundEvent {
 }
 
 export type Event = 
-    InitEvent | JoinEvent |
+    InitEvent | JoinEvent | LeaveEvent |
     MoveEvent | AttackEvent | UseEvent | InteractMapEvent | 
     ChatEvent | AchievementEvent | 
     NewObjectSpawnedEvent | UpdateMapEvent | 

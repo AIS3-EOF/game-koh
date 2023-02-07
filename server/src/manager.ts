@@ -87,11 +87,11 @@ export class Manager {
             const sessionId = randomUUID()
             log('%s connected', sessionId)
             const player = await handleLogin(ws, this.db)
+            this.game.addPlayer(player)
             eventQueue.push({
                 type: 'join',
                 data: { player },
             })
-            this.game.addPlayer(player)
             log('%s logined', sessionId)
             const ctx = new Context(sessionId, ws, this.game, player, this.db)
             ctx.init(this.round)
@@ -120,6 +120,12 @@ export class Manager {
                 log('%s disconnected', sessionId)
                 this.game.removePlayer(player)
                 this.contexts.delete(sessionId)
+
+                sockets.delete(player.identifier)
+                eventQueue.push({
+                    type: 'leave',
+                    data: { identifier: player.identifier }
+                })
             })
         } catch (e) {
             log('error: %s', e)
