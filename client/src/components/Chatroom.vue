@@ -22,7 +22,10 @@ const sendMessage = () => {
     if (message.value.length > 0) {
         window.send({ type: 'chat', data })
         message.value = ''
-        props.messages.push(data)
+        if (data.to !== '(all)') {
+            props.messages.push(data)
+        }
+        
     }
 }
 
