@@ -3,10 +3,16 @@ import { Context } from '~/context'
 import parser from '~/parser'
 
 export const handle = async (ctx: Context, data: ChatMessageData) => {
-	const { from, to, message } = data
-	const ServerMessage = (message: string) => ({ timestamp: Date.now(), from: '(server)', to: from, message })
+	const { /*from,*/ to } = data
+	const from = ctx.player.identifier
+	const ServerMessage = (message: string) => ({
+		timestamp: Date.now(),
+		from: '(server)',
+		to: from,
+		message,
+	})
 
-	const messageData = { timestamp: Date.now(), from, to, message }
+	const messageData = { ...data, timestamp: Date.now(), from }
 
 	// if (to === from)
 	// 	return ctx.send({
@@ -17,19 +23,19 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 	if (to === '(all)') {
 		eventQueue.push({
 			type: 'chat',
-			data: messageData
+			data: messageData,
 		})
 	} else {
 		if (!sockets.has(to))
 			return ctx.send({
 				type: 'chat',
-				data: ServerMessage('Player not found')
+				data: ServerMessage('Player not found'),
 			})
 		sockets.get(to)?.send(
 			parser.stringify({
 				type: 'chat',
-				data: messageData
-			})
+				data: messageData,
+			}),
 		)
 	}
 }

@@ -42,6 +42,29 @@ onMounted(() => {
     })
 })
 
+// convert message.message to html (bbcode)
+
+const bbcode = (text: string) => {
+    const entities = new Map([
+        ['&', '&amp;'],
+        ['<', '&lt;'],
+        ['>', '&gt;']
+    ])
+    const escape = (str: string) => str.replace(/[&<>]/g, (char) => entities.get(char) || char)
+    const bbcode = [
+        { regex: /\[b\](.*?)\[\/b\]/g, replace: '<b>$1</b>' },
+        { regex: /\[i\](.*?)\[\/i\]/g, replace: '<i>$1</i>' },
+        { regex: /\[u\](.*?)\[\/u\]/g, replace: '<u>$1</u>' },
+        { regex: /\[s\](.*?)\[\/s\]/g, replace: '<s>$1</s>' },
+        { regex: /\[color=(.*?)\](.*?)\[\/color\]/g, replace: '<span style="color: $1">$2</span>' },
+        { regex: /\[br\]/g, replace: '<br />' },
+    ]
+    let html = escape(text)
+    for (const { regex, replace } of bbcode) {
+        html = html.replace(regex, replace)
+    }
+    return html
+}
 
 </script>
 
@@ -55,7 +78,8 @@ onMounted(() => {
                         <span v-else-if="message.to === '(all)'">{{ message.from }} 📢:</span>
                         <span v-else>{{ message.from }} &rarr; {{ message.to }}:</span>
                     </div>
-                    <div class="message__text" v-html="message.message"></div>
+                    <div v-if="message.advanced" class="message__text" v-html="bbcode(message.message)"></div>
+                    <div v-else class="message__text">{{ message.message }}</div>
                     <div class="message__timestamp">{{
                         new Date(message.timestamp || 0).toLocaleTimeString('en-US', {
                             hour12: false

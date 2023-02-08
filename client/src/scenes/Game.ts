@@ -357,7 +357,8 @@ export default class Game extends Phaser.Scene {
 							duration: 500,
 							ease: 'Power2',
 							yoyo: true,
-							onComplete: () => deadBody.setDepth(0),
+							onComplete: () =>
+								deadBody.setDepth(0).setText('屍'),
 						})
 					}, 1400)
 
