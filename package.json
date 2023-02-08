@@ -5,7 +5,7 @@
 	"author": "maple3142 <kirby741852963@gmail.com>",
 	"license": "MIT",
 	"scripts": {
-		"format": "prettier src -w",
+		"format": "prettier -w parser */src",
 		"server:dev": "cd server && nodemon",
 		"server:build": "cd server && rollup --config",
 		"client:dev": "cd client && vite --port 8000",

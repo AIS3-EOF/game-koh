@@ -9,7 +9,7 @@ export const TICK_INTERVAL = 1000
 export const MAP_SIZE = 64
 export const TILE_SIZE = 32
 export const ROOM_SIZE = MAP_SIZE * 2
-export const CHEST_SIZE = Math.floor(MAP_SIZE * MAP_SIZE / 200)
+export const CHEST_SIZE = Math.floor((MAP_SIZE * MAP_SIZE) / 200)
 
 export const TICK_ACTION_COUNT = 10
 export const TICK_ACTION_MAX_COUNT = TICK_ACTION_COUNT * 20

@@ -8,9 +8,7 @@ export class Game {
 	scores = new Map<string, number>()
 	respawn_players = new Map<Player, number>()
 
-	constructor(
-		public map: GameMap,
-	) {}
+	constructor(public map: GameMap) {}
 
 	addPlayer(player: Player) {
 		if (player.login_count++ == 0) {
@@ -56,11 +54,16 @@ export class Game {
 		return this.objects.get(uuid)
 	}
 	removeObject(object: GameObject | string) {
-		return this.objects.delete(typeof object === 'string' ? object : object.uuid)
+		return this.objects.delete(
+			typeof object === 'string' ? object : object.uuid,
+		)
 	}
 
 	addScore(player: Player, score: number) {
-		this.updateScore(player, (this.scores.get(player.identifier) ?? 0) + score)
+		this.updateScore(
+			player,
+			(this.scores.get(player.identifier) ?? 0) + score,
+		)
 	}
 
 	updateScore(player: Player, score: number) {

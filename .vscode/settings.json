@@ -1,5 +1,6 @@
 {
-    "git.enableCommitSigning": false,
-    "editor.tabSize": 4,
-    "editor.formatOnSave": true
+	"git.enableCommitSigning": false,
+	"editor.tabSize": 4,
+	"editor.formatOnSave": true,
+	"files.insertFinalNewline": true
 }

@@ -12,4 +12,4 @@ export const attack_modifier = 1
 ---
  */
 const R = 5
-export const range: Vec2[] = Array.from({ length: R }, (_, i) => [0, i+1])
+export const range: Vec2[] = Array.from({ length: R }, (_, i) => [0, i + 1])

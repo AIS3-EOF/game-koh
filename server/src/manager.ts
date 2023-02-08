@@ -102,7 +102,9 @@ export class Manager {
 					} else {
 						ctx.send({
 							type: 'error',
-							data: `Round ${this.round.number} ${roundMessage[this.round.status]}`,
+							data: `Round ${this.round.number} ${
+								roundMessage[this.round.status]
+							}`,
 						})
 					}
 				} catch (e) {
@@ -141,7 +143,10 @@ export class Manager {
 	private checkDeathImpl() {
 		log('check death impl')
 		this.game.players.forEach((current_player: Player) => {
-			if (!current_player.alive && !this.game.isPlayerRespawn(current_player)) {
+			if (
+				!current_player.alive &&
+				!this.game.isPlayerRespawn(current_player)
+			) {
 				// sentence death
 				// respawn_time is game tick
 				const respawn_time = 10 // TODO: random here OuO?
@@ -205,7 +210,10 @@ export class Manager {
 		if (this.round.status !== RoundStatus.RUNNING) return
 
 		this.game.players.forEach(player => {
-			player.action_count = Math.min(player.action_count + config.TICK_ACTION_COUNT, config.TICK_ACTION_MAX_COUNT)
+			player.action_count = Math.min(
+				player.action_count + config.TICK_ACTION_COUNT,
+				config.TICK_ACTION_MAX_COUNT,
+			)
 			if (player.alive && player.login_count > 0) {
 				this.game.addScore(player, config.TICK_LIVE_SCORE)
 			}

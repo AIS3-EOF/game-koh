@@ -13,11 +13,11 @@ const HANDLERS = new Map<string, null | ((ctx: Context, data: any) => void)>([
 	['attack', handle_attack],
 	['use', handle_use],
 	['chat', handle_chat],
-	['interact_map', handle_interact_map]
+	['interact_map', handle_interact_map],
 ])
 
 export const dispatch = async (ctx: Context, msg: ServerMessage) => {
-	if (!ctx.player.alive|| ctx.player.action_count <= 0) return
+	if (!ctx.player.alive || ctx.player.action_count <= 0) return
 	ctx.player.action_count--
 
 	const fn = HANDLERS.get(msg.type)

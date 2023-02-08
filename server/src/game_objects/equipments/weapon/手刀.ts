@@ -11,6 +11,4 @@ export const attack_modifier = 1
 -OX
 ---
  */
-export const range: Vec2[] = [
-  [0, 1],
-]
+export const range: Vec2[] = [[0, 1]]

@@ -16,12 +16,23 @@ export const handleLogin = async (ws: WebSocket, db: Db): Promise<Player> =>
 				// handle login and retrieve player from database
 				const { data } = msg
 				if (!data || !data.token) {
-					ws.send(parser.stringify({ type: 'login', data: { success: false } }))
+					ws.send(
+						parser.stringify({
+							type: 'login',
+							data: { success: false },
+						}),
+					)
 					ws.close()
 					reject(new Error('Login failed'))
 				} else {
-					ws.send(parser.stringify({ type: 'login', data: { success: true } }))
-					const player = players.get(data.token) ?? new Player(data.token)
+					ws.send(
+						parser.stringify({
+							type: 'login',
+							data: { success: true },
+						}),
+					)
+					const player =
+						players.get(data.token) ?? new Player(data.token)
 					if (!players.has(data.token))
 						players.set(data.token, player)
 					sockets.set(data.token, ws)

@@ -37,7 +37,7 @@ export interface UseMessage {
 
 export interface InteractMapMessageData {
 	pos: Vec2
-	data?: any  // depends on the object
+	data?: any // depends on the object
 }
 export interface InteractMapMessage {
 	type: 'interact_map'
@@ -64,8 +64,11 @@ export interface LFIMessage {
 	data: LFIMessageData
 }
 
-export type ServerMessage = 
-	LoginMessage | 
-	MoveMessage | AttackMessage | UseMessage | InteractMapMessage |
-	ChatMessage |
-	LFIMessage
+export type ServerMessage =
+	| LoginMessage
+	| MoveMessage
+	| AttackMessage
+	| UseMessage
+	| InteractMapMessage
+	| ChatMessage
+	| LFIMessage

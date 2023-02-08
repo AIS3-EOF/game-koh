@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
-import { ChatMessageData, GameObject, ScoreItem, RoundData, RoundStatus } from '@/types'
+import {
+    ChatMessageData,
+    GameObject,
+    ScoreItem,
+    RoundData,
+    RoundStatus,
+} from '@/types'
 
 interface Props {
     players: string[]
@@ -31,7 +37,7 @@ const sendMessage = () => {
 // make list scrolled to bottom when new messages arrive
 const list = ref<HTMLElement>()
 onMounted(() => {
-    list.value?.addEventListener('DOMNodeInserted', (event) => {
+    list.value?.addEventListener('DOMNodeInserted', event => {
         const { currentTarget } = event
         if (currentTarget instanceof HTMLElement) {
             currentTarget.scroll({
@@ -103,7 +109,6 @@ const bbcode = (text: string) => {
 
 <style lang="scss" scoped>
 .chatroom {
-
     min-width: 400px;
     position: absolute;
     bottom: 0;
@@ -141,9 +146,7 @@ const bbcode = (text: string) => {
             .message__text::after {
                 content: '"';
             }
-
         }
-
 
         // no scrollbars
         &::-webkit-scrollbar {
@@ -155,7 +158,6 @@ const bbcode = (text: string) => {
         scrollbar-width: none;
         /* Firefox */
     }
-
 }
 
 .input-group {

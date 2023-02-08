@@ -1,4 +1,9 @@
-export type ManagerEvent = 'round_init' | 'round_start' | 'round_end' | 'round_tick' | 'check_death'
+export type ManagerEvent =
+	| 'round_init'
+	| 'round_start'
+	| 'round_end'
+	| 'round_tick'
+	| 'check_death'
 
 export enum RoundStatus {
 	PREINIT = 'preinit',

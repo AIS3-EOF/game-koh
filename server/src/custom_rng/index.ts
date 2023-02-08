@@ -1,7 +1,9 @@
 import * as crypto from 'crypto'
 
 function sha256(s: ArrayBuffer) {
-	return new Uint8Array(crypto.createHash('sha256').update(Buffer.from(s)).digest()).buffer
+	return new Uint8Array(
+		crypto.createHash('sha256').update(Buffer.from(s)).digest(),
+	).buffer
 }
 
 function arrToNum(arr: ArrayBuffer) {
@@ -38,7 +40,10 @@ class RNG {
 	}
 	next() {
 		const out = this.state[0]
-		const res = this.coef.map((x, i) => (x * this.state[i]) % this.p).reduce((a, b) => a + b, 0n) % this.p
+		const res =
+			this.coef
+				.map((x, i) => (x * this.state[i]) % this.p)
+				.reduce((a, b) => a + b, 0n) % this.p
 		this.state = this.state.slice(1).concat([res])
 		return out
 	}
@@ -53,7 +58,12 @@ function BigIntDivision(a: bigint, b: bigint, prec: number) {
 	return Number((a * BigInt(prec)) / b) / prec
 }
 
-export function randProb(key: string, userProvidedSeeds: string[], n = 3, m = 24) {
+export function randProb(
+	key: string,
+	userProvidedSeeds: string[],
+	n = 3,
+	m = 24,
+) {
 	while (userProvidedSeeds.length < n) {
 		userProvidedSeeds.push(String(cryptoRand()))
 	}
