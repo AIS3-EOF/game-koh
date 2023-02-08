@@ -75,8 +75,8 @@ export class Armor extends Equipment {
 
 		ctx.player.current_armor.unequip(ctx)
 		if (ctx.player.removeObjectFromInventory(this)) {
-			if (this.can_transfer) {
-				ctx.player.addObjectToInventory(this)
+			if (ctx.player.current_armor.can_transfer) {
+				ctx.player.addObjectToInventory(ctx.player.current_armor)
 			}
 
 			ctx.player.current_armor = this
