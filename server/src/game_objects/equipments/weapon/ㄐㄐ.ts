@@ -2,8 +2,9 @@ import { Vec2 } from '~/protocol'
 import { Weapon } from '../weapon'
 
 export const identifier = 'ㄐㄐ'
-export const texture = 'ㄐㄐ'
+export const texture = 'chi_chi'
 export const can_transfer = true
+export const description = '超遠距離ㄐㄐ'
 export const attack_modifier = 1
 
 /*

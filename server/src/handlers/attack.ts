@@ -20,20 +20,18 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
 			attacker,
 			target,
 		)
+
 		if (damage <= 0) {
 			continue
 		}
 
 		// dealing damage to victims
-		const killed = target.dealDamage(damage)
+		const killed = target.dealDamageFrom(damage, attacker.identifier)
 		sideEffect += effect
 		targets.push({
 			identifier: target.identifier,
 			damage,
 		})
-
-		// update the last damage
-		target.last_damage_from = attacker.identifier
 
 		// add attack bonus
 		ctx.addScore(DAMAGE_SCORE)

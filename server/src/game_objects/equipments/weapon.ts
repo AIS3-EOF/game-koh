@@ -25,6 +25,7 @@ export enum WeaponType {
 export interface WeaponDetail {
 	identifier: string
 	texture: string
+	description: string
 	can_transfer: boolean
 	attack_modifier: number
 	range: Vec2[]
@@ -55,11 +56,12 @@ export function generateWeapon() {
 
 export class Weapon extends Equipment {
 	public range: Vec2[]
-	constructor(public weapon_type: WeaponType = WeaponType.半月刀) {
+	constructor(public weapon_type: WeaponType = WeaponType.手刀) {
 		super()
 		this.identifier += '::Weapon::' + this.detail.identifier
 		// TODO: Replace texture here
-		this.texture = this.detail.texture ?? 'unknown weapon'
+		this.texture = this.detail.texture ?? 'unknown_weapon'
+		this.description = this.detail.description
 
 		this.can_transfer = this.detail.can_transfer ?? true
 		this.attack_modifier = this.detail.attack_modifier ?? 0
@@ -87,23 +89,23 @@ export class Weapon extends Equipment {
 
 		/*  攻擊範圍 如
 
-            地 地 刀 地
-            人 刀 刀 刀
-            地 地 刀 地
+			地 地 刀 地
+			人 刀 刀 刀
+			地 地 刀 地
 
-            
-            demageRange (range) 存
-            [[0,1],[0,2],[0,3],[1,2],[-1,2]]
+		    
+			demageRange (range) 存
+			[[0,1],[0,2],[0,3],[1,2],[-1,2]]
 
-            地 地 地
-            人 刀 地
-            地 刀 地
+			地 地 地
+			人 刀 地
+			地 刀 地
 
-            
-            demageRange (range) 存
-            [[0,1], [1, 1]]
+		    
+			demageRange (range) 存
+			[[0,1], [1, 1]]
 
-        */
+		*/
 
 		let damage = 0,
 			effect = 0

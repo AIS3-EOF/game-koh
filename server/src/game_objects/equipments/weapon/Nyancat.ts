@@ -4,8 +4,9 @@ import { Context } from '~/context'
 import { Weapon } from '../weapon'
 
 export const identifier = 'Nyancat'
-export const texture = 'Nyancat.'
+export const texture = 'nyancat'
 export const can_transfer = true
+export const description = '普通攻擊是全體傷害的喵喵喔！ 🐈🫴'
 export const attack_modifier = 1
 
 /*

@@ -4,6 +4,7 @@ import { Weapon } from '../weapon'
 export const identifier = '冰桶挑戰'
 export const texture = 'ice_bucket_challenge'
 export const can_transfer = true
+export const description = '潑出去的水是收不回來的'
 export const attack_modifier = 1
 
 /*

@@ -26,13 +26,24 @@ export class Chest extends MapObject {
 	interact(ctx: Context, data: any) {
 		super.interact(ctx, data)
 
+		let new_items: GameObject[] = [];
+
 		ctx.player.inventory.push(...this.chest_inventory)
+		new_items.push(...this.chest_inventory)
 		this.chest_inventory = []
 
 		const seeds = Array.isArray(data) ? data : []
-		if (randProb(this.uuid, seeds) >= 0.85) {
+		if (randProb(this.uuid, seeds) >= 0.9) {
 			ctx.player.inventory.push(...this.chest_inventory_rare)
+			new_items.push(...this.chest_inventory)
 			this.chest_inventory_rare = []
 		}
+
+		ctx.send({
+			type: 'interact_chest',
+			data: {
+				new_items
+			},
+		})
 	}
 }

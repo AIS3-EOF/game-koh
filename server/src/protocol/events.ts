@@ -95,6 +95,14 @@ export interface InteractMapEvent {
 	data: InteractMapData
 }
 
+export interface InteractChestData {
+	new_items: GameObject[]
+}
+export interface InteractChestEvent {
+	type: 'interact_chest'
+	data: InteractChestData
+}
+
 export interface UpdateMapEventData {
 	pos: Vec2
 	map_object: MapObject
@@ -166,6 +174,7 @@ export type Event =
 	| AttackEvent
 	| UseEvent
 	| InteractMapEvent
+	| InteractChestEvent
 	| ChatEvent
 	| AchievementEvent
 	| NewObjectSpawnedEvent

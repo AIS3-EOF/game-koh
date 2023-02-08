@@ -10,5 +10,6 @@ export class Equipment extends GameObject {
 		super()
 		this.identifier += '::Equipment'
 		this.texture = 'equipment'
+		this.description = 'This is an equipment'
 	}
 }

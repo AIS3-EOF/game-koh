@@ -9,7 +9,7 @@ export const DEFAULT_HP = 10
 export const DEFAULT_POS: Vec2 = [1, 1]
 
 export class Player {
-	constructor(public identifier: string = '') {}
+	constructor(public identifier: string = '') { }
 
 	max_hp: number = DEFAULT_HP
 	hp: number = DEFAULT_HP
@@ -69,6 +69,17 @@ export class Player {
 	dealDamage(damage: number): boolean {
 		if (!this.alive) return false
 		this.hp -= damage
+		if (this.hp <= 0) {
+			this.death()
+			return true
+		}
+		return false
+	}
+
+	dealDamageFrom(damage: number, identifier: string) {
+		if (!this.alive) return false
+		this.hp -= damage
+		this.last_damage_from = identifier
 		if (this.hp <= 0) {
 			this.death()
 			return true

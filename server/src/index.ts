@@ -49,7 +49,7 @@ async function setup() {
 	app.use(logger('tiny'))
 
 	if (PRODUCTION) {
-		app.use(express.static('/app/client/dist'))
+		app.use(express.static(require('path').resolve(__dirname, '../../client/dist')))
 	}
 
 	app.use('/api/', async (req, res) => {
@@ -60,21 +60,29 @@ async function setup() {
 		console.log(`listening on port ${process.env.SERVER_PORT}`)
 	})
 
-	if (PRODUCTION) {
-		server.on('upgrade', (req, socket, head) => {
-			wss.handleUpgrade(req, socket, head, ws => {
-				wss.emit('connection', ws, req)
-			})
-		})
-	}
-
 	const wss = new WebSocketServer(
 		DEVELOPMENT
 			? { port: Number(process.env.WS_PORT) }
 			: { noServer: true },
 	)
+
+	if (PRODUCTION) {
+		server.on('upgrade', (req, socket, head) => {
+			wss.handleUpgrade(req, socket, head, ws => {
+				switch (req.url) {
+					case '/ws':
+						wss.emit('connection', ws, req)
+						break
+					default:
+						ws.close()
+				}
+			})
+		})
+	}
+
 	wss.on('connection', ws => {
 		log('new connection')
+		console.log(ws.url, ws.protocol)
 		manager.handleConnection(ws)
 	})
 

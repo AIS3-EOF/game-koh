@@ -4,6 +4,7 @@ import { Weapon } from '../weapon'
 export const identifier = '小太刀'
 export const texture = 'dagger'
 export const can_transfer = true
+export const description = '刀'
 export const attack_modifier = 1
 
 /*
