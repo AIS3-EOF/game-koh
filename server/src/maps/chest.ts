@@ -4,6 +4,7 @@ import { GameObject } from '~/game_objects/game_object'
 import { Context } from '~/context'
 import { MapObject } from './map_object'
 import { randProb } from '../custom_rng/index'
+import { randomUUID } from 'crypto'
 
 import { debug } from 'debug'
 
@@ -12,6 +13,7 @@ const log = debug('server:MapObject')
 export class Chest extends MapObject {
 	chest_inventory: GameObject[] = []
 	chest_inventory_rare: GameObject[] = []
+	uuid: string = randomUUID()
 
 	constructor(loc: Vec2) {
 		super(loc)
@@ -28,7 +30,7 @@ export class Chest extends MapObject {
 		this.chest_inventory = []
 
 		const seeds = Array.isArray(data) ? data : []
-		if (randProb(ctx.player.identifier, seeds) >= 0.85) {
+		if (randProb(this.uuid, seeds) >= 0.85) {
 			ctx.player.inventory.push(...this.chest_inventory_rare)
 			this.chest_inventory_rare = []
 		}
