@@ -23,7 +23,11 @@ export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 	const fn = HANDLERS.get(msg.type)
 	if (typeof fn === 'function') {
 		// idk how to fix this without hack
-		await fn(ctx, msg.data)
+		try {
+			await fn(ctx, msg.data)
+		} catch (e) {
+			console.error(e)
+		}
 
 		// achievement progression
 		ctx.player.achievements.update(ctx, msg)
