@@ -333,7 +333,33 @@ export default class Game extends Phaser.Scene {
 						]
 					}
 
-					victim.setVisible(false)
+					const handler = setInterval(() => {
+						victim.setAlpha(victim.alpha === 1 ? 0.25 : 1)
+					}, 200)
+
+					setTimeout(() => {
+						victim.setVisible(false)
+						clearInterval(handler)
+
+						// draw blood on the ground
+						const deadBody = this.add
+							.text(victim.x, victim.y, '死', {
+								fontSize: '16px',
+								color: '#ff0000',
+							})
+							.setOrigin(0.5, 0.5)
+							.setDepth(100)
+
+						// scale up and scale down once
+						this.tweens.add({
+							targets: deadBody,
+							scale: 5,
+							duration: 500,
+							ease: 'Power2',
+							yoyo: true,
+							onComplete: () => deadBody.setDepth(0),
+						})
+					}, 1400)
 
 					setTimeout(() => {
 						if (deathScreen) {

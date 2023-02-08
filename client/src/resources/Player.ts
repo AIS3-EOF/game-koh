@@ -2,6 +2,7 @@ import { Vec2, GameObject, Player as Server_Player } from '../types'
 import Weapon from './Weapon'
 
 export default class Player extends Phaser.GameObjects.Container {
+	public playerText: Phaser.GameObjects.Text
 	public graphics: Phaser.GameObjects.Graphics
 	public facing: Vec2 = [0, 1]
 	public identifier: string
