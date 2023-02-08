@@ -12,5 +12,7 @@ export const attack_modifier = 1
 --X
  */
 export const range: Vec2[] = [
-  [0,1], [1, 1], [-1, 1]
+	[0, 1],
+	[1, 1],
+	[-1, 1],
 ]

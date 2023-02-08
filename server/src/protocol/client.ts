@@ -1,11 +1,11 @@
 import { Event } from './events'
 
 export interface LoginData {
-    success: boolean
+	success: boolean
 }
 export interface LoginEvent {
-    type: 'login'
-    data: LoginData
+	type: 'login'
+	data: LoginData
 }
 
 export type ClientMessage = Event | LoginEvent

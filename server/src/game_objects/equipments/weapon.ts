@@ -1,7 +1,7 @@
-import { Equipment } from "./equipment"
-import { Player } from "~/game"
-import { Context } from "~/context"
-import { Vec2 } from "~/protocol";
+import { Equipment } from './equipment'
+import { Player } from '~/game'
+import { Context } from '~/context'
+import { Vec2 } from '~/protocol'
 import { calcDistance, ChebyshevDistance } from '~/utils'
 
 import * as 手刀 from './weapon/手刀'
@@ -13,77 +13,79 @@ import * as ㄐㄐ from './weapon/ㄐㄐ'
 import * as 冰桶挑戰 from './weapon/冰桶挑戰'
 
 export enum WeaponType {
-    '手刀' = '手刀',
-    '半月刀' = '半月刀',
-    '小太刀' = '小太刀',
-    '風魔手裡劍' = '風魔手裡劍',
-    'Nyancat' = 'Nyancat',
-    'ㄐㄐ' = 'ㄐㄐ',
-    '冰桶挑戰' = '冰桶挑戰',
-};
+	'手刀' = '手刀',
+	'半月刀' = '半月刀',
+	'小太刀' = '小太刀',
+	'風魔手裡劍' = '風魔手裡劍',
+	'Nyancat' = 'Nyancat',
+	'ㄐㄐ' = 'ㄐㄐ',
+	'冰桶挑戰' = '冰桶挑戰',
+}
 
 export interface WeaponDetail {
-    identifier: string
-    texture: string
-    can_transfer: boolean
-    attack_modifier: number
-    range: Vec2[]
-    calc?: (attacker: Player, target: Player) => { damage: number, effect: number }
-    hit?: (ctx: Context) => void
+	identifier: string
+	texture: string
+	can_transfer: boolean
+	attack_modifier: number
+	range: Vec2[]
+	calc?: (
+		attacker: Player,
+		target: Player,
+	) => { damage: number; effect: number }
+	hit?: (ctx: Context) => void
 }
 
 const Weapons = new Map<WeaponType, WeaponDetail>([
-    [WeaponType.手刀, 手刀],
-    [WeaponType.半月刀, 半月刀],
-    [WeaponType.小太刀, 小太刀],
-    [WeaponType.風魔手裡劍, 風魔手裡劍],
-    [WeaponType.Nyancat, Nyancat],
-    [WeaponType.ㄐㄐ, ㄐㄐ],
-    [WeaponType.冰桶挑戰, 冰桶挑戰],
-]);
+	[WeaponType.手刀, 手刀],
+	[WeaponType.半月刀, 半月刀],
+	[WeaponType.小太刀, 小太刀],
+	[WeaponType.風魔手裡劍, 風魔手裡劍],
+	[WeaponType.Nyancat, Nyancat],
+	[WeaponType.ㄐㄐ, ㄐㄐ],
+	[WeaponType.冰桶挑戰, 冰桶挑戰],
+])
 
 export function generateWeapon() {
-    const key = Object.keys(WeaponType)[Math.floor(Math.random() * Object.keys(WeaponType).length)] as keyof(typeof WeaponType)
-    const type = WeaponType[key]
-    return new Weapon(type)
+	const key = Object.keys(WeaponType)[
+		Math.floor(Math.random() * Object.keys(WeaponType).length)
+	] as keyof typeof WeaponType
+	const type = WeaponType[key]
+	return new Weapon(type)
 }
 
 export class Weapon extends Equipment {
-    public range: Vec2[]
-    constructor(
-        public weapon_type: WeaponType = WeaponType.半月刀
-    ) {
-        super();
-        this.identifier += '::Weapon::' + this.detail.identifier
-        // TODO: Replace texture here
-        this.texture = this.detail.texture ?? 'unknown weapon';
+	public range: Vec2[]
+	constructor(public weapon_type: WeaponType = WeaponType.半月刀) {
+		super()
+		this.identifier += '::Weapon::' + this.detail.identifier
+		// TODO: Replace texture here
+		this.texture = this.detail.texture ?? 'unknown weapon'
 
-        this.can_transfer = this.detail.can_transfer ?? true;
-        this.attack_modifier = this.detail.attack_modifier ?? 0;
-        this.range = this.detail.range
-    }
+		this.can_transfer = this.detail.can_transfer ?? true
+		this.attack_modifier = this.detail.attack_modifier ?? 0
+		this.range = this.detail.range
+	}
 
-    get detail() {
-        return Weapons.get(this.weapon_type) ?? Weapons.get(WeaponType.手刀)!
-    }
+	get detail() {
+		return Weapons.get(this.weapon_type) ?? Weapons.get(WeaponType.手刀)!
+	}
 
-    use(ctx: Context) {
-        super.use(ctx)
+	use(ctx: Context) {
+		super.use(ctx)
 
-        if (ctx.player.removeObjectFromInventory(this)) {
-            ctx.player.addObjectToInventory(ctx.player.current_weapon)
-            ctx.player.current_weapon = this
-        }
-    }
+		if (ctx.player.removeObjectFromInventory(this)) {
+			ctx.player.addObjectToInventory(ctx.player.current_weapon)
+			ctx.player.current_weapon = this
+		}
+	}
 
-    calc(attacker: Player, target: Player): { damage: number, effect: number } {
-        if (this.detail.calc)
-            return this.detail.calc(attacker, target)
+	calc(attacker: Player, target: Player): { damage: number; effect: number } {
+		if (this.detail.calc) return this.detail.calc(attacker, target)
 
-        const dv = calcDistance(target.pos, attacker.pos, attacker.facing)
-        const inside = this.range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
- 
-        /*  攻擊範圍 如
+		const dv = calcDistance(target.pos, attacker.pos, attacker.facing)
+		const inside = this.range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
+
+		/*  攻擊範圍 如
 
             地 地 刀 地
             人 刀 刀 刀
@@ -103,9 +105,13 @@ export class Weapon extends Equipment {
 
         */
 
-        let damage = 0, effect = 0
-        if (inside)
-            damage = Math.max(0, attacker.atk + this.attack_modifier - target.def)
-        return { damage, effect };
-    }
+		let damage = 0,
+			effect = 0
+		if (inside)
+			damage = Math.max(
+				0,
+				attacker.atk + this.attack_modifier - target.def,
+			)
+		return { damage, effect }
+	}
 }

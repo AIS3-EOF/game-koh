@@ -20,7 +20,7 @@ export class Context {
 		public game: Game,
 		public player: Player,
 		public db: Db,
-	) { }
+	) {}
 	init(round: RoundData) {
 		this.send({
 			type: 'init',

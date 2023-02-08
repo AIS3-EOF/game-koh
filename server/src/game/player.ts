@@ -9,10 +9,7 @@ export const DEFAULT_HP = 10
 export const DEFAULT_POS: Vec2 = [1, 1]
 
 export class Player {
-	constructor(
-		public identifier: string = ''
-	) {
-	}
+	constructor(public identifier: string = '') {}
 
 	max_hp: number = DEFAULT_HP
 	hp: number = DEFAULT_HP
@@ -26,13 +23,13 @@ export class Player {
 	// player identifier of attacker
 	last_damage_from: string = ''
 
-	current_weapon: Weapon = new Weapon();
-	current_armor: Armor = new Armor();
-	inventory: GameObject[] = [];
+	current_weapon: Weapon = new Weapon()
+	current_armor: Armor = new Armor()
+	inventory: GameObject[] = []
 
-	login_count: number = 0;
+	login_count: number = 0
 	// should decrement this after received action from client reset each game tick
-	action_count = TICK_ACTION_COUNT;
+	action_count = TICK_ACTION_COUNT
 
 	achievements = new Achievements()
 
@@ -40,7 +37,7 @@ export class Player {
 		this.inventory.push(object)
 	}
 	getObjectFromInventory(uuid: string) {
-		return this.inventory.find((obj) => obj.uuid === uuid)
+		return this.inventory.find(obj => obj.uuid === uuid)
 	}
 
 	addMaxHp(amount: number) {
@@ -91,8 +88,8 @@ export class Player {
 		this.atk = 1
 		this.def = 1
 		this.facing = [1, 0]
-		this.current_weapon = new Weapon();
-		this.current_armor = new Armor();
-		this.inventory = [];
+		this.current_weapon = new Weapon()
+		this.current_armor = new Armor()
+		this.inventory = []
 	}
 }

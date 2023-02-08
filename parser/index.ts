@@ -1,12 +1,12 @@
 function parse(binary: string): any {
-    return JSON.parse(binary)
+	return JSON.parse(binary)
 }
 
 function stringify(json: any): string {
-    return JSON.stringify(json)
+	return JSON.stringify(json)
 }
 
 export default {
-    parse,
-    stringify
+	parse,
+	stringify,
 }

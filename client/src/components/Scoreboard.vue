@@ -31,7 +31,10 @@ const roundMessage = computed(() => {
 		<h3 class="text">{{ roundMessage }}</h3>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
-				<template v-for="(score, index) in scores" :key="score.identifier">
+				<template
+					v-for="(score, index) in scores"
+					:key="score.identifier"
+				>
 					<span class="rank">{{ index + 1 }}</span>
 					<span class="name">{{ score.identifier }}</span>
 					<span class="score">{{ score.score }}</span>

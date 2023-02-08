@@ -9,7 +9,9 @@ const DEVELOPMENT = typeof BUILD === 'undefined'
 const PRODUCTION = !DEVELOPMENT
 
 if (DEVELOPMENT) {
-	dotenv.config({ path: require('path').resolve(__dirname, '../../share.env') })
+	dotenv.config({
+		path: require('path').resolve(__dirname, '../../share.env'),
+	})
 	dotenv.config()
 }
 
@@ -50,7 +52,6 @@ async function setup() {
 		app.use(express.static('/app/client/dist'))
 	}
 
-
 	app.use('/api/', async (req, res) => {
 		manager.handleApi(req, res)
 	})
@@ -68,7 +69,9 @@ async function setup() {
 	}
 
 	const wss = new WebSocketServer(
-		DEVELOPMENT ? { port: Number(process.env.WS_PORT) } : { noServer: true }
+		DEVELOPMENT
+			? { port: Number(process.env.WS_PORT) }
+			: { noServer: true },
 	)
 	wss.on('connection', ws => {
 		log('new connection')
@@ -80,5 +83,4 @@ async function setup() {
 
 setup()
 
-if (DEVELOPMENT)
-	import('~/tester').then(tester => tester.run())
+if (DEVELOPMENT) import('~/tester').then(tester => tester.run())
