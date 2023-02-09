@@ -1,14 +1,16 @@
 import { GameMap } from './gamemap'
 import { Player } from './player'
 import { GameObject } from '~/game_objects/game_object'
+import { Identifier } from '~/protocol'
+import { DAMAGE_SCORE, KILL_SCORE } from '~/config'
 
 export class Game {
 	players = new Set<Player>()
 	objects = new Map<string, GameObject>()
-	scores = new Map<string, number>()
+	scores = new Map<Identifier, number>()
 	respawn_players = new Map<Player, number>()
 
-	constructor(public map: GameMap) {}
+	constructor(public map: GameMap) { }
 
 	addPlayer(player: Player) {
 		if (player.login_count++ == 0) {
@@ -50,9 +52,11 @@ export class Game {
 		this.objects.set(object.uuid, object)
 		this.map.dropGameObject(object)
 	}
+
 	getObject(uuid: string) {
 		return this.objects.get(uuid)
 	}
+
 	removeObject(object: GameObject | string) {
 		return this.objects.delete(
 			typeof object === 'string' ? object : object.uuid,
@@ -74,5 +78,23 @@ export class Game {
 		return Array.from(this.scores.entries())
 			.map(([identifier, score]) => ({ identifier, score }))
 			.sort((a, b) => b.score - a.score)
+	}
+
+	dealDamage(from: Player, to: Player, damage: number): boolean {
+		if (!to.alive) {
+			return true
+		}
+
+		let killed = to.dealDamageFrom(damage, from.identifier)
+		// TODO: Damage scoring algorithm
+		if (from !== to) {
+			this.addScore(from, DAMAGE_SCORE * damage * 0.5)
+
+			if (killed) {
+				this.addScore(from, KILL_SCORE)
+			}
+		}
+
+		return killed
 	}
 }

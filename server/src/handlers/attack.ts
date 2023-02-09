@@ -2,7 +2,7 @@ import { AttackMessageData } from '~/protocol'
 import { AttackTarget } from '~/protocol'
 import { Context } from '~/context'
 import { normalize } from '~/utils'
-import { DAMAGE_SCORE, KILL_SCORE } from '~/config'
+
 
 export const handle = async (ctx: Context, data: AttackMessageData) => {
 	const { player: attacker } = ctx
@@ -26,30 +26,34 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
 		}
 
 		// dealing damage to victims
-		const killed = target.dealDamageFrom(damage, attacker.identifier)
+		ctx.game.dealDamage(attacker, target, damage)
 		sideEffect += effect
 		targets.push({
 			identifier: target.identifier,
 			damage,
 		})
 
-		// add attack bonus
-		ctx.addScore(DAMAGE_SCORE)
-		// if the damage kill the victim, give attack KILL_SCORE
-		if (killed) {
-			ctx.addScore(KILL_SCORE)
+		// Ticking the weapon effect if needed
+		if (attacker.current_weapon.detail.tick) {
+			eventQueue.manage('tick_object', {
+				identifier: attacker.current_weapon.identifier,
+				tick_count: attacker.current_weapon.tick_count,
+				tick_fn: (tick: number) => { attacker.current_weapon.tick(ctx, target, tick) }
+			})
 		}
+
+		// Scoring system moved under game.ts
 	}
 
 	attacker.current_weapon.detail.hit?.(ctx)
 	if (sideEffect) {
-		attacker.dealDamage(sideEffect)
-		attacker.last_damage_from = attacker.identifier
+		ctx.game.dealDamage(attacker, attacker, sideEffect)
 		targets.push({
 			identifier: attacker.identifier,
 			damage: sideEffect,
 		})
 	}
+
 	eventQueue.push({
 		type: 'attack',
 		data: {

@@ -32,7 +32,8 @@ export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 		// achievement progression
 		ctx.player.achievements.update(ctx, msg)
 
+		// Moved to roundTick, because now items can kill players
 		// check death player and despawn them for certain time
-		eventQueue.manage('check_death')
+		// eventQueue.manage('check_death')
 	}
 }

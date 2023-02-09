@@ -1,4 +1,4 @@
-import { Vec2 } from '~/protocol'
+import { Vec2, Identifier, InitIdentifier } from '~/protocol'
 import { GameObject } from '~/game_objects/game_object'
 import { Weapon } from '~/game_objects/equipments/weapon'
 import { Armor } from '~/game_objects/equipments/armor'
@@ -9,7 +9,7 @@ export const DEFAULT_HP = 10
 export const DEFAULT_POS: Vec2 = [1, 1]
 
 export class Player {
-	constructor(public identifier: string = '') { }
+	constructor(public identifier: Identifier, public name: string) { }
 
 	max_hp: number = DEFAULT_HP
 	hp: number = DEFAULT_HP
@@ -21,11 +21,11 @@ export class Player {
 
 	alive: boolean = true
 	// player identifier of attacker
-	last_damage_from: string = ''
+	last_damage_from: Identifier = InitIdentifier
 
 	current_weapon: Weapon = new Weapon()
 	current_armor: Armor = new Armor()
-	inventory: GameObject[] = []
+	inventory = new Map<string, GameObject>()
 
 	login_count: number = 0
 	// should decrement this after received action from client reset each game tick
@@ -33,11 +33,41 @@ export class Player {
 
 	achievements = new Achievements()
 
+	dump() {
+		return {
+			identifier: this.identifier,
+			name: this.name,
+			max_hp: this.max_hp,
+			hp: this.hp,
+			exp: this.exp,
+			atk: this.atk,
+			def: this.def,
+			pos: this.pos,
+			facing: this.facing,
+			alive: this.alive,
+			last_damage_from: this.last_damage_from,
+			current_weapon: this.current_weapon,
+			current_armor: this.current_armor,
+			inventory: Array.from(this.inventory.values()),
+			action_count: this.action_count,
+			achievements: this.achievements.dump(),
+		}
+	}
+
 	addObjectToInventory(object: GameObject) {
-		this.inventory.push(object)
+		this.inventory.set(object.uuid, object)
 	}
 	getObjectFromInventory(uuid: string) {
-		return this.inventory.find(obj => obj.uuid === uuid)
+		return this.inventory.get(uuid)
+	}
+
+	heal(amount: number) {
+		if (this.hp + amount > this.max_hp) {
+			this.hp = this.max_hp
+			return
+		}
+
+		this.hp += amount
 	}
 
 	addMaxHp(amount: number) {
@@ -55,15 +85,7 @@ export class Player {
 	}
 
 	removeObjectFromInventory(object: GameObject | string) {
-		if (typeof object === 'string') {
-			const tmp = this.getObjectFromInventory(object)
-			if (!tmp) return false
-			object = tmp
-		}
-		const idx = this.inventory.indexOf(object)
-		if (idx === -1) return false
-		this.inventory.splice(idx, 1)
-		return true
+		return this.inventory.delete(typeof object === 'string' ? object : object.uuid)
 	}
 
 	dealDamage(damage: number): boolean {
@@ -76,15 +98,9 @@ export class Player {
 		return false
 	}
 
-	dealDamageFrom(damage: number, identifier: string) {
-		if (!this.alive) return false
-		this.hp -= damage
+	dealDamageFrom(damage: number, identifier: Identifier) {
 		this.last_damage_from = identifier
-		if (this.hp <= 0) {
-			this.death()
-			return true
-		}
-		return false
+		return this.dealDamage(damage)
 	}
 
 	death() {
@@ -101,6 +117,8 @@ export class Player {
 		this.facing = [1, 0]
 		this.current_weapon = new Weapon()
 		this.current_armor = new Armor()
-		this.inventory = []
+		this.inventory.clear()
 	}
 }
+
+export type PlayerPub = ReturnType<Player['dump']>

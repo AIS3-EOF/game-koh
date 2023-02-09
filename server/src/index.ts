@@ -5,8 +5,13 @@ import express from 'express'
 import logger from 'morgan'
 
 // @ts-ignore
-const DEVELOPMENT = typeof BUILD === 'undefined'
-const PRODUCTION = !DEVELOPMENT
+globalThis.DEVELOPMENT = typeof BUILD === 'undefined'
+globalThis.PRODUCTION = !DEVELOPMENT
+
+declare global {
+	var DEVELOPMENT: boolean
+	var PRODUCTION: boolean
+}
 
 if (DEVELOPMENT) {
 	dotenv.config({
@@ -19,13 +24,15 @@ const log = debug('server:index')
 
 import { connect } from '~/db'
 import { EventQueue } from '~/event_queue'
+import { Sockets } from '~/sockets'
 import { Manager } from '~/manager'
+import { setupWorker } from '~/worker'
 
 import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 import { sleep } from '~/utils'
 
 globalThis.eventQueue = new EventQueue()
-globalThis.sockets = new Map()
+globalThis.sockets = new Sockets()
 
 async function run(manager: Manager) {
 	while (true) {
@@ -40,10 +47,12 @@ async function run(manager: Manager) {
 
 async function setup() {
 	log('connecting to database...')
-	const db = await connect()
+	globalThis.db = await connect()
 	log('connected to database')
 
-	const manager = new Manager(db)
+	const manager = new Manager()
+	setupWorker(manager)
+	// run(manager)
 
 	const app = express()
 	app.use(logger('tiny'))
@@ -68,25 +77,20 @@ async function setup() {
 
 	if (PRODUCTION) {
 		server.on('upgrade', (req, socket, head) => {
-			wss.handleUpgrade(req, socket, head, ws => {
-				switch (req.url) {
-					case '/ws':
-						wss.emit('connection', ws, req)
-						break
-					default:
-						ws.close()
-				}
-			})
+			if (req.url === '/ws') {
+				wss.handleUpgrade(req, socket, head, ws => {
+					wss.emit('connection', ws, req)
+				})
+			} else {
+				socket.destroy()
+			}
 		})
 	}
 
 	wss.on('connection', ws => {
 		log('new connection')
-		console.log(ws.url, ws.protocol)
 		manager.handleConnection(ws)
 	})
-
-	run(manager)
 }
 
 setup()

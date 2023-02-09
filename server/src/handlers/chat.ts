@@ -7,7 +7,7 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 	const from = ctx.player.identifier
 	const ServerMessage = (message: string) => ({
 		timestamp: Date.now(),
-		from: '(server)',
+		from: '(server)' as '(server)',
 		to: from,
 		message,
 	})
@@ -26,12 +26,12 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 			data: messageData,
 		})
 	} else {
-		if (!sockets.has(to))
+		if (to === '(server)' || !sockets.has(to))
 			return ctx.send({
 				type: 'chat',
 				data: ServerMessage('Player not found'),
 			})
-		sockets.get(to)?.send(
+		sockets.send(to,
 			parser.stringify({
 				type: 'chat',
 				data: messageData,

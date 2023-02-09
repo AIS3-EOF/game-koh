@@ -9,20 +9,24 @@ import type { Request, Response } from 'express'
 import { dispatch } from '~/handlers'
 import { Context } from '~/context'
 import { ServerMessage } from '~/protocol'
-import { ManagerEvent, RoundData, RoundStatus } from '~/round'
+import { RoundData, RoundStatus, RoundMessage, InitRoundData } from '~/round'
 import { Game, GameMap, Player } from '~/game'
-import { generateObject } from '~/game_objects'
+import { GameObject, generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
 import * as config from '~/config'
 import parser from '~/parser'
 
 const log = debug('server:manager')
 
-export const roundMessage = {
-	[RoundStatus.PREINIT]: 'not initialized',
-	[RoundStatus.INIT]: 'not started',
-	[RoundStatus.RUNNING]: 'running',
-	[RoundStatus.END]: 'ended',
+export type ManagerEvent =
+	| 'tick_object' // Arg: TickObjectData
+	| 'remove_tick_object' // Arg: TickObjectData
+
+export interface TickObjectData {
+	identifier: string
+	tick_count: number
+	tick_fn: (tick: number) => void
+	forever?: boolean
 }
 
 export class Manager {
@@ -30,13 +34,10 @@ export class Manager {
 	public game: Game
 	public generator: poisson.PoissonInstance
 
-	constructor(
-		public db: Db,
-		public round: RoundData = {
-			number: 1,
-			status: RoundStatus.PREINIT,
-		},
-	) {
+	private ticking_objects: TickObjectData[] = []	// object_uuid, remain_tick
+	public round: RoundData = InitRoundData
+
+	constructor() {
 		this.contexts = new Map<string, Context>()
 		this.game = new Game(new GameMap(config.MAP_SIZE, config.MAP_SIZE))
 
@@ -58,23 +59,14 @@ export class Manager {
 		})
 	}
 
-	handleEvent(event: ManagerEvent) {
+	handleEvent(event: ManagerEvent, data: any) {
 		log('handle event %s', event)
 		switch (event) {
-			case 'round_init':
-				this.roundInitImpl()
+			case 'tick_object':
+				this.tickObject(data)
 				break
-			case 'round_start':
-				this.roundStartImpl()
-				break
-			case 'round_end':
-				this.roundEndImpl()
-				break
-			case 'round_tick':
-				this.roundTick()
-				break
-			case 'check_death':
-				this.checkDeath()
+			case 'remove_tick_object':
+				this.removeTickObject(data)
 				break
 		}
 	}
@@ -83,14 +75,16 @@ export class Manager {
 		try {
 			const sessionId = randomUUID()
 			log('%s connected', sessionId)
-			const player = await handleLogin(ws, this.db)
+			const player = await handleLogin(ws)
 			this.game.addPlayer(player)
 			eventQueue.push({
 				type: 'join',
-				data: { player },
+				data: {
+					player: player.dump(),
+				},
 			})
-			log('%s logined', sessionId)
-			const ctx = new Context(sessionId, ws, this.game, player, this.db)
+			log('%s logined as %s', sessionId, player.name)
+			const ctx = new Context(sessionId, ws, this.game, player)
 			ctx.init(this.round)
 			this.contexts.set(sessionId, ctx)
 			ws.on('message', rawData => {
@@ -102,9 +96,8 @@ export class Manager {
 					} else {
 						ctx.send({
 							type: 'error',
-							data: `Round ${this.round.number} ${
-								roundMessage[this.round.status]
-							}`,
+							data: `Round ${this.round.id} ${RoundMessage[this.round.status]
+								}`,
 						})
 					}
 				} catch (e) {
@@ -118,7 +111,7 @@ export class Manager {
 				this.contexts.delete(sessionId)
 
 				if (player.login_count === 0) {
-					sockets.delete(player.identifier)
+					sockets.delete(player.identifier, ws)
 					eventQueue.push({
 						type: 'leave',
 						data: { identifier: player.identifier },
@@ -139,8 +132,7 @@ export class Manager {
 		})
 	}
 
-	public checkDeath = throttle(this.checkDeathImpl.bind(this), 1)
-	private checkDeathImpl() {
+	checkDeath() {
 		log('check death impl')
 		this.game.players.forEach((current_player: Player) => {
 			if (
@@ -166,16 +158,30 @@ export class Manager {
 
 	private tickInterval: NodeJS.Timeout | undefined
 
-	roundInit() {
-		eventQueue.manage('round_init')
+	updateRound(round: RoundData) {
+		if (this.round.id === round.id && this.round.status === round.status) return
+		console.log(`Round ${round.id} ${RoundMessage[round.status]}`)
+		this.round.id = round.id
+		this.round.start = round.start
+		this.round.end = round.end
+		switch (round.status) {
+			case RoundStatus.INIT:
+				return this.roundInit()
+			case RoundStatus.RUNNING:
+				return this.roundStart()
+			case RoundStatus.END:
+				return this.roundEnd()
+		}
 	}
-	private async roundInitImpl() {
+
+
+	roundInit() {
 		if (this.round.status === RoundStatus.INIT) return
 		this.updateStatus(RoundStatus.INIT)
 
 		this.game.scores.clear()
 
-		if (this.round.number % config.ROUND_PER_CYCLE == 1) {
+		if (this.round.id % config.ROUND_PER_CYCLE == 1) {
 			this.game.map = new GameMap(config.MAP_SIZE, config.MAP_SIZE)
 
 			this.game.objects.clear()
@@ -193,21 +199,26 @@ export class Manager {
 	}
 
 	roundStart() {
-		eventQueue.manage('round_start')
-	}
-	private async roundStartImpl() {
 		if (this.round.status === RoundStatus.RUNNING) return
 		this.updateStatus(RoundStatus.RUNNING)
 
-		this.tickInterval = setInterval(() => {
-			eventQueue.manage('round_tick')
-		}, config.TICK_INTERVAL)
+		this.tickInterval = setInterval(this.roundTick.bind(this), config.TICK_INTERVAL)
 
 		this.generator.start()
 	}
 
-	private async roundTick() {
+	roundTick() {
 		if (this.round.status !== RoundStatus.RUNNING) return
+
+		// TODO: Not sure is this implementation thread-safe
+		// CSY: If the is JS, then it must thread-safe
+		this.ticking_objects = this.ticking_objects.filter(obj => {
+			obj.tick_fn(obj.tick_count)
+			if (obj.forever)
+				return true
+			return obj.tick_count-- > 0
+		})
+		this.checkDeath()
 
 		this.game.players.forEach(player => {
 			player.action_count = Math.min(
@@ -225,7 +236,7 @@ export class Manager {
 			eventQueue.push({
 				type: 'respawn',
 				data: {
-					player: respawned_player,
+					player: respawned_player.dump(),
 				},
 			})
 		})
@@ -239,9 +250,6 @@ export class Manager {
 	}
 
 	roundEnd() {
-		eventQueue.manage('round_end')
-	}
-	private async roundEndImpl() {
 		if (this.round.status === RoundStatus.END) return
 		this.updateStatus(RoundStatus.END)
 
@@ -249,7 +257,18 @@ export class Manager {
 		this.tickInterval = undefined
 		this.generator.stop()
 
-		this.round.number++
+		this.round.id++
+	}
+
+	rank() {
+		return this.game.getScores()
+			.reduce((acc, team, idx, ary) => ([
+				...acc,
+				{
+					team: team.team,
+					rank: idx === 0 ? 1 : team.score === ary[idx - 1].score ? acc[idx - 1].rank : idx + 1,
+				},
+			]), [] as { team: number, rank: number }[])
 	}
 
 	private updateStatus(status: RoundStatus) {
@@ -257,6 +276,16 @@ export class Manager {
 		eventQueue.push({
 			type: 'round',
 			data: this.round,
+		})
+	}
+
+	private tickObject(data: TickObjectData) {
+		this.ticking_objects.push(data)
+	}
+
+	private removeTickObject(data: TickObjectData) {
+		this.ticking_objects = this.ticking_objects.filter(obj => {
+			return obj !== data
 		})
 	}
 }

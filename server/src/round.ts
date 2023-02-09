@@ -1,18 +1,27 @@
-export type ManagerEvent =
-	| 'round_init'
-	| 'round_start'
-	| 'round_end'
-	| 'round_tick'
-	| 'check_death'
-
 export enum RoundStatus {
-	PREINIT = 'preinit',
-	INIT = 'init',
-	RUNNING = 'running',
-	END = 'end',
+	PREINIT = 'Preinit',
+	INIT = 'Initializing',
+	RUNNING = 'Running',
+	END = 'Ended',
+}
+
+export const RoundMessage = {
+	[RoundStatus.PREINIT]: 'not initialized',
+	[RoundStatus.INIT]: 'not started',
+	[RoundStatus.RUNNING]: 'running',
+	[RoundStatus.END]: 'ended',
 }
 
 export interface RoundData {
-	number: number
+	id: number
 	status: RoundStatus
+	start: string | null
+	end: string | null
+}
+
+export const InitRoundData: RoundData = {
+	id: -1,
+	status: RoundStatus.PREINIT,
+	start: null,
+	end: null,
 }

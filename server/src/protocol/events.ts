@@ -1,4 +1,4 @@
-import { GameMap, Player } from '~/game'
+import { GameMap, PlayerPub } from '~/game'
 import { GameObject } from '~/game_objects'
 import { Achievement } from '~/achievement'
 import { MapObject } from '~/maps'
@@ -7,9 +7,12 @@ import { RoundData } from '~/round'
 import { ChatMessageData } from './server'
 import { Vec2 } from './shared'
 
+export type Identifier = number
+export const InitIdentifier = -1
+
 export interface InitData {
-	player: Player
-	players: Player[]
+	player: PlayerPub
+	players: PlayerPub[]
 	objects: GameObject[]
 	map: GameMap
 	round: RoundData
@@ -20,7 +23,7 @@ export interface InitEvent {
 }
 
 export interface JoinData {
-	player: Player
+	player: PlayerPub
 }
 export interface JoinEvent {
 	type: 'join'
@@ -28,7 +31,7 @@ export interface JoinEvent {
 }
 
 export interface LeaveData {
-	identifier: string
+	identifier: Identifier
 }
 
 export interface LeaveEvent {
@@ -37,7 +40,7 @@ export interface LeaveEvent {
 }
 
 export interface MoveData {
-	identifier: string
+	identifier: Identifier
 	facing: Vec2
 	pos: Vec2
 }
@@ -47,7 +50,7 @@ export interface MoveEvent {
 }
 
 export interface AttackTarget {
-	identifier: string
+	identifier: Identifier
 	damage: number
 }
 export interface AttackData {
@@ -61,8 +64,8 @@ export interface AttackEvent {
 }
 
 export interface DeathData {
-	victim_identifier: string
-	attacker_identifier: string
+	victim_identifier: Identifier
+	attacker_identifier: Identifier
 	respawn_time: number
 }
 export interface DeathEvent {
@@ -71,7 +74,7 @@ export interface DeathEvent {
 }
 
 export interface RespawnData {
-	player: Player
+	player: PlayerPub
 }
 export interface RespawnEvent {
 	type: 'respawn'
@@ -87,7 +90,7 @@ export interface NewObjectSpawnedEvent {
 }
 
 export interface InteractMapData {
-	player: Player
+	player: PlayerPub
 	pos: Vec2
 }
 export interface InteractMapEvent {
@@ -113,7 +116,7 @@ export interface UpdateMapEvent {
 }
 
 export interface UseData extends Record<string, any> {
-	player: Player
+	player: PlayerPub
 	object: GameObject
 }
 export interface UseEvent {
@@ -128,7 +131,7 @@ export type ChatEvent = {
 }
 
 export interface AchievementData {
-	player: Player
+	player: PlayerPub
 	archieve: Achievement
 }
 export interface AchievementEvent {
@@ -150,7 +153,7 @@ export interface LFIEvent {
 }
 
 export interface ScoreItem {
-	identifier: string
+	identifier: Identifier
 	score: number
 }
 export interface TickData {

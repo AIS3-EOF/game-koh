@@ -17,6 +17,9 @@
 		},
 		"removeComments": true,
 		"allowSyntheticDefaultImports": true,
+		"types": [
+			"node-fetch"
+		],
 	},
 	"include": [
 		"src/**/*",

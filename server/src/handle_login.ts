@@ -7,9 +7,9 @@ import { WebSocket } from 'ws'
 import { apiFetch } from '~/worker'
 import parser from '~/parser'
 
-const players = new Map<string, Player>()
+const players = new Map<number, Player>()
 
-export const handleLogin = async (ws: WebSocket, db: Db): Promise<Player> =>
+export const handleLogin = async (ws: WebSocket): Promise<Player> =>
 	new Promise((_resolve, _reject) => {
 		function remove() {
 			ws.removeListener('message', message)
@@ -33,11 +33,12 @@ export const handleLogin = async (ws: WebSocket, db: Db): Promise<Player> =>
 			if (msg.type === 'login') {
 				// handle login and retrieve player from database
 				const { data } = msg
-				let identifier = '', message = '', success = false
+				let id = -1, name = '', message = '', success = false
 				if (data && data.token) {
-					const res = await apiFetch('/team/my', {}, data.token)
+					const res = await apiFetch('/team/my', { token: data.token.toString() })
 					if (res.id) {
-						identifier = res.name
+						id = res.id
+						name = res.name
 						success = true
 					} else {
 						message = res.error ?? 'Invalid token'
@@ -53,10 +54,10 @@ export const handleLogin = async (ws: WebSocket, db: Db): Promise<Player> =>
 					}),
 				)
 				if (success) {
-					const player = players.get(identifier) ?? new Player(identifier)
-					if (!players.has(identifier))
-						players.set(identifier, player)
-					sockets.set(identifier, ws)
+					const player = players.get(id) ?? new Player(id, name)
+					if (!players.has(id))
+						players.set(id, player)
+					sockets.add(id, ws)
 					resolve(player)
 				}
 			} else {

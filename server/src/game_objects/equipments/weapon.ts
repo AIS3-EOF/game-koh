@@ -41,6 +41,8 @@ export interface WeaponDetail {
 		target: Player,
 	) => { damage: number; effect: number }
 	hit?: (ctx: Context) => void
+	tick_count?: number
+	tick?: (ctx: Context, target: Player) => void
 }
 
 const Weapons = new Map<WeaponType, WeaponDetail>([
@@ -65,6 +67,8 @@ export function generateWeapon() {
 
 export class Weapon extends Equipment {
 	public range: Vec2[]
+	public tick_count: number
+
 	constructor(public weapon_type: WeaponType = WeaponType.手刀) {
 		super()
 		this.identifier += '::Weapon::' + this.detail.identifier
@@ -75,6 +79,8 @@ export class Weapon extends Equipment {
 		this.can_transfer = this.detail.can_transfer ?? true
 		this.attack_modifier = this.detail.attack_modifier ?? 0
 		this.range = this.detail.range
+
+		this.tick_count = this.detail.tick_count ?? 0
 		this.is_rare = this.detail.is_rare ?? false
 	}
 
@@ -125,5 +131,15 @@ export class Weapon extends Equipment {
 				attacker.atk + this.attack_modifier - target.def,
 			)
 		return { damage, effect }
+	}
+
+	tick(ctx: Context, target: Player, tick: number) {
+		if (tick == 0) {
+			return
+		}
+
+		if (this.detail.tick) {
+			this.detail.tick(ctx, target)
+		}
 	}
 }

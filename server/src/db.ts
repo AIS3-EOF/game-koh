@@ -1,9 +1,11 @@
-import * as mongoDB from 'mongodb'
+import { MongoClient, Db } from 'mongodb'
 
 export const connect = async () => {
-	const client: mongoDB.MongoClient = new mongoDB.MongoClient(
-		process.env.DB_CONN_STRING!,
-	)
+	const client = new MongoClient(process.env.DB_CONN_STRING!)
 	await client.connect()
 	return client.db(process.env.DB_NAME)
+}
+
+declare global {
+	var db: Db
 }

@@ -11,13 +11,13 @@ const log = debug('server:Achievement')
 export class Achievements {
 	private map = new Map<AchievementType, Achievement>()
 
-	constructor() {}
+	constructor() { }
 
 	update(ctx: Context, msg: ServerMessage) {
 		// if (msg.type == LFItype)
 	}
 
-	toJSON() {
+	dump() {
 		return Array.from(this.map.values())
 	}
 }

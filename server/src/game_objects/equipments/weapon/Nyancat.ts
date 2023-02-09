@@ -30,7 +30,8 @@ export function hit(ctx: Context) {
 		data: {
 			from: 'Nyancat',
 			to: '(all)',
-			message: 'meow',
+			// colorful bbcode
+			message: '[color=#ff0000]N[/color][color=#ff7f00]y[/color][color=#ffff00]a[/color][color=#00ff00]n[/color][color=#0000ff]c[/color][color=#4b0082]a[/color][color=#9400d3]t[/color]!',
 		},
 	})
 }

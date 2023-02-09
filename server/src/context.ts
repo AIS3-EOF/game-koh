@@ -19,8 +19,7 @@ export class Context {
 		private ws: WebSocket,
 		public game: Game,
 		public player: Player,
-		public db: Db,
-	) {}
+	) { }
 	init(round: RoundData) {
 		this.send({
 			type: 'init',
