@@ -51,6 +51,7 @@ onMounted(() => {
 // convert message.message to html (bbcode)
 
 const bbcode = (text: string) => {
+    text = String(text)
     const entities = new Map([
         ['&', '&amp;'],
         ['<', '&lt;'],

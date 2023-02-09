@@ -1,9 +1,13 @@
-import { MoveMessageData } from '~/protocol'
+import { MoveMessageData, Vec2 } from '~/protocol'
 import { Context } from '~/context'
-import { add } from '~/utils'
+import { add, isVec2 } from '~/utils'
 import { MOVE_SCORE } from '~/config'
 
 export const handle = async (ctx: Context, data: MoveMessageData) => {
+	if (!isVec2(data.vec) || !isVec2(data.facing)) {
+		return
+	}
+
 	let moved: boolean = false
 	const newPos = add(ctx.player.pos, data.vec)
 

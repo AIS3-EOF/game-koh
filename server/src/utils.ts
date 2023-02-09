@@ -35,6 +35,15 @@ export function randomVec2(): Vec2 {
 	]
 }
 
+export const isVec2 = (data: any): data is Vec2 => {
+	return (
+		Array.isArray(data) &&
+		data.length === 2 &&
+		typeof data[0] === 'number' &&
+		typeof data[1] === 'number'
+	)
+}
+
 // https://gist.github.com/ca0v/73a31f57b397606c9813472f7493a940?permalink_comment_id=4411145#gistcomment-4411145
 export const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(
 	fn: F,
