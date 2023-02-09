@@ -12,6 +12,8 @@ import * as Nyancat from './weapon/Nyancat'
 import * as ㄐㄐ from './weapon/ㄐㄐ'
 import * as 冰桶挑戰 from './weapon/冰桶挑戰'
 
+import * as 認真手刀 from './weapon/認真手刀'
+
 export enum WeaponType {
 	'手刀' = '手刀',
 	'半月刀' = '半月刀',
@@ -20,6 +22,8 @@ export enum WeaponType {
 	'Nyancat' = 'Nyancat',
 	'ㄐㄐ' = 'ㄐㄐ',
 	'冰桶挑戰' = '冰桶挑戰',
+
+	'認真手刀' = '認真手刀',
 }
 
 export interface WeaponDetail {
@@ -44,6 +48,7 @@ const Weapons = new Map<WeaponType, WeaponDetail>([
 	[WeaponType.Nyancat, Nyancat],
 	[WeaponType.ㄐㄐ, ㄐㄐ],
 	[WeaponType.冰桶挑戰, 冰桶挑戰],
+	[WeaponType.認真手刀, 認真手刀],
 ])
 
 export function generateWeapon() {

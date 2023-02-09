@@ -197,7 +197,9 @@ export class GameMap {
 			]
 		if (!pos) return
 		const chest = this.getTile(pos) as Chest
-		chest.chest_inventory.push(game_object)
+
+		if (game_object.isRare) chest.chest_inventory_rare.push(game_object)
+		else chest.chest_inventory.push(game_object)
 
 		// TEST CODE: Place game_object into all chests
 		// this.chest_positions.forEach(element => {

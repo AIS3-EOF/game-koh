@@ -13,7 +13,9 @@ export class GameObject {
 
 	description: string = ''
 
-	constructor() { }
+	isRare: boolean = false
+
+	constructor() {}
 
 	use(ctx: Context) {
 		log(`${ctx.player.identifier} used ${this.identifier}`)
