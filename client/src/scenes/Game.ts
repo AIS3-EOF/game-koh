@@ -13,6 +13,7 @@ export default class Game extends Phaser.Scene {
 	players = new Map<string, Player>()
 	me = {} as Player
 	cursors: any
+	tickCallbacks = new Set<Function>()
 
 	raycaster: any
 	ray: any
@@ -331,6 +332,11 @@ export default class Game extends Phaser.Scene {
 								.setDepth(101)
 								.setOrigin(0.5, 0.5),
 						]
+
+						let respawn_time_cnt = respawn_time
+						const func = () => deathTexts[2].setText(`Respawn in ${--respawn_time_cnt} seconds`)
+						this.tickCallbacks.add(func)
+						setTimeout(() => this.tickCallbacks.delete(func), (respawn_time - 0.5) * 1000)
 					}
 
 					const handler = setInterval(() => {
@@ -376,6 +382,10 @@ export default class Game extends Phaser.Scene {
 				this.players
 					.get(event.data.player.identifier)
 					?.updatePlayer(event.data.player)
+				break
+
+			case 'tick':
+				this.tickCallbacks.forEach(cb => cb(event.data))
 				break
 
 			default:

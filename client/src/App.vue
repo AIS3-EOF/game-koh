@@ -6,6 +6,7 @@ import {
 	ScoreItem,
 	RoundData,
 	RoundStatus,
+	InitRoundData,
 	ChatMessageData,
 } from '@/types'
 
@@ -21,10 +22,7 @@ const inventory = reactive({
 	items: [] as GameObject[],
 })
 const scores = ref([] as ScoreItem[])
-const round = ref<RoundData>({
-	number: -1,
-	status: 'preinit' as RoundStatus,
-})
+const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
 const players = ref([] as string[])
 

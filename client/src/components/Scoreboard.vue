@@ -14,13 +14,24 @@ const roundMessage = computed(() => {
 		case RoundStatus.PREINIT:
 			return 'Waiting for init...'
 		case RoundStatus.INIT:
-			return `Round ${props.round.number} initializing...`
+			return `Round ${props.round.id} initializing...`
 		case RoundStatus.RUNNING:
-			return `Round ${props.round.number} running!`
+			return `Round ${props.round.id} running!`
 		case RoundStatus.END:
-			return `Round ${props.round.number} ended.`
+			return `Round ${props.round.id} ended.`
 		default:
 			return 'Unknown round status'
+	}
+})
+
+const timeLeft = computed(() => {
+	switch (props.round.status) {
+		case RoundStatus.END:
+			return 0
+		case RoundStatus.RUNNING:
+			return new Date(props.round.end!).getTime() - new Date().getTime()
+		default:
+			return '??'
 	}
 })
 </script>
@@ -29,12 +40,10 @@ const roundMessage = computed(() => {
 	<div class="scoreboard">
 		<h2 class="header">Scoreboard</h2>
 		<h3 class="text">{{ roundMessage }}</h3>
+		<p class="time">{{ timeLeft }}s left</p>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
-				<template
-					v-for="(score, index) in scores"
-					:key="score.identifier"
-				>
+				<template v-for="(score, index) in scores" :key="score.identifier">
 					<span class="rank">{{ index + 1 }}</span>
 					<span class="name">{{ score.identifier }}</span>
 					<span class="score">{{ score.score }}</span>
@@ -59,11 +68,11 @@ const roundMessage = computed(() => {
 	flex-direction: column;
 	overflow: hidden;
 
-	> .header {
+	>.header {
 		margin: 1rem;
 	}
 
-	> .list {
+	>.list {
 		flex: 1;
 		margin: 4px 16px;
 		overflow-y: scroll;
@@ -80,18 +89,19 @@ const roundMessage = computed(() => {
 
 		scrollbar-width: none;
 
-		> .rank {
+		>.rank {
 			font-weight: bold;
+
 			&::after {
 				content: '.';
 			}
 		}
 
-		> .name {
+		>.name {
 			text-align: center;
 		}
 
-		> .score {
+		>.score {
 			text-align: right;
 		}
 	}
@@ -102,11 +112,13 @@ const roundMessage = computed(() => {
 .scoreboard-leave-active {
 	transition: all 0.5s ease;
 }
+
 .scoreboard-enter-from,
 .scoreboard-leave-to {
 	opacity: 0;
 	transform: translateX(30px);
 }
+
 .scoreboard-leave-active {
 	position: absolute;
 }

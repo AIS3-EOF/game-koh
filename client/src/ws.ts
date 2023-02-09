@@ -4,8 +4,14 @@ import config from '@/config'
 import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
 
+function postMessage(...args: any) {
+	if (window.top && window.top !== window) {
+		window.top.postMessage.apply(window.top, args)
+	}
+}
+
 function onopen(event: Event) {
-	window.top?.postMessage('ready', '*')
+	postMessage('ready', '*')
 	const login_input = document.getElementById('login-input')
 	if (!login_input) return
 	login_input.removeAttribute('disabled')
@@ -14,7 +20,7 @@ function onopen(event: Event) {
 		if (event.key === 'Enter' || event.key === 'NumpadEnter') {
 			const token = (login_input as HTMLInputElement).value
 			window.send({ type: 'login', data: { token } })
-			window.top?.postMessage({ type: 'login', data: { token } }, '*')
+			postMessage({ type: 'login', data: { token } }, '*')
 			login_input.setAttribute('disabled', 'true')
 		}
 	})
@@ -37,7 +43,7 @@ function onmessage(event: MessageEvent<string>) {
 				//Create a empty event queue
 				window.events = []
 			} else {
-				window.top?.postMessage({ type: 'login', data: { token: '' } }, '*')
+				postMessage({ type: 'login', data: { token: '' } }, '*')
 
 				const login_input = document.getElementById('login-input')
 				login_input?.removeAttribute('disabled')
@@ -55,7 +61,7 @@ function onmessage(event: MessageEvent<string>) {
 			window.me = message.data.player.identifier
 			break
 		case 'round':
-			window.top?.postMessage({ type: 'round', data: message.data }, '*')
+			postMessage({ type: 'round', data: message.data }, '*')
 			break
 
 		default:
@@ -76,12 +82,14 @@ export function setupWS(url: string | URL) {
 		return ws.send(parser.stringify(message))
 	}
 
-	window.addEventListener('message', event => {
-		if (event.data.type === 'login') {
-			window.send({
-				type: 'login',
-				data: { token: event.data.data.token },
-			})
-		}
-	})
+	if (window.top && window.top !== window) {
+		window.addEventListener('message', event => {
+			if (event.data.type === 'login') {
+				window.send({
+					type: 'login',
+					data: { token: event.data.data.token },
+				})
+			}
+		})
+	}
 }

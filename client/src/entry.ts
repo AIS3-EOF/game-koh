@@ -1,3 +1,5 @@
+import { RoundStatus } from '@/types'
+
 let token: string | null = null
 const gameFrame = document.getElementById('gameFrame') as HTMLIFrameElement
 const roundEl = document.getElementById('round') as HTMLDivElement
@@ -32,16 +34,16 @@ window.addEventListener(
 		if (type === 'login') {
 			token = data.token
 		} else if (type === 'round') {
-			if (data.status === 'running') {
+			if (data.status === RoundStatus.RUNNING) {
 				hide(roundEl)
 				return
 			}
 			show(roundEl)
-			if (data.status === 'init') {
-				roundText.innerText = `Round ${data.number} is initializing...`
+			if (data.status === RoundStatus.INIT) {
+				roundText.innerText = `Round ${data.id} is initializing...`
 				gameFrame.src = '/game.html' // reload
-			} else if (data.status === 'end') {
-				roundText.innerText = `Round ${data.number} is over!`
+			} else if (data.status === RoundStatus.END) {
+				roundText.innerText = `Round ${data.id} is over!`
 			}
 		}
 	},

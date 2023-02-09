@@ -177,6 +177,8 @@ export class Manager {
 
 	roundInit() {
 		if (this.round.status === RoundStatus.INIT) return
+		if (this.round.status === RoundStatus.RUNNING)
+			this.roundEnd()
 		this.updateStatus(RoundStatus.INIT)
 
 		this.game.scores.clear()
@@ -265,7 +267,7 @@ export class Manager {
 			.reduce((acc, team, idx, ary) => ([
 				...acc,
 				{
-					team: team.team,
+					team: team.identifier,
 					rank: idx === 0 ? 1 : team.score === ary[idx - 1].score ? acc[idx - 1].rank : idx + 1,
 				},
 			]), [] as { team: number, rank: number }[])
