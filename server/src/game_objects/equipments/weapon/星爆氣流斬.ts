@@ -7,6 +7,8 @@ export const can_transfer = true
 export const description = '那到底是什麼技能啊'
 export const attack_modifier = 25
 
+export const is_rare = true
+
 /*
 -XXXXXX
 -OXXXXX

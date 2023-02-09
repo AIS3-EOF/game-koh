@@ -5,7 +5,6 @@ import * as 麻布甲 from './armor/麻布甲'
 import * as 鐵鎧甲 from './armor/鐵鎧甲'
 import * as 海洛因褲子 from './armor/海洛因褲子'
 
-
 export enum ArmorType {
 	'無' = '無',
 	'麻布甲' = '麻布甲',
@@ -23,6 +22,7 @@ export interface ArmorDetail {
 	can_transfer: boolean
 	defense_modifier: number
 	description: string
+	is_rare?: boolean
 	equip?: (player: Player) => void
 	unequip?: (player: Player) => void
 }
@@ -35,18 +35,18 @@ const Armors = new Map<ArmorType, ArmorDetail>([
 			texture: 'armor',
 			can_transfer: false,
 			defense_modifier: 0,
-			description: "You're naked 🥵"
+			description: "You're naked 🥵",
 		},
 	],
 	[ArmorType.麻布甲, 麻布甲],
 	[ArmorType.海洛因褲子, 海洛因褲子],
-	[ArmorType.鐵鎧甲, 鐵鎧甲]
+	[ArmorType.鐵鎧甲, 鐵鎧甲],
 ])
 
 export function generateArmor(): Armor {
 	const armor_type =
 		Object.values(ArmorType)[
-		Math.floor(Math.random() * Object.values(ArmorType).length)
+			Math.floor(Math.random() * Object.values(ArmorType).length)
 		]
 
 	if (armor_type === ArmorType.無) {
@@ -64,6 +64,7 @@ export class Armor extends Equipment {
 		this.can_transfer = this.detail.can_transfer
 		this.defense_modifier = this.detail.defense_modifier
 		this.description = this.detail.description
+		this.is_rare = this.detail.is_rare ?? false
 	}
 
 	get detail() {

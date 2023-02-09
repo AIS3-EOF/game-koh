@@ -13,8 +13,6 @@ export class GameObject {
 
 	description: string = ''
 
-	isRare: boolean = false
-
 	constructor() {}
 
 	use(ctx: Context) {

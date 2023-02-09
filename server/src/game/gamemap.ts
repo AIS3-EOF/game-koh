@@ -2,6 +2,7 @@ import { GameObject } from '~/game_objects/game_object'
 import { MapObject, MapObjectType, MapObjectClass, Chest } from '~/maps'
 import { Vec2 } from '~/protocol'
 import { CHEST_SIZE, ROOM_SIZE } from '~/config'
+import { Equipment } from '~/game_objects'
 
 export class GameMap {
 	tiles: MapObject[][] = []
@@ -198,7 +199,8 @@ export class GameMap {
 		if (!pos) return
 		const chest = this.getTile(pos) as Chest
 
-		if (game_object.isRare) chest.chest_inventory_rare.push(game_object)
+		if (game_object instanceof Equipment && game_object.is_rare)
+			chest.chest_inventory_rare.push(game_object)
 		else chest.chest_inventory.push(game_object)
 
 		// TEST CODE: Place game_object into all chests

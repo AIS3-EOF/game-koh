@@ -35,6 +35,7 @@ export interface WeaponDetail {
 	can_transfer: boolean
 	attack_modifier: number
 	range: Vec2[]
+	is_rare?: boolean
 	calc?: (
 		attacker: Player,
 		target: Player,
@@ -64,7 +65,7 @@ export function generateWeapon() {
 
 export class Weapon extends Equipment {
 	public range: Vec2[]
-	constructor(public weapon_type: WeaponType = WeaponType.星爆氣流斬) {
+	constructor(public weapon_type: WeaponType = WeaponType.手刀) {
 		super()
 		this.identifier += '::Weapon::' + this.detail.identifier
 		// TODO: Replace texture here
@@ -74,6 +75,7 @@ export class Weapon extends Equipment {
 		this.can_transfer = this.detail.can_transfer ?? true
 		this.attack_modifier = this.detail.attack_modifier ?? 0
 		this.range = this.detail.range
+		this.is_rare = this.detail.is_rare ?? false
 	}
 
 	get detail() {
