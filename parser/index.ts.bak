@@ -1,0 +1,72 @@
+import type { ECDH } from "crypto"
+
+let crypto: typeof import('crypto')
+if (typeof window === 'undefined') {
+	crypto = require('crypto')
+}
+
+import { WebSocket } from 'ws'
+
+
+class Parser {
+	ecdh: ECDH
+	shared_secret: number[]
+
+	constructor() {
+		this.ecdh = crypto.createECDH('secp521r1')
+	}
+
+	async init(ws: WebSocket) {
+		let my_pub = this.ecdh.generateKeys()
+		ws.send(my_pub)
+
+		const exchange = (rawData: Buffer) => {
+			let shared_secret = this.ecdh.computeSecret(rawData)
+			this.shared_secret = Array.from(Buffer.from(shared_secret));
+
+			// log derived key in hex
+			console.log(shared_secret.toString('hex'))
+			ws.removeListener('message', exchange)
+		}
+
+		ws.addListener('message', exchange)
+	}
+
+	parse(cipher_text: string): any {
+		const cipher_bytes = Array.from(Buffer.from(cipher_text, 'hex'));
+		const plain_bytes = cipher_bytes.map((b, i) => b ^ this.shared_secret[i % this.shared_secret.length]);
+		return Buffer.from(plain_bytes).toString();
+	}
+
+	stringify(json: any): string {
+		const plain_bytes = Array.from(Buffer.from(json))
+		const cipher_bytes = plain_bytes.map(
+			(b, i) => {
+				b ^ this.shared_secret[i % this.shared_secret.length]
+			}) as unknown as number[]
+
+		return Buffer.from(cipher_bytes).toString('hex')
+	}
+}
+
+
+function parse(binary: string): any {
+	return JSON.parse(binary)
+}
+
+function stringify(json: any): string {
+	return JSON.stringify(json)
+}
+
+export default {
+	Parser,
+	parse,
+	stringify,
+}
+
+declare global {
+	var parser: Parser
+	interface Window {
+		parser: Parser
+	}
+}
