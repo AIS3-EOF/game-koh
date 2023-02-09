@@ -21,7 +21,7 @@ function onopen(event: Event) {
 }
 
 function onclose(event: CloseEvent) {
-	window.send = () => {}
+	window.send = () => { }
 	// TODO: replace alert with something better
 	location.reload()
 	// if (confirm('Connection closed')) location.reload()
@@ -37,10 +37,13 @@ function onmessage(event: MessageEvent<string>) {
 				//Create a empty event queue
 				window.events = []
 			} else {
+				window.top?.postMessage({ type: 'login', data: { token: '' } }, '*')
+
 				const login_input = document.getElementById('login-input')
 				login_input?.removeAttribute('disabled')
 				// show some error message
-				// document.getElementById("login-error-message").innerText = "Login Failed";
+				const error_message = document.getElementById("login-error-message")
+				if (error_message) error_message.innerText = message.data.message ?? "Unknown error";
 			}
 			break
 		case 'init':

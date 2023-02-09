@@ -10,12 +10,13 @@ gameFrame.addEventListener(
 	'load',
 	function () {
 		const listener = function (e: MessageEvent) {
-			if (e.data === 'ready' && token) {
+			if (e.data === 'ready') {
+				window.removeEventListener('message', listener)
+				if (!token) return
 				gameFrame.contentWindow?.postMessage({
 					type: 'login',
 					data: { token },
 				})
-				window.removeEventListener('message', listener)
 			}
 		}
 		window.addEventListener('message', listener, false)
