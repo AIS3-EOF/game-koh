@@ -13,6 +13,7 @@ import * as ㄐㄐ from './weapon/ㄐㄐ'
 import * as 冰桶挑戰 from './weapon/冰桶挑戰'
 
 import * as 認真手刀 from './weapon/認真手刀'
+import * as 星爆氣流斬 from './weapon/星爆氣流斬'
 
 export enum WeaponType {
 	'手刀' = '手刀',
@@ -24,6 +25,7 @@ export enum WeaponType {
 	'冰桶挑戰' = '冰桶挑戰',
 
 	'認真手刀' = '認真手刀',
+	'星爆氣流斬' = '星爆氣流斬',
 }
 
 export interface WeaponDetail {
@@ -49,6 +51,7 @@ const Weapons = new Map<WeaponType, WeaponDetail>([
 	[WeaponType.ㄐㄐ, ㄐㄐ],
 	[WeaponType.冰桶挑戰, 冰桶挑戰],
 	[WeaponType.認真手刀, 認真手刀],
+	[WeaponType.星爆氣流斬, 星爆氣流斬],
 ])
 
 export function generateWeapon() {
@@ -61,7 +64,7 @@ export function generateWeapon() {
 
 export class Weapon extends Equipment {
 	public range: Vec2[]
-	constructor(public weapon_type: WeaponType = WeaponType.手刀) {
+	constructor(public weapon_type: WeaponType = WeaponType.星爆氣流斬) {
 		super()
 		this.identifier += '::Weapon::' + this.detail.identifier
 		// TODO: Replace texture here
