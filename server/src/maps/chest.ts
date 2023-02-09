@@ -28,15 +28,20 @@ export class Chest extends MapObject {
 
 		let new_items: GameObject[] = [];
 
-		ctx.player.inventory.push(...this.chest_inventory)
+		this.chest_inventory.forEach((item) => {
+			ctx.player.addObjectToInventory(item)
+		})
 		new_items.push(...this.chest_inventory)
 		this.chest_inventory = []
 
 		const seeds = Array.isArray(data) ? data : []
 		if (randProb(this.uuid, seeds) >= 0.9) {
-			ctx.player.inventory.push(...this.chest_inventory_rare)
+			this.chest_inventory_rare.forEach((item) => {
+				ctx.player.addObjectToInventory(item)
+			})
 			new_items.push(...this.chest_inventory)
 			this.chest_inventory_rare = []
+			log(`!!!Player ${ctx.player.identifier} opened Rare Chest!!!`)
 		}
 
 		ctx.send({

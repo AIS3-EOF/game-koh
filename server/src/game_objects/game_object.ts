@@ -11,9 +11,11 @@ export class GameObject {
 	uuid: string = randomUUID()
 	texture: string = 'null'
 
+	is_rare: boolean = false
+
 	description: string = ''
 
-	constructor() {}
+	constructor() { }
 
 	use(ctx: Context) {
 		log(`${ctx.player.identifier} used ${this.identifier}`)

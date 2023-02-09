@@ -2,7 +2,7 @@ import { GameObject } from '~/game_objects/game_object'
 import { MapObject, MapObjectType, MapObjectClass, Chest } from '~/maps'
 import { Vec2 } from '~/protocol'
 import { CHEST_SIZE, ROOM_SIZE } from '~/config'
-import { Equipment } from '~/game_objects'
+import { Equipment, Item } from '~/game_objects'
 
 export class GameMap {
 	tiles: MapObject[][] = []
@@ -194,12 +194,12 @@ export class GameMap {
 	dropGameObject(game_object: GameObject) {
 		const pos =
 			this.chest_positions[
-				Math.floor(Math.random() * this.chest_positions.length)
+			Math.floor(Math.random() * this.chest_positions.length)
 			]
 		if (!pos) return
 		const chest = this.getTile(pos) as Chest
 
-		if (game_object instanceof Equipment && game_object.is_rare)
+		if ((game_object instanceof Item || game_object instanceof Equipment) && game_object.is_rare)
 			chest.chest_inventory_rare.push(game_object)
 		else chest.chest_inventory.push(game_object)
 

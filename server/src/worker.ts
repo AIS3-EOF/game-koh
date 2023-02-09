@@ -3,8 +3,18 @@ import exitHook from 'async-exit-hook'
 import { sleep } from '~/utils'
 import { RoundData, RoundStatus, InitRoundData } from '~/round'
 import { Manager } from '~/manager'
+import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 
-export function apiFetch(path: string, { body, token, options } = {} as any) {
+export async function apiFetch(path: string, { body, token, options } = {} as any) {
+    if (!process.env.SCOREBOARD_URL) {
+        console.warn('No scoreboard url provided.')
+        switch (path) {
+            case '/team/my':
+                return { id: Math.ceil(Math.random() * 10000000), name: token }
+        }
+        return { error: 'No scoreboard url provided.' }
+    }
+
     if (!options) options = {}
     if (!options.headers) options.headers = {}
     options.headers['Accept'] = 'application/json'
@@ -76,6 +86,24 @@ async function doneJob(token: string, jobid: number, status: JobResultStatus, de
 }
 
 export async function setupWorker(manager: Manager) {
+    if (!process.env.SCOREBOARD_URL) {
+        console.warn('No scoreboard url provided. Worker disabled.')
+        let id = 1
+        while (true) {
+            const now = Date.now()
+            const start = new Date(now + ROUND_TIME_INIT * 1000).toISOString()
+            const end = new Date(now + (ROUND_TIME_INIT + ROUND_TIME) * 1000).toISOString()
+            manager.updateRound({ id, status: RoundStatus.INIT, start, end })
+            await sleep(ROUND_TIME_INIT * 1000)
+            manager.updateRound({ id, status: RoundStatus.RUNNING, start, end })
+            await sleep(ROUND_TIME * 1000)
+            manager.updateRound({ id, status: RoundStatus.END, start, end })
+            await sleep(ROUND_TIME_END * 1000)
+            id++
+        }
+        return
+    }
+
     const res = await dbCollection().findOne({ name: 'token' })
     const name = 'KoH Game Worker'
 
@@ -90,9 +118,13 @@ export async function setupWorker(manager: Manager) {
 
     while (true) {
         const overview = await apiFetch(`/overview`)
-        manager.updateRound(overview.round)
-
-        console.log(manager.rank())
+        const round = {
+            id: overview.round.id,
+            status: overview.round.status,
+            start: overview.round.start?.replace(/.{3}$/, 'Z'),
+            end: overview.round.end?.replace(/.{3}$/, 'Z'),
+        }
+        manager.updateRound(round)
 
         const initJobs = await takeJob(token, 'KoHInit')
         for (const job of initJobs) {
@@ -104,7 +136,10 @@ export async function setupWorker(manager: Manager) {
         const scoreJobs = await takeJob(token, 'KoHScore')
         for (const job of scoreJobs) {
             console.log('Score job (%d) received. Round: %s', job.id, job.round_id)
-            console.log(job)
+            const ranks = await manager.rank(job.round_id)
+            const result = await doneJob(token, job.id, 'Success', ranks)
+            if (result.error) console.error('Score job (%d) failed. Error: %s', job.id, result.error)
+            console.log({ job, round, ranks, result })
         }
 
         await sleep(500)

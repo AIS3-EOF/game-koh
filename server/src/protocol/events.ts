@@ -5,10 +5,7 @@ import { MapObject } from '~/maps'
 import { LFIType } from '~/config'
 import { RoundData } from '~/round'
 import { ChatMessageData } from './server'
-import { Vec2 } from './shared'
-
-export type Identifier = number
-export const InitIdentifier = -1
+import { Vec2, Identifier } from './shared'
 
 export interface InitData {
 	player: PlayerPub
@@ -54,7 +51,7 @@ export interface AttackTarget {
 	damage: number
 }
 export interface AttackData {
-	attacker: string
+	attacker: Identifier
 	attacker_pos: Vec2
 	targets: AttackTarget[]
 }
@@ -132,7 +129,7 @@ export type ChatEvent = {
 
 export interface AchievementData {
 	player: PlayerPub
-	archieve: Achievement
+	achievement: Achievement
 }
 export interface AchievementEvent {
 	type: 'achievement'
@@ -148,12 +145,13 @@ export interface LFIData {
 	content: string
 }
 export interface LFIEvent {
-	type: LFIType
+	type: typeof LFIType
 	data: LFIData
 }
 
 export interface ScoreItem {
 	identifier: Identifier
+	name: string
 	score: number
 }
 export interface TickData {

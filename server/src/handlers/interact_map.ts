@@ -10,7 +10,7 @@ export const handle = async (ctx: Context, data: InteractMapMessageData) => {
 		eventQueue.push({
 			type: 'interact_map',
 			data: {
-				player: ctx.player,
+				player: ctx.player.dump(),
 				pos: data.pos,
 			},
 		})

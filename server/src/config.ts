@@ -1,6 +1,6 @@
-export const ROUND_TIME_INIT = 1000 * 5
-export const ROUND_TIME = 1000 * 300
-export const ROUND_TIME_END = 1000 * 5
+export const ROUND_TIME_INIT = 5
+export const ROUND_TIME = 60
+export const ROUND_TIME_END = 5
 
 export const ROUND_PER_CYCLE = 3
 
@@ -21,4 +21,4 @@ export const MOVE_SCORE = 1
 
 export const GEN_DURATION = 10000
 
-export type LFIType = 'LFI_2bffa7efd0493b4b0857a3953fe78456'
+export const LFIType = 'LFI_2bffa7efd0493b4b0857a3953fe78456'

@@ -24,8 +24,8 @@ export class Context {
 		this.send({
 			type: 'init',
 			data: {
-				player: this.player,
-				players: Array.from(this.game.players.values()),
+				player: this.player.dump(),
+				players: Array.from(this.game.players.values(), (p) => p.dump()),
 				objects: Array.from(this.game.objects.values()),
 				map: this.game.map,
 				round,

@@ -7,7 +7,7 @@ export const identifier = 'Nyancat'
 export const texture = 'nyancat'
 export const can_transfer = true
 export const description = '普通攻擊是全體傷害的喵喵喔！ 🐈🫴'
-export const attack_modifier = 1
+export const attack_modifier = 2
 
 /*
 ---
@@ -28,8 +28,9 @@ export function hit(ctx: Context) {
 	eventQueue.push({
 		type: 'chat',
 		data: {
-			from: 'Nyancat',
+			from: ctx.player.identifier,
 			to: '(all)',
+			advanced: true,
 			// colorful bbcode
 			message: '[color=#ff0000]N[/color][color=#ff7f00]y[/color][color=#ffff00]a[/color][color=#00ff00]n[/color][color=#0000ff]c[/color][color=#4b0082]a[/color][color=#9400d3]t[/color]!',
 		},

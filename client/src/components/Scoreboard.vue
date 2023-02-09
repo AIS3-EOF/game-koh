@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { ScoreItem, RoundData, RoundStatus } from '@/types'
 
 interface Props {
@@ -24,12 +24,27 @@ const roundMessage = computed(() => {
 	}
 })
 
+const remain = ref(0)
+function calc() {
+	remain.value = Math.floor((new Date(props.round.end!).getTime() - Date.now()) / 1000)
+}
+
+watch(props.round, calc)
+
+let interval: any = undefined
+onMounted(() => {
+	interval = setInterval(calc, 1000)
+})
+onBeforeUnmount(() => {
+	clearInterval(interval)
+})
+
 const timeLeft = computed(() => {
 	switch (props.round.status) {
 		case RoundStatus.END:
 			return 0
 		case RoundStatus.RUNNING:
-			return new Date(props.round.end!).getTime() - new Date().getTime()
+			return remain.value
 		default:
 			return '??'
 	}
@@ -43,10 +58,10 @@ const timeLeft = computed(() => {
 		<p class="time">{{ timeLeft }}s left</p>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
-				<template v-for="(score, index) in scores" :key="score.identifier">
+				<template v-for="(team, index) in props.scores" :key="team.identifier">
 					<span class="rank">{{ index + 1 }}</span>
-					<span class="name">{{ score.identifier }}</span>
-					<span class="score">{{ score.score }}</span>
+					<span class="name">{{ team.name }}</span>
+					<span class="score">{{ team.score }}</span>
 				</template>
 			</TransitionGroup>
 		</div>

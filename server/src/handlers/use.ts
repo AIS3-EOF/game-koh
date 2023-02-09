@@ -12,7 +12,7 @@ export const handle = async (ctx: Context, data: UseMessageData) => {
 		eventQueue.push({
 			type: 'use',
 			data: {
-				player: ctx.player,
+				player: ctx.player.dump(),
 				object,
 			},
 		})

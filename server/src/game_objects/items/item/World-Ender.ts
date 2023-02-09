@@ -17,7 +17,7 @@ const DAMAGE_AMOUNT = 5
 export const identifier = 'WORLD-ENDER'
 export const texture = 'world_ender'
 export const description = '使用衝擊波對其他玩家造成傷害，持續 20 Ticks'
-export const isRare = true
+export const is_rare = true
 export function use(item: Item, ctx: Context) {
     item.extra_data = 20
 }
@@ -35,7 +35,7 @@ export function tick(item: Item, ctx: Context) {
     eventQueue.push({
         type: 'chat',
         data: {
-            from: 'SYSTEM',
+            from: '(server)',
             to: '(all)',
             message: `第 ${item.extra_data} 次衝擊波...`,
         },
@@ -46,7 +46,7 @@ export function end(item: Item, ctx: Context) {
     eventQueue.push({
         type: 'chat',
         data: {
-            from: 'SYSTEM',
+            from: '(server)',
             to: '(all)',
             message: '衝擊波結束',
         },

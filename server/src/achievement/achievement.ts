@@ -2,6 +2,7 @@ import { debug } from 'debug'
 
 import { Player } from '~/game/player'
 import { ServerMessage } from '~/protocol'
+import { Context } from '~/context'
 
 const log = debug('server:Achievement')
 
@@ -22,21 +23,40 @@ export enum AchievementType {
 }
 
 export class Achievement {
-	constructor(public type: AchievementType) {}
+	SCORE = 0
 
 	// Ranging from 0 to 100
 	progress: number = 0
 	maxProgress: number = 100
+	rewarded = false
+
+	constructor(public type: AchievementType) { this.rewarded = false }
 
 	get isCompleted() {
 		return this.progress >= this.maxProgress
 	}
 
-	updateProgress(player: Player, data: ServerMessage) {
-		log(`Updating progress for achievement: ${this.type}`)
+	// Update achievement progess and reward players who complete the achievement
+	updateProgress(ctx: Context, data: ServerMessage) {
+		if (this.rewarded) {
+			return
+		}
+
+		if (this.isCompleted) {
+			this.reward(ctx)
+			return
+		}
+
+		log(`Updating ${ctx.player.identifier}'s progress for achievement: ${this.type}`)
 	}
 
-	reward(player: Player) {
-		log(`Rewarding player for achievement: ${this.type}`)
+	reward(ctx: Context) {
+		if (this.rewarded) {
+			return
+		}
+
+		log(`Rewarding ${ctx.player.identifier} for achievement: ${this.type}`)
+		this.rewarded = true
+		ctx.addScore(this.SCORE)
 	}
 }

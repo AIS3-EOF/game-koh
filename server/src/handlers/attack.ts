@@ -10,7 +10,7 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
 	attacker.facing = data.facing
 	let sideEffect = 0
 	const targets = [] as AttackTarget[]
-	for (const target of ctx.game.players) {
+	for (const target of ctx.game.players.values()) {
 		// ignore if the target isn't alive
 		if (target === attacker || !target.alive) {
 			continue
@@ -41,6 +41,8 @@ export const handle = async (ctx: Context, data: AttackMessageData) => {
 				tick_fn: (tick: number) => { attacker.current_weapon.tick(ctx, target, tick) }
 			})
 		}
+
+		ctx.player.exp += damage
 
 		// Scoring system moved under game.ts
 	}

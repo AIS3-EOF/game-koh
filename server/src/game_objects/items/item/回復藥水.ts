@@ -17,7 +17,7 @@ const HEAL_AMOUNT = 10
 export const identifier = '回復藥水'
 export const texture = 'recovery_potion'
 export const description = '使用後立刻獲得 10HP'
-export function use(ctx: Context) {
+export function use(item: Item, ctx: Context) {
     ctx.player.heal(HEAL_AMOUNT)
 }
 

@@ -12,7 +12,7 @@ export interface ItemDetail {
 	identifier: string
 	texture: string
 	description: string
-	isRare?: boolean
+	is_rare?: boolean
 
 	// One-time effect
 	use: (item: Item, ctx: Context) => void
@@ -73,7 +73,7 @@ export class Item extends GameObject {
 		this.description = this.detail.description ?? 'If you see this message, please blame the staffs for not implementing the item properly'
 		this.total_tick = this.detail.total_tick ?? 0
 
-		this.isRare = this.detail.isRare ?? false
+		this.is_rare = this.detail.is_rare ?? false
 	}
 
 	get detail() {

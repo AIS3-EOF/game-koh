@@ -1,4 +1,4 @@
-import { Vec2 } from './shared'
+import { Vec2, Identifier } from './shared'
 import { LFIType } from '~/config'
 
 export interface LoginMessageData {
@@ -44,7 +44,7 @@ export interface InteractMapMessage {
 	data: InteractMapMessageData
 }
 
-export type ChatTarget = number | '(all)' | '(server)'
+export type ChatTarget = Identifier | '(all)' | '(server)'
 export interface ChatMessageData {
 	timestamp?: number
 	from: ChatTarget
@@ -61,7 +61,7 @@ export interface LFIMessageData {
 	path: string
 }
 export interface LFIMessage {
-	type: LFIType
+	type: typeof LFIType
 	data: LFIMessageData
 }
 
@@ -73,3 +73,5 @@ export type ServerMessage =
 	| InteractMapMessage
 	| ChatMessage
 	| LFIMessage
+
+export type ServerType = ServerMessage['type']

@@ -17,7 +17,7 @@ const DAMAGE_AMOUNT = 100
 export const identifier = '低軌道離子砲-LOIC'
 export const texture = 'loic'
 export const description = '使用低軌道離子武器，對其他玩家造成致命傷害'
-export const isRare = true
+export const is_rare = true
 export function use(item: Item, ctx: Context) {
     item.extra_data = 20
 }
@@ -27,7 +27,7 @@ export function tick(item: Item, ctx: Context) {
     eventQueue.push({
         type: 'chat',
         data: {
-            from: 'SYSTEM',
+            from: '(server)',
             to: '(all)',
             message: `低軌道離子武器轟炸倒數 ${item.extra_data}...`,
         },

@@ -181,6 +181,7 @@ export class Manager {
 			this.roundEnd()
 		this.updateStatus(RoundStatus.INIT)
 
+		this.game.resetAchievementReward()
 		this.game.scores.clear()
 
 		if (this.round.id % config.ROUND_PER_CYCLE == 1) {
@@ -262,7 +263,7 @@ export class Manager {
 		this.round.id++
 	}
 
-	rank() {
+	lastrank() {
 		return this.game.getScores()
 			.reduce((acc, team, idx, ary) => ([
 				...acc,
@@ -271,6 +272,11 @@ export class Manager {
 					rank: idx === 0 ? 1 : team.score === ary[idx - 1].score ? acc[idx - 1].rank : idx + 1,
 				},
 			]), [] as { team: number, rank: number }[])
+	}
+
+	// TODO: get rank from round_id
+	async rank(round_id: number) {
+		return this.lastrank()
 	}
 
 	private updateStatus(status: RoundStatus) {
