@@ -4,6 +4,13 @@ import { WebSocketServer } from 'ws'
 import express from 'express'
 import logger from 'morgan'
 
+process.on('uncaughtException', function (err) {
+	console.log('Caught exception: ' + err)
+})
+process.on('unhandledRejection', function (err) {
+	console.log('Caught rejection: ' + err)
+})
+
 // @ts-ignore
 globalThis.DEVELOPMENT = typeof BUILD === 'undefined'
 globalThis.PRODUCTION = !DEVELOPMENT
@@ -45,7 +52,11 @@ async function setup() {
 	app.use(logger('tiny'))
 
 	if (PRODUCTION) {
-		app.use(express.static(require('path').resolve(__dirname, '../../client/dist')))
+		app.use(
+			express.static(
+				require('path').resolve(__dirname, '../../client/dist'),
+			),
+		)
 	}
 
 	app.use('/api/', async (req, res) => {
@@ -82,4 +93,4 @@ async function setup() {
 
 setup()
 
-if (DEVELOPMENT) import('~/tester').then(tester => tester.run())
+// if (DEVELOPMENT) import('~/tester').then(tester => tester.run())

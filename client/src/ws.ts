@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import parser from 'parser'
+import { Parser } from '~/parser'
 import config from '@/config'
 import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
@@ -10,7 +10,7 @@ function postMessage(...args: any) {
 	}
 }
 
-function onopen(event: Event) {
+function onopen() {
 	postMessage('ready', '*')
 	const login_input = document.getElementById('login-input')
 	if (!login_input) return
@@ -33,8 +33,9 @@ function onclose(event: CloseEvent) {
 	// if (confirm('Connection closed')) location.reload()
 }
 
-function onmessage(event: MessageEvent<string>) {
-	const message = parser.parse(event.data) as ClientMessage
+async function onmessage(event: MessageEvent<string>) {
+	const message = await parser.parse(event.data) as ClientMessage
+	// console.log('recv', message)
 	switch (message.type) {
 		case 'login':
 			if (message.data.success === true) {
@@ -72,14 +73,20 @@ function onmessage(event: MessageEvent<string>) {
 	}
 }
 
-export function setupWS(url: string | URL) {
+export async function setupWS(url: string | URL) {
 	const ws = new WebSocket(url)
-	ws.onopen = onopen
-	ws.onclose = onclose
+	ws.binaryType = 'arraybuffer'
+	// ws.onopen = onopen
+	// ws.onclose = onclose
+	await new Promise(resolve => ws.addEventListener('open', resolve))
+	const parser = new Parser()
+	await parser.initClient(ws)
+	window.parser = parser
 	ws.onmessage = onmessage
+	onopen()
 
-	window.send = (message: ServerMessage) => {
-		return ws.send(parser.stringify(message))
+	window.send = async (message: ServerMessage) => {
+		return ws.send(await parser.stringify(message))
 	}
 
 	if (window.top && window.top !== window) {

@@ -14,7 +14,7 @@ import { Game, GameMap, Player } from '~/game'
 import { GameObject, generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
 import * as config from '~/config'
-import parser from '~/parser'
+import { Parser } from '~/parser'
 
 const log = debug('server:manager')
 
@@ -73,9 +73,11 @@ export class Manager {
 
 	async handleConnection(ws: WebSocket) {
 		try {
+			const parser = new Parser()
+			await parser.initServer(ws)
 			const sessionId = randomUUID()
 			log('%s connected', sessionId)
-			const player = await handleLogin(ws)
+			const player = await handleLogin(ws, parser)
 			this.game.addPlayer(player)
 			eventQueue.push({
 				type: 'join',
@@ -84,12 +86,12 @@ export class Manager {
 				},
 			})
 			log('%s logined as %s', sessionId, player.name)
-			const ctx = new Context(sessionId, ws, this.game, player)
+			const ctx = new Context(parser, sessionId, ws, this.game, player)
 			ctx.init(this.round)
 			this.contexts.set(sessionId, ctx)
-			ws.on('message', rawData => {
+			ws.on('message', async rawData => {
 				try {
-					const msg: ServerMessage = parser.parse(rawData.toString())
+					const msg: ServerMessage = await parser.parse(new Uint8Array(rawData).buffer)
 					log('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)

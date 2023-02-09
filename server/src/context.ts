@@ -5,7 +5,7 @@ import { RoundData } from '~/round'
 import { ClientMessage } from '~/protocol'
 import { Game, Player } from '~/game'
 import { GameObject } from '~/game_objects/game_object'
-import parser from '~/parser'
+import { Parser } from '~/parser'
 
 /**
  * Per-connection context
@@ -15,6 +15,7 @@ import parser from '~/parser'
 
 export class Context {
 	constructor(
+		public parser: Parser,
 		private id: string,
 		private ws: WebSocket,
 		public game: Game,
@@ -32,8 +33,8 @@ export class Context {
 			},
 		})
 	}
-	send(msg: ClientMessage) {
-		this.ws.send(parser.stringify(msg))
+	async send(msg: ClientMessage) {
+		this.ws.send(await this.parser.stringify(msg))
 	}
 	sendError(msg: string) {
 		this.send({

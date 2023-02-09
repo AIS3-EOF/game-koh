@@ -1,6 +1,5 @@
 import { ChatMessageData } from '~/protocol'
 import { Context } from '~/context'
-import parser from '~/parser'
 
 export const handle = async (ctx: Context, data: ChatMessageData) => {
 	const { /*from,*/ to } = data
@@ -32,7 +31,7 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 				data: ServerMessage('Player not found'),
 			})
 		sockets.send(to,
-			parser.stringify({
+			await ctx.parser.stringify({
 				type: 'chat',
 				data: messageData,
 			}),

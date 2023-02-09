@@ -1,4 +1,4 @@
-import { WebSocket } from 'ws'
+import { WebSocket, BufferLike } from 'ws'
 
 export class Sockets {
     public map = new Map<number, Set<WebSocket>>()
@@ -13,7 +13,7 @@ export class Sockets {
         this.map.get(id)?.delete(socket)
     }
 
-    public send(id: number, message: string) {
+    public send(id: number, message: BufferLike) {
         if (!this.map.has(id)) return
         this.map.get(id)?.forEach((socket) => socket.send(message))
     }

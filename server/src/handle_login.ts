@@ -5,11 +5,11 @@ import { Db } from 'mongodb'
 import { WebSocket } from 'ws'
 
 import { apiFetch } from '~/worker'
-import parser from '~/parser'
+import { Parser } from '~/parser'
 
 const players = new Map<number, Player>()
 
-export const handleLogin = async (ws: WebSocket): Promise<Player> =>
+export const handleLogin = async (ws: WebSocket, parser: Parser): Promise<Player> =>
 	new Promise((_resolve, _reject) => {
 		function remove() {
 			ws.removeListener('message', message)
@@ -29,7 +29,7 @@ export const handleLogin = async (ws: WebSocket): Promise<Player> =>
 		}
 
 		async function message(rawData: Buffer) {
-			const msg: ServerMessage = parser.parse(rawData.toString())
+			const msg: ServerMessage = await parser.parse(new Uint8Array(rawData).buffer)
 			if (msg.type === 'login') {
 				// handle login and retrieve player from database
 				const { data } = msg
@@ -45,7 +45,7 @@ export const handleLogin = async (ws: WebSocket): Promise<Player> =>
 					}
 				}
 				ws.send(
-					parser.stringify({
+					await parser.stringify({
 						type: 'login',
 						data: {
 							success,
