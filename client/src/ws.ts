@@ -5,6 +5,7 @@ import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
 
 function onopen(event: Event) {
+	window.top?.postMessage('ready', '*')
 	const login_input = document.getElementById('login-input')
 	if (!login_input) return
 	login_input.removeAttribute('disabled')
@@ -13,6 +14,7 @@ function onopen(event: Event) {
 		if (event.key === 'Enter' || event.key === 'NumpadEnter') {
 			const token = (login_input as HTMLInputElement).value
 			window.send({ type: 'login', data: { token } })
+			window.top?.postMessage({ type: 'login', data: { token } }, '*')
 			login_input.setAttribute('disabled', 'true')
 		}
 	})
@@ -21,7 +23,8 @@ function onopen(event: Event) {
 function onclose(event: CloseEvent) {
 	window.send = () => {}
 	// TODO: replace alert with something better
-	if (confirm('Connection closed')) location.reload()
+	location.reload()
+	// if (confirm('Connection closed')) location.reload()
 }
 
 function onmessage(event: MessageEvent<string>) {
@@ -48,6 +51,9 @@ function onmessage(event: MessageEvent<string>) {
 			new Phaser.Game(config)
 			window.me = message.data.player.identifier
 			break
+		case 'round':
+			window.top?.postMessage({ type: 'round', data: message.data }, '*')
+			break
 
 		default:
 	}
@@ -66,4 +72,13 @@ export function setupWS(url: string | URL) {
 	window.send = (message: ServerMessage) => {
 		return ws.send(parser.stringify(message))
 	}
+
+	window.addEventListener('message', event => {
+		if (event.data.type === 'login') {
+			window.send({
+				type: 'login',
+				data: { token: event.data.data.token },
+			})
+		}
+	})
 }
