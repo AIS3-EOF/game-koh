@@ -150,7 +150,10 @@ export class Manager {
 			) {
 				// sentence death
 				// respawn_time is game tick
-				const respawn_time = 10 // TODO: random here OuO?
+				// TODO: random here OuO?
+				const respawn_time =
+					config.RESPAWN_TIME_MIN +
+					Math.ceil(Math.random() * config.RESPAWN_TIME_MAX)
 				this.game.respawnPlayer(current_player, respawn_time)
 
 				eventQueue.push({
