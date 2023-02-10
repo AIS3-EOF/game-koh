@@ -20,15 +20,13 @@ export class Context {
 		private ws: WebSocket,
 		public game: Game,
 		public player: Player,
-	) { }
+	) {}
 	init(round: RoundData) {
 		this.send({
 			type: 'init',
 			data: {
 				player: this.player.dump(),
-				players: Array.from(this.game.players.values(), (p) => p.dump()),
-				objects: Array.from(this.game.objects.values()),
-				map: this.game.map,
+				...this.game.dump(),
 				round,
 			},
 		})

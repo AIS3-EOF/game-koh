@@ -5,10 +5,10 @@ import express from 'express'
 import logger from 'morgan'
 
 process.on('uncaughtException', function (err) {
-	console.log('Caught exception: ' + err)
+	console.log('Caught exception: ', err)
 })
 process.on('unhandledRejection', function (err) {
-	console.log('Caught rejection: ' + err)
+	console.log('Caught rejection: ', err)
 })
 
 // @ts-ignore
@@ -63,7 +63,21 @@ async function setup() {
 		manager.handleApi(req, res)
 	})
 
-	const server = app.listen(Number(process.env.SERVER_PORT), () => {
+	const server = DEVELOPMENT
+		? require('http').createServer(app)
+		: require('https').createServer(
+				{
+					key: require('fs').readFileSync(
+						require('path').resolve(__dirname, '../../server.key'),
+					),
+					cert: require('fs').readFileSync(
+						require('path').resolve(__dirname, '../../server.cert'),
+					),
+				},
+				app,
+		  )
+
+	server.listen(Number(process.env.SERVER_PORT), () => {
 		console.log(`listening on port ${process.env.SERVER_PORT}`)
 	})
 

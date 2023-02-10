@@ -11,7 +11,7 @@ export class Game {
 	id2name = new Map<Identifier, string>()
 	respawn_players = new Map<Player, number>()
 
-	constructor(public map: GameMap) { }
+	constructor(public map: GameMap) {}
 
 	addPlayer(player: Player) {
 		if (player.login_count++ == 0) {
@@ -105,8 +105,16 @@ export class Game {
 	}
 
 	resetAchievementReward() {
-		this.players.forEach((p) => {
+		this.players.forEach(p => {
 			p.achievements.resetReward()
 		})
+	}
+
+	dump() {
+		return {
+			players: Array.from(this.players.values(), p => p.dump()),
+			objects: Array.from(this.objects.values()),
+			map: this.map,
+		}
 	}
 }

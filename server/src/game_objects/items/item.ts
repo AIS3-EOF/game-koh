@@ -6,6 +6,7 @@ import * as GrowPotion from './item/成長藥水'
 import * as StrengthPotion from './item/傷害藥水'
 import * as LOIC from './item/LOIC'
 import * as WorldEnder from './item/World-Ender'
+import * as HammerOfDawn from './item/HammerOfDawn'
 
 
 export interface ItemDetail {
@@ -31,7 +32,8 @@ export enum ItemType {
 	'StrengthPotion' = 'StrengthPotion',
 	'GrowPotion' = 'GrowPotion',
 	'LOIC' = 'LOIC',
-	'WorldEnder' = 'WorldEnder'
+	'WorldEnder' = 'WorldEnder',
+	'HammerOfDawn' = 'HammerOfDawn'
 }
 
 const Items = new Map<ItemType, ItemDetail>([
@@ -46,7 +48,8 @@ const Items = new Map<ItemType, ItemDetail>([
 	[ItemType.StrengthPotion, StrengthPotion],
 	[ItemType.GrowPotion, GrowPotion],
 	[ItemType.LOIC, LOIC],
-	[ItemType.WorldEnder, WorldEnder]
+	[ItemType.WorldEnder, WorldEnder],
+	[ItemType.HammerOfDawn, HammerOfDawn],
 ])
 
 export function generateItem(): Item {

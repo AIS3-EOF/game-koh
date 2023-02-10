@@ -1,6 +1,6 @@
 import { debug } from 'debug'
 import { WebSocket } from 'ws'
-import parser from '~/parser'
+import { Parser } from '~/parser'
 import { sleep } from '~/utils'
 
 const log = debug('server:tester')
@@ -11,9 +11,13 @@ export async function run() {
 
 	await sleep(5000)
 	const ws = new WebSocket(`ws://localhost:${process.env.WS_PORT}`)
+
+	let parser = new Parser()
 	ws.on('open', async () => {
+		parser.initClient(ws)
+
 		ws.send(
-			parser.stringify({
+			await parser.stringify({
 				type: 'login',
 				data: {
 					token: process.env.TEST_TOKEN,
@@ -22,7 +26,7 @@ export async function run() {
 		)
 		await sleep(1000)
 		ws.send(
-			parser.stringify({
+			await parser.stringify({
 				type: 'move',
 				data: { facing: [1, 0], vec: [1, 0] },
 			}),
@@ -30,7 +34,8 @@ export async function run() {
 		await sleep(3000)
 		// ws.close()
 	})
-	ws.on('message', data => {
-		log('%s %o', new Date().toLocaleString(), parser.parse(data.toString()))
+	ws.on('message', async data => {
+		// @ts-ignore
+		log('%s %o', new Date().toLocaleString(), await parser.parse(data))
 	})
 }

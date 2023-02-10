@@ -1,5 +1,6 @@
-import { RoundStatus } from '@/types'
+import { RoundStatus, RoundData } from '@/types'
 
+let prevRound: RoundData | null = null
 let token: string | null = null
 const gameFrame = document.getElementById('gameFrame') as HTMLIFrameElement
 const roundEl = document.getElementById('round') as HTMLDivElement
@@ -34,6 +35,7 @@ window.addEventListener(
 		if (type === 'login') {
 			token = data.token
 		} else if (type === 'round') {
+			console.log('round', data)
 			if (data.status === RoundStatus.RUNNING) {
 				hide(roundEl)
 				return
@@ -45,6 +47,9 @@ window.addEventListener(
 			} else if (data.status === RoundStatus.END) {
 				roundText.innerText = `Round ${data.id} is over!`
 			}
+			prevRound = data
+		} else if (type === 'init') {
+			hide(roundEl)
 		}
 	},
 	false,

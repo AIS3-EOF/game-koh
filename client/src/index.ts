@@ -1,5 +1,5 @@
 import { setupWS } from '@/ws'
 import { setupVue } from '@/vue'
 
-setupWS(`ws://${location.host}/ws`)
+setupWS(location.origin.replace('http', 'ws') + '/ws')
 setupVue()

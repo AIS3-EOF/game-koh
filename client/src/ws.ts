@@ -27,14 +27,14 @@ function onopen() {
 }
 
 function onclose(event: CloseEvent) {
-	window.send = () => { }
+	window.send = () => {}
 	// TODO: replace alert with something better
-	location.reload()
+	if (window.top && window.top !== window) location.reload()
 	// if (confirm('Connection closed')) location.reload()
 }
 
-async function onmessage(event: MessageEvent<string>) {
-	const message = await parser.parse(event.data) as ClientMessage
+async function onmessage(event: MessageEvent<ArrayBuffer>) {
+	const message = (await window.parser.parse(event.data)) as ClientMessage
 	// console.log('recv', message)
 	switch (message.type) {
 		case 'login':
@@ -49,17 +49,24 @@ async function onmessage(event: MessageEvent<string>) {
 				const login_input = document.getElementById('login-input')
 				login_input?.removeAttribute('disabled')
 				// show some error message
-				const error_message = document.getElementById("login-error-message")
-				if (error_message) error_message.innerText = message.data.message ?? "Unknown error";
+				const error_message = document.getElementById(
+					'login-error-message',
+				)
+				if (error_message)
+					error_message.innerText =
+						message.data.message ?? 'Unknown error'
 			}
 			break
 		case 'init':
+			postMessage({ type: 'init', data: {} }, '*')
+
 			window.gameMap = new GameMap(message.data.map)
 			let mapJSON = window.gameMap.getJSON()
 			window.sessionStorage.setItem('map', JSON.stringify(mapJSON))
 			//Init Game
 			new Phaser.Game(config)
-			window.me = message.data.player.identifier
+			window.me = message.data.player.name
+
 			break
 		case 'round':
 			postMessage({ type: 'round', data: message.data }, '*')
@@ -77,7 +84,7 @@ export async function setupWS(url: string | URL) {
 	const ws = new WebSocket(url)
 	ws.binaryType = 'arraybuffer'
 	// ws.onopen = onopen
-	// ws.onclose = onclose
+	ws.onclose = onclose
 	await new Promise(resolve => ws.addEventListener('open', resolve))
 	const parser = new Parser()
 	await parser.initClient(ws)
@@ -98,5 +105,11 @@ export async function setupWS(url: string | URL) {
 				})
 			}
 		})
+	}
+}
+
+declare global {
+	interface Window {
+		parser: Parser
 	}
 }

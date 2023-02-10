@@ -34,7 +34,7 @@ export class Manager {
 	public game: Game
 	public generator: poisson.PoissonInstance
 
-	private ticking_objects: TickObjectData[] = []	// object_uuid, remain_tick
+	private ticking_objects: TickObjectData[] = [] // object_uuid, remain_tick
 	public round: RoundData = InitRoundData
 
 	constructor() {
@@ -89,17 +89,20 @@ export class Manager {
 			const ctx = new Context(parser, sessionId, ws, this.game, player)
 			ctx.init(this.round)
 			this.contexts.set(sessionId, ctx)
-			ws.on('message', async rawData => {
+			ws.on('message', async (rawData: Buffer) => {
 				try {
-					const msg: ServerMessage = await parser.parse(new Uint8Array(rawData).buffer)
+					const msg: ServerMessage = await parser.parse(
+						new Uint8Array(rawData).buffer,
+					)
 					log('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
 					} else {
 						ctx.send({
 							type: 'error',
-							data: `Round ${this.round.id} ${RoundMessage[this.round.status]
-								}`,
+							data: `Round ${this.round.id} ${
+								RoundMessage[this.round.status]
+							}`,
 						})
 					}
 				} catch (e) {
@@ -129,13 +132,11 @@ export class Manager {
 	async handleApi(req: Request, res: Response) {
 		res.json({
 			round: this.round,
-			players: this.game.players,
-			objects: this.game.objects,
 		})
 	}
 
 	checkDeath() {
-		log('check death impl')
+		log('check death')
 		this.game.players.forEach((current_player: Player) => {
 			if (
 				!current_player.alive &&
@@ -160,12 +161,17 @@ export class Manager {
 
 	private tickInterval: NodeJS.Timeout | undefined
 
-	updateRound(round: RoundData) {
-		if (this.round.id === round.id && this.round.status === round.status) return
-		console.log(`Round ${round.id} ${RoundMessage[round.status]}`)
-		this.round.id = round.id
-		this.round.start = round.start
-		this.round.end = round.end
+	updateRound(round: Partial<RoundData>) {
+		if (round.start) this.round.start = round.start
+		if (round.end) this.round.end = round.end
+
+		if (!round.status || this.round.status === round.status) return
+
+		this.updateStatus(round.status)
+		if (round.id) this.round.id = round.id
+
+		console.log(`Round ${this.round.id} ${RoundMessage[round.status]}`)
+
 		switch (round.status) {
 			case RoundStatus.INIT:
 				return this.roundInit()
@@ -176,13 +182,7 @@ export class Manager {
 		}
 	}
 
-
-	roundInit() {
-		if (this.round.status === RoundStatus.INIT) return
-		if (this.round.status === RoundStatus.RUNNING)
-			this.roundEnd()
-		this.updateStatus(RoundStatus.INIT)
-
+	private roundInit() {
 		this.game.resetAchievementReward()
 		this.game.scores.clear()
 
@@ -203,24 +203,23 @@ export class Manager {
 		}
 	}
 
-	roundStart() {
-		if (this.round.status === RoundStatus.RUNNING) return
-		this.updateStatus(RoundStatus.RUNNING)
-
-		this.tickInterval = setInterval(this.roundTick.bind(this), config.TICK_INTERVAL)
+	private roundStart() {
+		this.tickInterval = setInterval(
+			this.roundTick.bind(this),
+			config.TICK_INTERVAL,
+		)
 
 		this.generator.start()
 	}
 
-	roundTick() {
+	private roundTick() {
 		if (this.round.status !== RoundStatus.RUNNING) return
 
 		// TODO: Not sure is this implementation thread-safe
 		// CSY: If the is JS, then it must thread-safe
 		this.ticking_objects = this.ticking_objects.filter(obj => {
 			obj.tick_fn(obj.tick_count)
-			if (obj.forever)
-				return true
+			if (obj.forever) return true
 			return obj.tick_count-- > 0
 		})
 		this.checkDeath()
@@ -252,33 +251,53 @@ export class Manager {
 				scores: this.game.getScores(),
 			},
 		})
+
+		// if current time is after round end, then we should go to roundEnd immediately
+		const end = new Date(this.round.end as string).getTime()
+		if (Date.now() > end) this.updateRound({ status: RoundStatus.END })
 	}
 
-	roundEnd() {
-		if (this.round.status === RoundStatus.END) return
-		this.updateStatus(RoundStatus.END)
-
+	private roundEnd() {
 		clearInterval(this.tickInterval)
 		this.tickInterval = undefined
 		this.generator.stop()
 
-		this.round.id++
+		// System is working with ADsys now, we don't have to maintain this anymore.
+		//this.round.id++
+
+		if (!!process.env.SCOREBOARD_URL) {
+			db.collection('rank').insertOne({
+				round_id: this.round.id,
+				rank: this.lastrank(),
+			})
+		}
 	}
 
 	lastrank() {
-		return this.game.getScores()
-			.reduce((acc, team, idx, ary) => ([
+		return this.game.getScores().reduce(
+			(acc, team, idx, ary) => [
 				...acc,
 				{
 					team: team.identifier,
-					rank: idx === 0 ? 1 : team.score === ary[idx - 1].score ? acc[idx - 1].rank : idx + 1,
+					rank:
+						idx === 0
+							? 1
+							: team.score === ary[idx - 1].score
+							? acc[idx - 1].rank
+							: idx + 1,
 				},
-			]), [] as { team: number, rank: number }[])
+			],
+			[] as { team: number; rank: number }[],
+		)
 	}
 
 	// TODO: get rank from round_id
 	async rank(round_id: number) {
-		return this.lastrank()
+		if (!process.env.SCOREBOARD_URL) return null
+
+		const res = await db.collection('rank').findOne({ round_id })
+		if (res) return res.rank
+		return null
 	}
 
 	private updateStatus(status: RoundStatus) {

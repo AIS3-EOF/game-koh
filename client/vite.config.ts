@@ -10,6 +10,10 @@ export default defineConfig({
 	plugins: [vue()],
 	build: {
 		rollupOptions: {
+			input: {
+				main: path.resolve(__dirname, 'index.html'),
+				game: path.resolve(__dirname, 'game.html'),
+			},
 			plugins: [
 				//  Toggle the booleans here to enable / disable Phaser 3 features:
 				replace({

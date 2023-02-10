@@ -61,7 +61,7 @@ function handleEvent(event: any) {
 				break
 
 			case 'chat':
-				chatMessages.value = [...chatMessages.value, message.data]
+				chatMessages.value.push(message.data)
 				break
 		}
 	}
@@ -71,7 +71,7 @@ function handleEvent(event: any) {
 				inventory.show = !inventory.show
 				break
 			case 'd':
-				debug.value = !debug.value
+				if (import.meta.env.DEV) debug.value = !debug.value
 				break
 		}
 	}

@@ -26,7 +26,9 @@ const roundMessage = computed(() => {
 
 const remain = ref(0)
 function calc() {
-	remain.value = Math.floor((new Date(props.round.end!).getTime() - Date.now()) / 1000)
+	remain.value = Math.floor(
+		(new Date(props.round.end!).getTime() - Date.now()) / 1000,
+	)
 }
 
 watch(props.round, calc)
@@ -40,6 +42,7 @@ onBeforeUnmount(() => {
 })
 
 const timeLeft = computed(() => {
+	// console.log(props.round.status, props.round.end, remain.value)
 	switch (props.round.status) {
 		case RoundStatus.END:
 			return 0
@@ -58,7 +61,10 @@ const timeLeft = computed(() => {
 		<p class="time">{{ timeLeft }}s left</p>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
-				<template v-for="(team, index) in props.scores" :key="team.identifier">
+				<template
+					v-for="(team, index) in props.scores"
+					:key="team.identifier"
+				>
 					<span class="rank">{{ index + 1 }}</span>
 					<span class="name">{{ team.name }}</span>
 					<span class="score">{{ team.score }}</span>
@@ -83,11 +89,11 @@ const timeLeft = computed(() => {
 	flex-direction: column;
 	overflow: hidden;
 
-	>.header {
+	> .header {
 		margin: 1rem;
 	}
 
-	>.list {
+	> .list {
 		flex: 1;
 		margin: 4px 16px;
 		overflow-y: scroll;
@@ -104,7 +110,7 @@ const timeLeft = computed(() => {
 
 		scrollbar-width: none;
 
-		>.rank {
+		> .rank {
 			font-weight: bold;
 
 			&::after {
@@ -112,11 +118,11 @@ const timeLeft = computed(() => {
 			}
 		}
 
-		>.name {
+		> .name {
 			text-align: center;
 		}
 
-		>.score {
+		> .score {
 			text-align: right;
 		}
 	}
