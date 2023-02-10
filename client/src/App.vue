@@ -11,11 +11,13 @@ import {
 	ChatMessageData,
 	Identifier,
 	InitIdentifier,
+	DeathData,
 } from '@/types'
 
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
 import Chatroom from './components/Chatroom.vue'
+import Deathview from './components/Deathview.vue'
 
 interface Props {
 	dom: EventTarget
@@ -33,13 +35,14 @@ const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
 const playerMap = ref(new Map<Identifier, string>())
+const deathPlayerMap = ref(new Map<Identifier, DeathData>())
 
 const events = ref<ClientMessage[]>([])
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
 		const message = event.detail as ClientMessage
-		// console.log('event', message)
+		if (import.meta.env.DEV) console.log('event', message)
 		const n_debug_events = ['init', 'tick', 'move', 'new_object_spawned']
 		if (!n_debug_events.includes(message.type))
 			events.value = [message, ...events.value.slice(0, 30)]
@@ -74,14 +77,29 @@ function handleEvent(event: any) {
 
 			case 'tick':
 				scores.value = message.data.scores
+				deathPlayerMap.value.forEach(death => {
+					death.respawn_time -= 1
+				})
 				break
 
 			case 'round':
+				if (import.meta.env.DEV) console.log('round', message.data)
 				round.value = message.data
 				break
 
 			case 'chat':
 				chatMessages.value.push(message.data)
+				break
+
+			case 'respawn':
+				deathPlayerMap.value.delete(message.data.player.identifier)
+				break
+
+			case 'death':
+				deathPlayerMap.value.set(
+					message.data.victim_identifier,
+					message.data,
+				)
 				break
 		}
 	}
@@ -128,6 +146,7 @@ onBeforeUnmount(() => {
 			</template>
 		</div>
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
+		<Deathview :playerMap="playerMap" :deathPlayerMap="deathPlayerMap" />
 		<Chatroom
 			:playerMap="playerMap"
 			:messages="chatMessages"
