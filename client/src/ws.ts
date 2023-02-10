@@ -18,7 +18,7 @@ function postMessage(...args: any) {
 }
 
 let parser: Parser | null = null
-let dom: DocumentFragment | null = null
+let dom: EventTarget | null = null
 
 function send(message: ServerMessage) {
 	if (!parser || !dom) return
@@ -111,11 +111,11 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 	}
 	if (message.type !== 'login') {
 		events.push(message)
-		document.dispatchEvent(new CustomEvent('event', { detail: message }))
+		dom!.dispatchEvent(new CustomEvent('event', { detail: message }))
 	}
 }
 
-export async function setupWS(url: string, _dom: DocumentFragment) {
+export async function setupWS(url: string, _dom: EventTarget) {
 	dom = _dom
 	const ws = new WebSocket(url)
 	ws.binaryType = 'arraybuffer'

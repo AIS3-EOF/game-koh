@@ -13,7 +13,7 @@ declare global {
 		me: Identifier
 		version: string
 		// don't known how to pass argument to Phaser.Scene
-		gameDom?: DocumentFragment
+		gameDom?: EventTarget
 		gameEvents?: ClientMessage[]
 	}
 }

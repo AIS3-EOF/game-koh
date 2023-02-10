@@ -18,7 +18,7 @@ import Scoreboard from './components/Scoreboard.vue'
 import Chatroom from './components/Chatroom.vue'
 
 interface Props {
-	dom: DocumentFragment
+	dom: EventTarget
 }
 const props = defineProps<Props>()
 
@@ -110,11 +110,11 @@ function send(message: ServerMessage) {
 }
 
 onMounted(() => {
-	document.addEventListener('event', handleEvent)
+	props.dom.addEventListener('event', handleEvent)
 	document.addEventListener('keydown', handleEvent)
 })
 onBeforeUnmount(() => {
-	document.removeEventListener('event', handleEvent)
+	props.dom.removeEventListener('event', handleEvent)
 	document.removeEventListener('keydown', handleEvent)
 })
 </script>
