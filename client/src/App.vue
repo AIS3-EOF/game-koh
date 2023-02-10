@@ -8,6 +8,8 @@ import {
 	RoundStatus,
 	InitRoundData,
 	ChatMessageData,
+	Identifier,
+	Team,
 } from '@/types'
 
 import Inventory from './components/Inventory.vue'
@@ -24,7 +26,8 @@ const inventory = reactive({
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
-const players = ref([] as string[])
+const players = ref([] as Team[])
+const playerMap = ref(new Map<Identifier, string>())
 
 const events = ref<ClientMessage[]>([])
 
@@ -40,6 +43,13 @@ function handleEvent(event: any) {
 				init.value = true
 				me.value = message.data.player.identifier
 				round.value = message.data.round
+				players.value = message.data.players.map(player => ({
+					identifier: player.identifier,
+					name: player.name,
+				}))
+				message.data.players.forEach(player => {
+					playerMap.value.set(player.identifier, player.name)
+				})
 
 			case 'interact_map':
 			case 'use':
@@ -49,11 +59,22 @@ function handleEvent(event: any) {
 					].reverse()
 				break
 
+			case 'join':
+				playerMap.value.set(
+					message.data.player.identifier,
+					message.data.player.name,
+				)
+				break
+
 			case 'tick':
 				scores.value = message.data.scores
-				players.value = message.data.scores.map(
-					score => score.identifier,
-				)
+				players.value = message.data.scores.map(score => ({
+					identifier: score.identifier,
+					name: score.name,
+				}))
+				message.data.scores.forEach(score => {
+					playerMap.value.set(score.identifier, score.name)
+				})
 				break
 
 			case 'round':
@@ -97,7 +118,11 @@ onBeforeUnmount(() => {
 		</div>
 		<Inventory :show="inventory.show" :items="inventory.items" />
 		<Scoreboard :scores="scores" :round="round" />
-		<Chatroom :players="players" :messages="chatMessages" />
+		<Chatroom
+			:players="players"
+			:playerMap="playerMap"
+			:messages="chatMessages"
+		/>
 	</div>
 </template>
 

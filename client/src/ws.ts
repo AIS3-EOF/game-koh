@@ -10,7 +10,7 @@ function postMessage(...args: any) {
 	if (
 		window.top &&
 		window.top !== window &&
-		allowPostTypes.includes(args?.[0]?.type)
+		(args?.[0] == 'ready' || allowPostTypes.includes(args?.[0]?.type))
 	) {
 		window.top.postMessage.apply(window.top, args)
 	}
@@ -73,7 +73,7 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 			window.sessionStorage.setItem('map', JSON.stringify(mapJSON))
 			//Init Game
 			new Phaser.Game(config)
-			window.me = message.data.player.name
+			window.me = message.data.player.identifier
 
 			break
 		case 'round':

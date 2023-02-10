@@ -87,6 +87,7 @@ export class Manager {
 			})
 			log('%s logined as %s', sessionId, player.name)
 			const ctx = new Context(parser, sessionId, ws, this.game, player)
+			sockets.add(player.identifier, ctx)
 			ctx.init(this.round)
 			this.contexts.set(sessionId, ctx)
 			ws.on('message', async (rawData: Buffer) => {
@@ -116,7 +117,7 @@ export class Manager {
 				this.contexts.delete(sessionId)
 
 				if (player.login_count === 0) {
-					sockets.delete(player.identifier, ws)
+					sockets.delete(player.identifier, ctx)
 					eventQueue.push({
 						type: 'leave',
 						data: { identifier: player.identifier },

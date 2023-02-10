@@ -1,4 +1,4 @@
-import { ChatMessageData } from '~/protocol'
+import { ChatMessageData, ClientMessage } from '~/protocol'
 import { Context } from '~/context'
 
 export const handle = async (ctx: Context, data: ChatMessageData) => {
@@ -11,7 +11,10 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 		message,
 	})
 
-	const messageData = { ...data, timestamp: Date.now(), from }
+	const messageData: ClientMessage = {
+		type: 'chat',
+		data: { ...data, timestamp: Date.now(), from },
+	}
 
 	// if (to === from)
 	// 	return ctx.send({
@@ -20,21 +23,13 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 	// 	})
 
 	if (to === '(all)') {
-		eventQueue.push({
-			type: 'chat',
-			data: messageData,
-		})
+		eventQueue.push(messageData)
 	} else {
 		if (to === '(server)' || !sockets.has(to))
 			return ctx.send({
 				type: 'chat',
 				data: ServerMessage('Player not found'),
 			})
-		sockets.send(to,
-			await ctx.parser.stringify({
-				type: 'chat',
-				data: messageData,
-			}),
-		)
+		sockets.send(to, messageData)
 	}
 }

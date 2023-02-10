@@ -5,11 +5,16 @@ export type { GameObject } from '~/game_objects'
 export * from '~/round'
 
 import GameMap from '@/resources/map'
-import { ClientMessage, ServerMessage } from '@/types'
+import { ClientMessage, ServerMessage, Identifier } from '@/types'
+
+export interface Team {
+	identifier: Identifier
+	name: string
+}
 
 declare global {
 	interface Window {
-		me: string
+		me: Identifier
 		gameMap: GameMap
 		events: ClientMessage[]
 		send: (message: ServerMessage) => void

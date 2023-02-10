@@ -1,6 +1,6 @@
-import { LoginMessageData } from '~/protocol'
+import { InitIdentifier, LoginMessageData } from '~/protocol'
 import { Player } from '~/game'
-import { ServerMessage } from '~/protocol'
+import { ServerMessage, InitIdentifier } from '~/protocol'
 import { Db } from 'mongodb'
 import { WebSocket } from 'ws'
 
@@ -9,7 +9,10 @@ import { Parser } from '~/parser'
 
 const players = new Map<number, Player>()
 
-export const handleLogin = async (ws: WebSocket, parser: Parser): Promise<Player> =>
+export const handleLogin = async (
+	ws: WebSocket,
+	parser: Parser,
+): Promise<Player> =>
 	new Promise((_resolve, _reject) => {
 		function remove() {
 			ws.removeListener('message', message)
@@ -29,13 +32,20 @@ export const handleLogin = async (ws: WebSocket, parser: Parser): Promise<Player
 		}
 
 		async function message(rawData: Buffer) {
-			const msg: ServerMessage = await parser.parse(new Uint8Array(rawData).buffer)
+			const msg: ServerMessage = await parser.parse(
+				new Uint8Array(rawData).buffer,
+			)
 			if (msg.type === 'login') {
 				// handle login and retrieve player from database
 				const { data } = msg
-				let id = -1, name = '', message = '', success = false
+				let id = InitIdentifier,
+					name = '',
+					message = '',
+					success = false
 				if (data && data.token) {
-					const res = await apiFetch('/team/my', { token: data.token.toString() })
+					const res = await apiFetch('/team/my', {
+						token: data.token.toString(),
+					})
 					if (res.id) {
 						id = res.id
 						name = res.name
@@ -49,15 +59,13 @@ export const handleLogin = async (ws: WebSocket, parser: Parser): Promise<Player
 						type: 'login',
 						data: {
 							success,
-							message
+							message,
 						},
 					}),
 				)
 				if (success) {
 					const player = players.get(id) ?? new Player(id, name)
-					if (!players.has(id))
-						players.set(id, player)
-					sockets.add(id, ws)
+					if (!players.has(id)) players.set(id, player)
 					resolve(player)
 				}
 			} else {

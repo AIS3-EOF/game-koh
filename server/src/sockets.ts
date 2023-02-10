@@ -1,42 +1,25 @@
-import { WebSocket } from 'ws'
-
-type BufferLike =
-	| string
-	| Buffer
-	| DataView
-	| number
-	| ArrayBufferView
-	| Uint8Array
-	| ArrayBuffer
-	| SharedArrayBuffer
-	| ReadonlyArray<any>
-	| ReadonlyArray<number>
-	| { valueOf(): ArrayBuffer }
-	| { valueOf(): SharedArrayBuffer }
-	| { valueOf(): Uint8Array }
-	| { valueOf(): ReadonlyArray<number> }
-	| { valueOf(): string }
-	| { [Symbol.toPrimitive](hint: string): string }
+import { Context } from '~/context'
+import { Identifier, ClientMessage } from '~/protocol'
 
 export class Sockets {
-	public map = new Map<number, Set<WebSocket>>()
+	public map = new Map<Identifier, Set<Context>>()
 
-	public add(id: number, socket: WebSocket) {
+	public add(id: Identifier, ctx: Context) {
 		if (!this.map.has(id)) this.map.set(id, new Set())
-		this.map.get(id)!.add(socket)
+		this.map.get(id)!.add(ctx)
 	}
 
-	public delete(id: number, socket: WebSocket) {
+	public delete(id: Identifier, ctx: Context) {
 		if (!this.map.has(id)) return
-		this.map.get(id)?.delete(socket)
+		this.map.get(id)?.delete(ctx)
 	}
 
-	public send(id: number, message: BufferLike) {
+	public send(id: Identifier, message: ClientMessage) {
 		if (!this.map.has(id)) return
-		this.map.get(id)?.forEach(socket => socket.send(message))
+		this.map.get(id)?.forEach(ctx => ctx.send(message))
 	}
 
-	public has(id: number) {
+	public has(id: Identifier) {
 		return this.map.has(id)
 	}
 }
