@@ -270,6 +270,17 @@ export default class Game extends Phaser.Scene {
 							clearInterval(flash)
 							targetObj.setAlpha(1)
 						}, 200)
+
+						const damage = this.add
+							.text(
+								this.me.x + 12,
+								this.me.y - 12,
+								target.damage.toString(),
+								{ fontSize: '16px', color: '#ff0000' },
+							)
+							.setDepth(100)
+							.setOrigin(0.5, 0.5)
+						setTimeout(() => damage.destroy(), 300)
 					}
 				}
 				break
