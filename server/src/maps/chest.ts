@@ -27,11 +27,12 @@ export class Chest extends MapObject {
 
 	interact(ctx: Context, data: any) {
 		super.interact(ctx, data)
-	
+
 		if (this.last_user == ctx.player.identifier) {
 			ctx.send({
 				type: 'chat',
 				data: {
+					timestamp: Date.now(),
 					from: '(server)',
 					to: ctx.player.identifier,
 					message: `輪流來好嗎，不要獨佔這個寶箱好不好 😤`,
@@ -40,11 +41,14 @@ export class Chest extends MapObject {
 			return
 		}
 
-		let new_items: GameObject[] = [];
+		let new_items: GameObject[] = []
 		this.last_user = ctx.player.identifier
 		// randomly pick one item and add to player inventroy and remove it from chest
 		log(`Player ${ctx.player.identifier} opened Normal Chest`)
-		const item = this.chest_inventory.splice(Math.floor(Math.random() * this.chest_inventory.length), 1)[0]
+		const item = this.chest_inventory.splice(
+			Math.floor(Math.random() * this.chest_inventory.length),
+			1,
+		)[0]
 		if (item) {
 			ctx.player.addObjectToInventory(item)
 			new_items.push(item)
@@ -53,7 +57,10 @@ export class Chest extends MapObject {
 		const seeds = Array.isArray(data) ? data : []
 		if (randProb(this.uuid, seeds) >= 0.9) {
 			log(`!!!!! Player ${ctx.player.identifier} opened Rare Chest.`)
-			const item = this.chest_inventory_rare.splice(Math.floor(Math.random() * this.chest_inventory_rare.length), 1)[0]
+			const item = this.chest_inventory_rare.splice(
+				Math.floor(Math.random() * this.chest_inventory_rare.length),
+				1,
+			)[0]
 			if (item) {
 				ctx.player.addObjectToInventory(item)
 				new_items.push(item)
@@ -63,7 +70,7 @@ export class Chest extends MapObject {
 		ctx.send({
 			type: 'interact_chest',
 			data: {
-				new_items
+				new_items,
 			},
 		})
 	}

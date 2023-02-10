@@ -97,7 +97,7 @@ function displayUser(message: ChatMessageData) {
 		return message.from
 	const from = name(message.from)
 	if (message.to === '(all)') return `${from} 📢`
-	if (message.to === '(server)') return `${from} 📣`
+	if (message.to === '(server)') return `${from}`
 	const to = name(message.to)
 	return `${from} → ${to}`
 }

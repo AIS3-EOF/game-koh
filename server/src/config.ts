@@ -14,6 +14,11 @@ export const CHEST_SIZE = Math.floor((MAP_SIZE * MAP_SIZE) / 200)
 export const TICK_ACTION_COUNT = 10
 export const TICK_ACTION_MAX_COUNT = TICK_ACTION_COUNT * 20
 
+export const RESPAWN_TIME_MIN = 5
+export const RESPAWN_TIME_MAX = 10
+
+export const CHAT_COOLDOWN = 1000 * 5
+
 export const TICK_LIVE_SCORE = 1
 export const KILL_SCORE = 1000
 export const DAMAGE_SCORE = 2
@@ -21,6 +26,6 @@ export const MOVE_SCORE = 1
 
 export const DEFAULT_HP = 10
 
-export const GEN_DURATION = 10000
+export const GEN_DURATION = 3000
 
 export const AFRType = 'AFR_2bffa7efd0493b4b0857a3953fe78456'

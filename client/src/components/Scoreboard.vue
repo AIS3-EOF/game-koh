@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { ScoreItem, RoundData, RoundStatus } from '@/types'
+import { ScoreItem, RoundData, RoundStatus, Identifier } from '@/types'
 
 interface Props {
 	scores: ScoreItem[]
@@ -27,9 +27,10 @@ const roundMessage = computed(() => {
 
 const remain = ref(0)
 function calc() {
-	remain.value = Math.max(0, Math.floor(
-		(new Date(props.round.end!).getTime() - Date.now()) / 1000,
-	))
+	remain.value = Math.max(
+		0,
+		Math.floor((new Date(props.round.end!).getTime() - Date.now()) / 1000),
+	)
 }
 
 watch(props.round, calc)
@@ -62,7 +63,10 @@ const timeLeft = computed(() => {
 		<p class="time">{{ timeLeft }}s left</p>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
-				<template v-for="(team, index) in props.scores" :key="team.identifier">
+				<template
+					v-for="(team, index) in props.scores"
+					:key="team.identifier"
+				>
 					<span class="rank">{{ index + 1 }}</span>
 					<span class="name">
 						{{ props.playerMap.get(team.identifier) ?? 'Unknown' }}
@@ -89,11 +93,11 @@ const timeLeft = computed(() => {
 	flex-direction: column;
 	overflow: hidden;
 
-	>.header {
+	> .header {
 		margin: 1rem;
 	}
 
-	>.list {
+	> .list {
 		flex: 1;
 		margin: 4px 16px;
 		overflow-y: scroll;
@@ -110,7 +114,7 @@ const timeLeft = computed(() => {
 
 		scrollbar-width: none;
 
-		>.rank {
+		> .rank {
 			font-weight: bold;
 
 			&::after {
@@ -118,11 +122,11 @@ const timeLeft = computed(() => {
 			}
 		}
 
-		>.name {
+		> .name {
 			text-align: center;
 		}
 
-		>.score {
+		> .score {
 			text-align: right;
 		}
 	}

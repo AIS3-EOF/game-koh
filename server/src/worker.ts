@@ -57,12 +57,7 @@ async function registerWorker(name: string) {
 	const { token } = res
 	await dbCollection().deleteMany({ name: 'token' })
 	await dbCollection().insertOne({ name: 'token', token })
-	log(
-		'Worker register successful. Name: %s Token: %s %o',
-		name,
-		token,
-		res,
-	)
+	log('Worker register successful. Name: %s Token: %s %o', name, token, res)
 	return token as string
 }
 
@@ -106,6 +101,21 @@ async function doneJob(
 	})
 }
 
+async function checkPatchRound(round_id: number) {
+	const res = await dbCollection().findOneAndUpdate(
+		{ type: 'patch', round_id, wait: false },
+		{ $set: { wait: true } },
+	)
+	return res.value
+}
+
+async function checkRoundScored(round_id: number) {
+	const res = await dbCollection().findOne({ type: 'scored' })
+	if (res?.begin && round_id < res.begin) return false
+	if (res?.end && res.end < round_id) return false
+	return true
+}
+
 export async function setupWorker(manager: Manager) {
 	if (!process.env.SCOREBOARD_URL) {
 		warn('No scoreboard url provided. Worker disabled.')
@@ -146,40 +156,60 @@ export async function setupWorker(manager: Manager) {
 			start: overview.round.start?.replace(/$/, 'Z'),
 			end: overview.round.end?.replace(/$/, 'Z'),
 		}
-		manager.updateRound(round)
+		if (round.status === RoundStatus.INIT)
+			round.start == RoundStatus.PREINIT
+		if (manager.updateRound(round)) {
+			switch (round.status) {
+				case RoundStatus.RUNNING:
+					manager.roundStart()
+					break
+				case RoundStatus.END:
+					manager.roundEnd()
+					break
+			}
+		}
 
 		const initJobs = await takeJob(token, 'KoHInit')
 		for (const job of initJobs) {
-			log(
-				'Init job (%d) received. Round: %s',
-				job.id,
-				job.round_id,
-			)
-			const result = await doneJob(token, job.id, 'Success')
-			if (result.error)
+			log('Init job (%d) received. Round: %s', job.id, job.round_id)
+			let status: JobResultStatus = 'Success'
+			if (job.round_id !== round.id) {
 				error(
-					'Init job (%d) failed. Error: %s',
+					'Init job (%d) round mismatch. Expected: %d Got: %d',
 					job.id,
-					result.error,
+					round.id,
+					job.round_id,
 				)
+				status = 'Failed'
+			} else {
+				if (await checkPatchRound(job.round_id)) {
+					log(
+						'Init job (%d) patch found. Round: %s (%o)',
+						job.id,
+						job.round_id,
+						res,
+					)
+					status = 'WorkerFailed'
+				} else {
+					manager.roundInit()
+				}
+			}
+			const result = await doneJob(token, job.id, status)
+			if (result.error)
+				error('Init job (%d) failed. Error: %s', job.id, result.error)
 		}
 
 		const scoreJobs = await takeJob(token, 'KoHScore')
 		for (const job of scoreJobs) {
-			log(
-				'Score job (%d) received. Round: %s',
-				job.id,
-				job.round_id,
-			)
-			const ranks = await manager.rank(job.round_id)
+			log('Score job (%d) received. Round: %s', job.id, job.round_id)
+			let ranks = await manager.rank(job.round_id)
+			if (!(await checkRoundScored(job.round_id))) {
+				ranks = []
+			}
 			const status = ranks ? 'Success' : 'Failed'
 			const result = await doneJob(token, job.id, status, ranks)
 			if (result.error)
-				error(
-					'Score job (%d) failed. Error: %s',
-					job.id,
-					result.error,
-				)
+				error('Score job (%d) failed. Error: %s', job.id, result.error)
 			log({ job, round, ranks, status, result })
 		}
 
