@@ -2,6 +2,7 @@
 import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
 import {
 	ClientMessage,
+	ServerMessage,
 	GameObject,
 	ScoreItem,
 	RoundData,
@@ -9,16 +10,21 @@ import {
 	InitRoundData,
 	ChatMessageData,
 	Identifier,
-	Team,
+	InitIdentifier,
 } from '@/types'
 
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
 import Chatroom from './components/Chatroom.vue'
 
+interface Props {
+	dom: DocumentFragment
+}
+const props = defineProps<Props>()
+
 const init = ref(false)
 const debug = ref(false)
-const me = ref('')
+const me = ref(InitIdentifier)
 const inventory = reactive({
 	show: false,
 	items: [] as GameObject[],
@@ -26,7 +32,6 @@ const inventory = reactive({
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
-const players = ref([] as Team[])
 const playerMap = ref(new Map<Identifier, string>())
 
 const events = ref<ClientMessage[]>([])
@@ -44,10 +49,6 @@ function handleEvent(event: any) {
 				init.value = true
 				me.value = message.data.player.identifier
 				round.value = message.data.round
-				players.value = message.data.players.map(player => ({
-					identifier: player.identifier,
-					name: player.name,
-				}))
 				message.data.players.forEach(player => {
 					playerMap.value.set(player.identifier, player.name)
 				})
@@ -67,12 +68,12 @@ function handleEvent(event: any) {
 				)
 				break
 
+			case 'leave':
+				playerMap.value.delete(message.data.identifier)
+				break
+
 			case 'tick':
 				scores.value = message.data.scores
-				players.value = message.data.scores.map(score => ({
-					identifier: score.identifier,
-					name: score.name,
-				}))
 				break
 
 			case 'round':
@@ -90,7 +91,7 @@ function handleEvent(event: any) {
 				inventory.show = !inventory.show
 				break
 			case 'd':
-				debug.value = !debug.value
+				if (import.meta.env.DEV) debug.value = !debug.value
 				break
 			// esc
 			case 'escape':
@@ -98,6 +99,14 @@ function handleEvent(event: any) {
 				break
 		}
 	}
+}
+
+function send(message: ServerMessage) {
+	props.dom.dispatchEvent(
+		new CustomEvent('send', {
+			detail: message,
+		}),
+	)
 }
 
 onMounted(() => {
@@ -119,9 +128,16 @@ onBeforeUnmount(() => {
 			</template>
 		</div>
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Chatroom :players="players" :playerMap="playerMap" :messages="chatMessages" />
-
-		<Inventory :show="inventory.show" :items="inventory.items" />
+		<Chatroom
+			:playerMap="playerMap"
+			:messages="chatMessages"
+			:send="send"
+		/>
+		<Inventory
+			:show="inventory.show"
+			:items="inventory.items"
+			:send="send"
+		/>
 	</div>
 </template>
 

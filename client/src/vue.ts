@@ -1,9 +1,7 @@
-import { createApp, ref } from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import { ClientMessage } from '@/types'
 
-export function setupVue() {
-	const events = [] as ClientMessage[]
-	const app = createApp(App, { events })
+export function setupVue(dom: DocumentFragment) {
+	const app = createApp(App, { dom })
 	app.mount('#app')
 }

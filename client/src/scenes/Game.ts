@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import { throttle } from 'underscore'
 import Player from '@/resources/Player'
 import Weapon from '@/resources/Weapon'
-import { Vec2 } from '@/types'
+import { SendFunction, ServerMessage, Vec2 } from '@/types'
 import { rotate, add } from '~/utils'
 import { ClientMessage, Identifier } from '@/types'
 
@@ -33,7 +33,7 @@ export default class Game extends Phaser.Scene {
 			this.me.face(vec)
 			let newPos = add(this.me.pos, vec)
 
-			window.send({ type: 'move', data: { vec, facing: this.me.facing } })
+			this.send({ type: 'move', data: { vec, facing: this.me.facing } })
 		},
 		150,
 		{ trailing: false },
@@ -52,7 +52,7 @@ export default class Game extends Phaser.Scene {
 
 	attack = throttle(
 		() => {
-			window.send({ type: 'attack', data: { facing: this.me.facing } })
+			this.send({ type: 'attack', data: { facing: this.me.facing } })
 		},
 		500,
 		{ trailing: false },
@@ -61,7 +61,7 @@ export default class Game extends Phaser.Scene {
 	interact = throttle(
 		() => {
 			let pos = add(this.me.pos, this.me.facing)
-			window.send({ type: 'interact_map', data: { pos } })
+			this.send({ type: 'interact_map', data: { pos } })
 		},
 		500,
 		{ trailing: false },
@@ -170,7 +170,7 @@ export default class Game extends Phaser.Scene {
 			case 'join':
 				{
 					const player = event.data.player
-					console.log('join', player)
+					// console.log('join', player)
 					const playerObj =
 						this.players.get(player.identifier) ||
 						new Player(this, '他', player)
@@ -401,8 +401,19 @@ export default class Game extends Phaser.Scene {
 		}
 	}
 
+	send: SendFunction = () => {}
+	events_pool: ClientMessage[] = []
+
 	constructor() {
 		super('GameScene')
+
+		const dom = window.gameDom
+		delete window.gameDom
+		this.send = (msg: ServerMessage) => {
+			dom?.dispatchEvent(new CustomEvent('send', { detail: msg }))
+		}
+		this.events_pool = window.gameEvents!
+		delete window.gameEvents
 	}
 
 	preload() {
@@ -466,7 +477,7 @@ export default class Game extends Phaser.Scene {
 	update(time: number, delta: number): void {
 		// pop from event queue, then handle
 		let event: ClientMessage | undefined
-		while ((event = window.events.shift())) this.handleEvent(event)
+		while ((event = this.events_pool.shift())) this.handleEvent(event)
 
 		// attack
 		if (this.input.keyboard.checkDown(this.cursors.space, 100)) {

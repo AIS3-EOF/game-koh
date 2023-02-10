@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { GameObject } from '@/types'
+import { GameObject, SendFunction } from '@/types'
 import { object2name } from '@/utils'
 
 interface Props {
 	show: boolean
 	items: GameObject[]
+	send: SendFunction
 }
 
 const props = defineProps<Props>()
 
 function use(item: GameObject) {
-	window.send({
+	props.send({
 		type: 'use',
 		data: {
 			uuid: item.uuid,
@@ -20,16 +21,18 @@ function use(item: GameObject) {
 </script>
 
 <template>
-	<div class="inventory" v-if="show">
+	<div class="inventory" v-if="props.show">
 		<h2 class="inventory-header">Inventory</h2>
 		<div class="inventory-items">
-			<template v-for="item in items" :key="item.uuid">
-				<div class="inventory-item" @click="use(item)">{{ object2name(item) }}</div>
+			<template v-for="item in props.items" :key="item.uuid">
+				<div class="inventory-item" @click="use(item)">
+					{{ object2name(item) }}
+				</div>
 				<p class="inventory-item-description" v-if="item.description">
-					[{{ item.identifier.split('::').at(-2) }}] {{ item.description }}
+					[{{ item.identifier.split('::').at(-2) }}]
+					{{ item.description }}
 				</p>
 			</template>
-
 		</div>
 	</div>
 </template>
@@ -48,7 +51,7 @@ function use(item: GameObject) {
 	display: flex;
 	flex-direction: column;
 
-	>.inventory-header {
+	> .inventory-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -56,7 +59,7 @@ function use(item: GameObject) {
 		color: white;
 	}
 
-	>.inventory-items {
+	> .inventory-items {
 		height: 100%;
 		display: flex;
 		flex-wrap: wrap;
@@ -81,12 +84,12 @@ function use(item: GameObject) {
 			&:hover {
 				background: #3f3f3f;
 
-				+.inventory-item-description {
+				+ .inventory-item-description {
 					display: block;
 				}
 			}
 
-			+.inventory-item-description {
+			+ .inventory-item-description {
 				cursor: default;
 				display: none;
 				position: absolute;
