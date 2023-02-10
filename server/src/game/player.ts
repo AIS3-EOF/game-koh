@@ -5,7 +5,6 @@ import { Armor } from '~/game_objects/equipments/armor'
 import { TICK_ACTION_COUNT, DEFAULT_HP } from '~/config'
 import { Achievements } from '~/achievement'
 
-
 export const DEFAULT_POS: Vec2 = [1, 1]
 export class Player {
 	constructor(public identifier: Identifier, public name: string) {}
@@ -92,6 +91,14 @@ export class Player {
 	dealDamage(damage: number): boolean {
 		if (!this.alive) return false
 		this.hp -= damage
+		eventQueue.push({
+			type: 'damage',
+			data: {
+				identifier: this.identifier,
+				pos: this.pos,
+				damage,
+			},
+		})
 		if (this.hp <= 0) {
 			this.death()
 			return true
@@ -106,7 +113,7 @@ export class Player {
 
 	death() {
 		this.alive = false
-		this.hp = -1
+		this.hp = 0
 	}
 
 	respawn() {

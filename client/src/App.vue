@@ -12,11 +12,13 @@ import {
 	Identifier,
 	InitIdentifier,
 	DeathData,
+	PlayerPub,
 } from '@/types'
 
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
 import Chatroom from './components/Chatroom.vue'
+import Profile from './components/Profile.vue'
 import Deathview from './components/Deathview.vue'
 
 interface Props {
@@ -27,15 +29,13 @@ const props = defineProps<Props>()
 const init = ref(false)
 const debug = ref(false)
 const me = ref(InitIdentifier)
-const inventory = reactive({
-	show: false,
-	items: [] as GameObject[],
-})
+const showInventory = ref(false)
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
 const playerMap = ref(new Map<Identifier, string>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
+const currentPlayer = ref<PlayerPub>({} as PlayerPub)
 
 const events = ref<ClientMessage[]>([])
 
@@ -55,13 +55,22 @@ function handleEvent(event: any) {
 				message.data.players.forEach(player => {
 					playerMap.value.set(player.identifier, player.name)
 				})
+				currentPlayer.value = message.data.player
+				break
 
 			case 'interact_map':
 			case 'use':
-				if (message.data.player.identifier === me.value)
-					inventory.items = [
-						...message.data.player.inventory,
-					].reverse()
+				if (message.data.player.identifier === me.value) {
+					currentPlayer.value.inventory =
+						message.data.player.inventory
+					currentPlayer.value = message.data.player
+				}
+				break
+
+			case 'damage':
+				if (message.data.identifier === me.value) {
+					currentPlayer.value.hp -= message.data.damage
+				}
 				break
 
 			case 'join':
@@ -69,6 +78,12 @@ function handleEvent(event: any) {
 					message.data.player.identifier,
 					message.data.player.name,
 				)
+				break
+
+			case 'respawn':
+				if (message.data.player.identifier === me.value) {
+					currentPlayer.value = message.data.player
+				}
 				break
 
 			case 'leave':
@@ -106,14 +121,14 @@ function handleEvent(event: any) {
 	if (event instanceof KeyboardEvent && !event.repeat && init.value) {
 		switch (event.key.toLowerCase()) {
 			case 'i':
-				inventory.show = !inventory.show
+				showInventory.value = !showInventory.value
 				break
 			case 'd':
 				if (import.meta.env.DEV) debug.value = !debug.value
 				break
 			// esc
 			case 'escape':
-				inventory.show = false
+				showInventory.value = false
 				break
 		}
 	}
@@ -145,22 +160,22 @@ onBeforeUnmount(() => {
 				<pre>{{ event.data }}</pre>
 			</template>
 		</div>
+		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Deathview :playerMap="playerMap" :deathPlayerMap="deathPlayerMap" />
 		<Chatroom
 			:playerMap="playerMap"
 			:messages="chatMessages"
 			:send="send"
 		/>
 		<Inventory
-			:show="inventory.show"
-			:items="inventory.items"
+			:show="showInventory"
+			:items="currentPlayer.inventory"
 			:send="send"
 		/>
 	</div>
 </template>
 
-<style>
+<style lang="scss">
 .container {
 	color: white;
 	position: fixed;

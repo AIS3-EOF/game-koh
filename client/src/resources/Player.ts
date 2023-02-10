@@ -6,6 +6,7 @@ export default class Player extends Phaser.GameObjects.Container {
 	public graphics: Phaser.GameObjects.Graphics
 	public facing: Vec2 = [0, 1]
 	public identifier: Identifier
+	public name: string
 	public pos: Vec2
 	public weapon: Weapon
 	public inventory: GameObject[]
@@ -38,6 +39,7 @@ export default class Player extends Phaser.GameObjects.Container {
 
 	updatePlayer(player: PlayerPub) {
 		this.identifier = player.identifier
+		this.name = player.name
 		this.weapon = new Weapon(
 			player.current_weapon.weapon_type,
 			player.current_weapon.range,

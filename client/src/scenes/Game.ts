@@ -270,20 +270,27 @@ export default class Game extends Phaser.Scene {
 							clearInterval(flash)
 							targetObj.setAlpha(1)
 						}, 200)
-
-						const damage = this.add
-							.text(
-								this.me.x + 12,
-								this.me.y - 12,
-								target.damage.toString(),
-								{ fontSize: '16px', color: '#ff0000' },
-							)
-							.setDepth(100)
-							.setOrigin(0.5, 0.5)
-						setTimeout(() => damage.destroy(), 300)
 					}
 				}
 				break
+
+			case 'damage': {
+				const { identifier, pos, damage } = event.data
+				const text = this.add
+					.text(
+						pos[0] * 32 + 16 + 12,
+						pos[1] * 32 + 16 - 12,
+						damage.toString(),
+						{
+							fontSize: '16px',
+							color: '#ff0000',
+						},
+					)
+					.setDepth(100)
+					.setOrigin(0.5, 0.5)
+				setTimeout(() => text.destroy(), 300)
+				break
+			}
 
 			case 'death':
 				{
@@ -313,6 +320,14 @@ export default class Game extends Phaser.Scene {
 							.setDepth(100)
 							.setOrigin(0, 0)
 
+						const attacker_name =
+							this.players.get(attacker_identifier)?.name ??
+							'unknown'
+						// console.log({
+						// 	attacker_identifier,
+						// 	attacker_name,
+						// 	attacker: this.players.get(attacker_identifier),
+						// })
 						deathTexts = [
 							this.add
 								.text(this.me.x, this.me.y - 32, 'You died', {
@@ -325,7 +340,7 @@ export default class Game extends Phaser.Scene {
 								.text(
 									this.me.x,
 									this.me.y + 128 - 32,
-									`Killed by ${attacker_identifier}`,
+									`Killed by ${attacker_name}`,
 									{
 										fontSize: '64px',
 										color: '#ffffff',
