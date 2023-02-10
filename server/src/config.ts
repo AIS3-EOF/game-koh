@@ -17,6 +17,8 @@ export const TICK_ACTION_MAX_COUNT = TICK_ACTION_COUNT * 20
 export const RESPAWN_TIME_MIN = 5
 export const RESPAWN_TIME_MAX = 10
 
+export const CHAT_COOLDOWN = 1000 * 5
+
 export const TICK_LIVE_SCORE = 1
 export const KILL_SCORE = 1000
 export const DAMAGE_SCORE = 2
