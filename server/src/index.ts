@@ -32,7 +32,7 @@ if (DEVELOPMENT) {
 	dotenv.config()
 }
 
-const log = debug('server:index')
+const log = debug('server:index:log')
 
 import { connect } from '~/db'
 import { EventQueue } from '~/event_queue'

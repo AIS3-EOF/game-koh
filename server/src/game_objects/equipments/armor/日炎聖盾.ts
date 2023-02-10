@@ -2,6 +2,7 @@ import { Player } from '~/game'
 import { Context } from '~/context'
 import { calcDistance, ChebyshevDistance } from '~/utils'
 import { AttackTarget, Vec2 } from '~/protocol'
+import { handle as handle_chat } from '~/handlers/chat'
 
 import { DAMAGE_SCORE } from '~/config'
 
@@ -38,13 +39,10 @@ export function tick(ctx: Context) {
         const inside = range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
         if (inside) {
             ctx.game.dealDamage(ctx.player, p, DAMAGE_AMOUNT)
-            eventQueue.push({
-                type: 'chat',
-                data: {
-                    from: '(server)',
-                    to: p.identifier,
-                    message: '[敵人的日炎聖盾] 你覺得太熱了：-1 HP',
-                },
+            handle_chat(ctx, {
+                from: '(server)',
+                to: p.identifier,
+                message: '[敵人的日炎聖盾] 你覺得太熱了：-1 HP',
             })
         }
     })

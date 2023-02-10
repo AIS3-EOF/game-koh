@@ -3,5 +3,5 @@
     "src"
   ],
   "ext": "x",
-  "exec": "DEBUG=server:* tsx src/index.ts"
+  "exec": "DEBUG='server(:.*:)+(warn|error|log|debug)' tsx src/index.ts"
 }

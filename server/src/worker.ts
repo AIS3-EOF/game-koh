@@ -5,12 +5,18 @@ import { RoundData, RoundStatus, InitRoundData } from '~/round'
 import { Manager } from '~/manager'
 import { ROUND_TIME_INIT, ROUND_TIME, ROUND_TIME_END } from '~/config'
 
+import { debug } from 'debug'
+
+const log = debug('server:worker:log')
+const warn = debug('server:worker:warn')
+const error = debug('server:worker:error')
+
 export async function apiFetch(
 	path: string,
 	{ body, token, options } = {} as any,
 ) {
 	if (!process.env.SCOREBOARD_URL) {
-		console.warn('No scoreboard url provided.')
+		warn('No scoreboard url provided.')
 		switch (path) {
 			case '/team/my':
 				return { id: Math.ceil(Math.random() * 10000000), name: token }
@@ -35,7 +41,7 @@ export async function apiFetch(
 			return { error: 'Invalid response' }
 		})
 		.catch((err: Error) => {
-			console.error(err)
+			error(err)
 			return { error: `${err.message} (${err.cause})` }
 		})
 }
@@ -51,7 +57,7 @@ async function registerWorker(name: string) {
 	const { token } = res
 	await dbCollection().deleteMany({ name: 'token' })
 	await dbCollection().insertOne({ name: 'token', token })
-	console.log(
+	log(
 		'Worker register successful. Name: %s Token: %s %o',
 		name,
 		token,
@@ -65,9 +71,9 @@ async function deregisterWorker(token: string) {
 		options: { method: 'DELETE' },
 	})
 	const error = res.error ?? res.message
-	if (error) return console.log('Worker deregister failed. Error: %s', error)
+	if (error) return log('Worker deregister failed. Error: %s', error)
 	await dbCollection().deleteMany({ name: 'token' })
-	console.log('Worker deregister successful. Token: %s', token)
+	log('Worker deregister successful. Token: %s', token)
 }
 
 async function takeJob(token: string, jobtype: string) {
@@ -102,7 +108,7 @@ async function doneJob(
 
 export async function setupWorker(manager: Manager) {
 	if (!process.env.SCOREBOARD_URL) {
-		console.warn('No scoreboard url provided. Worker disabled.')
+		warn('No scoreboard url provided. Worker disabled.')
 		let id = 1
 		while (true) {
 			const now = Date.now()
@@ -125,10 +131,10 @@ export async function setupWorker(manager: Manager) {
 	const name = process.env.WORKER_NAME ?? 'KoH Game Worker'
 
 	let token: string = res?.token ?? (await registerWorker(name))
-	console.log('Worker initialized. Name: %s Token: %s', name, token)
+	log('Worker initialized. Name: %s Token: %s', name, token)
 
 	exitHook(async () => {
-		console.log('Worker deregistered.')
+		log('Worker deregistered.')
 		await deregisterWorker(token!)
 	})
 
@@ -144,14 +150,14 @@ export async function setupWorker(manager: Manager) {
 
 		const initJobs = await takeJob(token, 'KoHInit')
 		for (const job of initJobs) {
-			console.log(
+			log(
 				'Init job (%d) received. Round: %s',
 				job.id,
 				job.round_id,
 			)
 			const result = await doneJob(token, job.id, 'Success')
 			if (result.error)
-				console.error(
+				error(
 					'Init job (%d) failed. Error: %s',
 					job.id,
 					result.error,
@@ -160,7 +166,7 @@ export async function setupWorker(manager: Manager) {
 
 		const scoreJobs = await takeJob(token, 'KoHScore')
 		for (const job of scoreJobs) {
-			console.log(
+			log(
 				'Score job (%d) received. Round: %s',
 				job.id,
 				job.round_id,
@@ -169,12 +175,12 @@ export async function setupWorker(manager: Manager) {
 			const status = ranks ? 'Success' : 'Failed'
 			const result = await doneJob(token, job.id, status, ranks)
 			if (result.error)
-				console.error(
+				error(
 					'Score job (%d) failed. Error: %s',
 					job.id,
 					result.error,
 				)
-			console.log({ job, round, ranks, status, result })
+			log({ job, round, ranks, status, result })
 		}
 
 		await sleep(500)

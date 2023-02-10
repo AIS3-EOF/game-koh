@@ -4,7 +4,7 @@ import { Player } from '~/game'
 import { debug } from 'debug'
 import { Context } from '~/context'
 
-const log = debug('server:MapObject')
+const log = debug('server:MapObject:log')
 
 export class MapObject {
 	identifier: string = 'MapObject'

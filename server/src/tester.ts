@@ -3,7 +3,7 @@ import { WebSocket } from 'ws'
 import { Parser } from '~/parser'
 import { sleep } from '~/utils'
 
-const log = debug('server:tester')
+const log = debug('server:tester:log')
 
 export async function run() {
 	if (!process.env.WS_PORT) return console.warn('WS_PORT not set')

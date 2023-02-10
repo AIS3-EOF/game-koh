@@ -9,6 +9,12 @@ import { handle as handle_chat } from './chat'
 import { handle as handle_interact_map } from './interact_map'
 import { handle as handle_afr } from './afr'
 
+import { debug } from 'debug'
+
+const log = debug('server:handlers:log')
+const warn = debug('server:handlers:warn')
+const error = debug('server:handlers:error')
+
 const HANDLERS = new Map<
 	ServerType,
 	null | ((ctx: Context, data: any) => void)

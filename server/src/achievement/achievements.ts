@@ -11,7 +11,7 @@ import { Teleporter } from './achievement/Teleporter'
 import { AFR } from './achievement/AFR'
 import { SpeedHacker } from './achievement/SpeedHacker'
 
-const log = debug('server:Achievement')
+const log = debug('server:Achievement:log')
 
 export class Achievements {
 	private achievements = new Map<AchievementType, Achievement>([

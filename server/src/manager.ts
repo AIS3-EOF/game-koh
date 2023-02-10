@@ -16,7 +16,10 @@ import { handleLogin } from '~/handle_login'
 import * as config from '~/config'
 import { Parser } from '~/parser'
 
-const log = debug('server:manager')
+const verbose = debug('server:manager:debug')
+const log = debug('server:manager:log')
+const warn = debug('server:manager:warn')
+const error = debug('server:manager:error')
 
 export type ManagerEvent =
 	| 'tick_object' // Arg: TickObjectData
@@ -107,7 +110,7 @@ export class Manager {
 						})
 					}
 				} catch (e) {
-					log('error: %s', e)
+					error('error: %s', e)
 					ws.close()
 				}
 			})
@@ -125,7 +128,7 @@ export class Manager {
 				}
 			})
 		} catch (e) {
-			log('error: %s', e)
+			error('error: %s', e)
 			ws.close()
 		}
 	}
@@ -138,7 +141,7 @@ export class Manager {
 	}
 
 	checkDeath() {
-		log('check death')
+		verbose('Checking death')
 		this.game.players.forEach((current_player: Player) => {
 			if (
 				!current_player.alive &&
@@ -169,10 +172,26 @@ export class Manager {
 
 		if (!round.status || this.round.status === round.status) return
 
+		switch (round.status) {
+			case RoundStatus.INIT:
+				if (this.round.start === RoundStatus.RUNNING)
+					error('round status: RUNNING -> INIT')
+				this.roundEnd()
+				break
+			case RoundStatus.RUNNING:
+				if (this.round.start === RoundStatus.END)
+					error('round status: END -> RUNNING')
+				break
+			case RoundStatus.END:
+				if (this.round.start === RoundStatus.INIT)
+					error('round status: INIT -> END')
+				break
+		}
+
 		this.updateStatus(round.status)
 		if (round.id) this.round.id = round.id
 
-		console.log(`Round ${this.round.id} ${RoundMessage[round.status]}`)
+		log(`Round ${this.round.id} ${RoundMessage[round.status]}`)
 
 		switch (round.status) {
 			case RoundStatus.INIT:
@@ -256,7 +275,7 @@ export class Manager {
 
 		// if current time is after round end, then we should go to roundEnd immediately
 		const end = new Date(this.round.end as string).getTime()
-		if (Date.now() > end) this.updateRound({ status: RoundStatus.END })
+		if (Date.now() >= end) this.updateRound({ status: RoundStatus.END })
 
 		this.savedata()
 	}
@@ -325,7 +344,7 @@ export class Manager {
 	}
 
 	async savedata() {
-		log('Saving data...')
+		verbose('Saving data...')
 		const tasks: Promise<any>[] = []
 		tasks.push(
 			...Array.from(this.game.players.values(), player =>
@@ -344,10 +363,10 @@ export class Manager {
 		const results = await Promise.allSettled(tasks)
 		results.forEach(result => {
 			if (result.status === 'rejected') {
-				console.log('Error saving data:', result.reason)
+				error('Error saving data:', result.reason)
 			}
 		})
-		log('Data saved.')
+		verbose('Data saved.')
 		return results
 	}
 

@@ -4,7 +4,7 @@ import { Player } from '~/game/player'
 import { ServerMessage } from '~/protocol'
 import { Context } from '~/context'
 
-const log = debug('server:Achievement')
+const log = debug('server:Achievement:log')
 
 export enum AchievementType {
 	'散財童子' = '散財童子',
