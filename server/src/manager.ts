@@ -98,7 +98,7 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					log('%s received %o', sessionId, msg)
+					verbose('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
 					} else {

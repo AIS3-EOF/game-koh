@@ -9,7 +9,8 @@ const TICK_DAMAGE = 1
 export const identifier = '冰桶挑戰'
 export const texture = 'ice_bucket_challenge'
 export const can_transfer = true
-export const description = '潑出去的水是收不回來的，可以對敵人造成著涼效果，配著[海洛因褲子]一起使用的話可以變成玻璃大砲ㄛ！'
+export const description =
+	'潑出去的水是收不回來的，可以對敵人造成著涼效果，配著[海洛因褲子]一起使用的話可以變成玻璃大砲ㄛ！'
 export const attack_modifier = 2
 
 /*
@@ -34,6 +35,7 @@ export const tick_count = 3
 export const tick = (ctx: Context, target: Player) => {
 	ctx.game.dealDamage(ctx.player, target, TICK_DAMAGE)
 	handle_chat(ctx, {
+		timestamp: Date.now(),
 		from: '(server)',
 		to: target.identifier,
 		message: '[敵人的冰桶挑戰] 你覺得寒冷：-1 HP',
