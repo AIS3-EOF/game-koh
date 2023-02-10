@@ -49,7 +49,7 @@ export interface ChatMessageData {
 	timestamp?: number
 	from: ChatTarget
 	to: ChatTarget
-	message?: string
+	message: string
 	advanced?: boolean
 }
 export interface ChatMessage {

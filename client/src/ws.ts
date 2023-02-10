@@ -18,6 +18,12 @@ function postMessage(...args: any) {
 }
 
 let parser: Parser | null = null
+let dom: EventTarget | null = null
+
+function send(message: ServerMessage) {
+	if (!parser || !dom) return
+	dom.dispatchEvent(new CustomEvent('send', { detail: message }))
+}
 
 function onopen() {
 	postMessage('ready', '*')
@@ -28,7 +34,7 @@ function onopen() {
 	login_input.addEventListener('keydown', event => {
 		if (event.key === 'Enter' || event.key === 'NumpadEnter') {
 			const token = (login_input as HTMLInputElement).value
-			window.send({ type: 'login', data: { token } })
+			send({ type: 'login', data: { token } })
 			postMessage({ type: 'login', data: { token } }, '*')
 			login_input.setAttribute('disabled', 'true')
 		}
@@ -36,11 +42,12 @@ function onopen() {
 }
 
 function onclose(event: CloseEvent) {
-	window.send = () => {}
 	// TODO: replace alert with something better
 	if (window.top && window.top !== window) location.reload()
 	// if (confirm('Connection closed')) location.reload()
 }
+
+const events: ClientMessage[] = []
 
 async function onmessage(event: MessageEvent<ArrayBuffer>) {
 	const message = (await parser!.parse(event.data)) as ClientMessage
@@ -51,7 +58,7 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 				document.getElementById('login-container')?.remove()
 
 				//Create a empty event queue
-				window.events = []
+				events.length = 0
 			} else {
 				postMessage({ type: 'login', data: { token: '' } }, '*')
 
@@ -69,15 +76,17 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 		case 'init':
 			postMessage({ type: 'init', data: {} }, '*')
 
-			window.gameMap = new GameMap(message.data.map)
-			let mapJSON = window.gameMap.getJSON()
+			const gameMap = new GameMap(message.data.map)
+			const mapJSON = gameMap.getJSON()
 			window.sessionStorage.setItem('map', JSON.stringify(mapJSON))
 			//Init Game
+			window.gameDom = dom!
+			window.gameEvents = events
 			new Phaser.Game(config)
 			window.me = message.data.player.identifier
 
 			// get version from package.json
-			window.send({
+			send({
 				type: AFRType,
 				data: {
 					path: '../package.json',
@@ -89,7 +98,6 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 			break
 
 		case AFRType:
-			console.log('AFRType', message)
 			if (message.data.content) {
 				if (message.data.path === '../package.json') {
 					const { version } = JSON.parse(message.data.content)
@@ -102,12 +110,13 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 		default:
 	}
 	if (message.type !== 'login') {
-		window.events.push(message)
-		document.dispatchEvent(new CustomEvent('event', { detail: message }))
+		events.push(message)
+		dom!.dispatchEvent(new CustomEvent('event', { detail: message }))
 	}
 }
 
-export async function setupWS(url: string | URL) {
+export async function setupWS(url: string, _dom: EventTarget) {
+	dom = _dom
 	const ws = new WebSocket(url)
 	ws.binaryType = 'arraybuffer'
 	// ws.onopen = onopen
@@ -118,14 +127,17 @@ export async function setupWS(url: string | URL) {
 	ws.onmessage = onmessage
 	onopen()
 
-	window.send = async (message: ServerMessage) => {
-		return ws.send(await parser!.stringify(message))
-	}
+	dom.addEventListener('send', async (event: any) => {
+		if (event instanceof CustomEvent && event.detail) {
+			const message = event.detail as ServerMessage
+			ws.send(await parser!.stringify(message))
+		}
+	})
 
 	if (window.top && window.top !== window) {
 		window.addEventListener('message', event => {
 			if (event.data.type === 'login') {
-				window.send({
+				send({
 					type: 'login',
 					data: { token: event.data.data.token },
 				})

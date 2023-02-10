@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { onMounted, onBeforeUnmount, ref, reactive, computed } from 'vue'
 import {
 	ChatMessageData,
 	GameObject,
@@ -7,19 +7,28 @@ import {
 	RoundData,
 	RoundStatus,
 	Identifier,
+	ChatTarget,
+	SendFunction,
 } from '@/types'
 
 interface Props {
-	players: Team[]
+	send: SendFunction
 	playerMap: Map<Identifier, string>
 	messages: ChatMessageData[]
 }
 
 const props = defineProps<Props>()
 
+const players = computed(() =>
+	Array.from(props.playerMap.entries(), ([identifier, name]) => ({
+		identifier,
+		name,
+	})),
+)
+
 // send message
 const message = ref('')
-const receiver = ref('(all)')
+const receiver = ref<ChatTarget>('(all)')
 const sendMessage = () => {
 	const data = {
 		timestamp: Date.now(),
@@ -28,7 +37,7 @@ const sendMessage = () => {
 		message: message.value,
 	}
 	if (message.value.length > 0) {
-		window.send({ type: 'chat', data })
+		props.send({ type: 'chat', data })
 		message.value = ''
 		if (data.to !== '(all)' && data.to !== window.me) {
 			props.messages.push(data)
@@ -83,14 +92,14 @@ function name(id: Identifier) {
 	return props.playerMap.get(id)
 }
 
-function displayUser(message) {
-	if (message.from === '(server)') {
-		return `${message.from}`
-	} else if (message.to === '(all)') {
-		return `${name(message.from)} 📢`
-	} else {
-		return `${name(message.from)} → ${name(message.to)}`
-	}
+function displayUser(message: ChatMessageData) {
+	if (message.from === '(server)' || message.from === '(all)')
+		return message.from
+	const from = name(message.from)
+	if (message.to === '(all)') return `${from} 📢`
+	if (message.to === '(server)') return `${from} 📣`
+	const to = name(message.to)
+	return `${from} → ${to}`
 }
 </script>
 
@@ -134,11 +143,11 @@ function displayUser(message) {
 			<select v-model="receiver">
 				<option value="(all)">All</option>
 				<option
-					v-for="player in players"
-					:value="player.identifier"
-					:key="player.identifier"
+					v-for="{ identifier, name } in players"
+					:value="identifier"
+					:key="identifier"
 				>
-					{{ player.name }}
+					{{ name }}
 				</option>
 			</select>
 			<input
