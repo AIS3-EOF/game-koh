@@ -16,6 +16,7 @@ import {
 import Inventory from './components/Inventory.vue'
 import Scoreboard from './components/Scoreboard.vue'
 import Chatroom from './components/Chatroom.vue'
+import Profile from './components/Profile.vue'
 
 interface Props {
 	dom: EventTarget
@@ -33,6 +34,7 @@ const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
 const playerMap = ref(new Map<Identifier, string>())
+const currentPlayer = ref<PlayerPub | null>(null)
 
 const events = ref<ClientMessage[]>([])
 
@@ -52,13 +54,26 @@ function handleEvent(event: any) {
 				message.data.players.forEach(player => {
 					playerMap.value.set(player.identifier, player.name)
 				})
+				currentPlayer.value = message.data.player
+				break
 
 			case 'interact_map':
 			case 'use':
-				if (message.data.player.identifier === me.value)
+				if (message.data.player.identifier === me.value) {
 					inventory.items = [
 						...message.data.player.inventory,
 					].reverse()
+					currentPlayer.value = message.data.player
+				}
+				break
+
+			case 'attack':
+				message.data.targets.forEach(target => {
+					const { identifier, damage } = target
+					if (identifier === me.value) {
+						currentPlayer.value!.hp -= damage
+					}
+				})
 				break
 
 			case 'join':
@@ -66,6 +81,12 @@ function handleEvent(event: any) {
 					message.data.player.identifier,
 					message.data.player.name,
 				)
+				break
+
+			case 'respawn':
+				if (message.data.player.identifier === me.value) {
+					currentPlayer.value = message.data.player
+				}
 				break
 
 			case 'leave':
@@ -127,21 +148,14 @@ onBeforeUnmount(() => {
 				<pre>{{ event.data }}</pre>
 			</template>
 		</div>
+		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Chatroom
-			:playerMap="playerMap"
-			:messages="chatMessages"
-			:send="send"
-		/>
-		<Inventory
-			:show="inventory.show"
-			:items="inventory.items"
-			:send="send"
-		/>
+		<Chatroom :playerMap="playerMap" :messages="chatMessages" :send="send" />
+		<Inventory :show="inventory.show" :items="inventory.items" :send="send" />
 	</div>
 </template>
 
-<style>
+<style lang="scss">
 .container {
 	color: white;
 	position: fixed;
