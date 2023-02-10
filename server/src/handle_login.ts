@@ -20,13 +20,13 @@ export const handleLogin = async (
 			remove()
 			_resolve(data)
 		}
-		function reject(err: Error) {
+		function reject(err: any) {
 			remove()
 			_reject(err)
 		}
 
 		function close() {
-			reject(new Error('Connection closed'))
+			reject('Connection closed')
 		}
 
 		async function message(rawData: Buffer) {
@@ -68,7 +68,7 @@ export const handleLogin = async (
 				}
 			} else {
 				ws.close()
-				reject(new Error('Expected login message'))
+				reject('Expected login message')
 			}
 		}
 

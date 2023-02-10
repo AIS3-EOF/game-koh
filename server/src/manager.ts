@@ -128,7 +128,8 @@ export class Manager {
 				}
 			})
 		} catch (e) {
-			error('error: %s', e)
+			if (e instanceof Error) error(e)
+			else warn('warn: %s', e)
 			ws.close()
 		}
 	}
