@@ -28,5 +28,6 @@ COPY --from=builder /app/client/dist ./client/dist
 RUN tar -czvf /tmp/app.tar.gz --exclude=node_modules /app
 
 COPY --from=builder /app/server.* ./
+COPY ./newrelic.js ./
 
-CMD node server/dist/index.js
+CMD node -r newrelic server/dist/index.js
