@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-import { Event } from '~/protocol'
+import { Events } from '~/protocol'
 import { ManagerEvent } from '~/manager'
 
 function structuredCloneWrap<T>(value: T): T {
@@ -12,7 +12,7 @@ function structuredCloneWrap<T>(value: T): T {
 }
 
 export class EventQueue extends EventEmitter {
-	push(event: Event) {
+	push(event: Events) {
 		this.emit('event', structuredCloneWrap(event))
 	}
 

@@ -1,5 +1,5 @@
 export * from '~/protocol'
-export type { Player } from '~/game'
+export type { PlayerPub } from '~/game'
 export type { MapObject } from '~/maps'
 export type { GameObject } from '~/game_objects'
 export * from '~/round'

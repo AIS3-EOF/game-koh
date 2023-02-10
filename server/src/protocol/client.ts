@@ -1,4 +1,4 @@
-import { Event } from './events'
+import { Events } from './events'
 
 export interface LoginData {
 	success: boolean
@@ -9,4 +9,4 @@ export interface LoginEvent {
 	data: LoginData
 }
 
-export type ClientMessage = Event | LoginEvent
+export type ClientMessage = Events | LoginEvent

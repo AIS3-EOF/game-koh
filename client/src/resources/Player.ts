@@ -1,16 +1,16 @@
-import { Vec2, GameObject, Player as Server_Player } from '../types'
+import { Vec2, GameObject, PlayerPub, Identifier } from '@/types'
 import Weapon from './Weapon'
 
 export default class Player extends Phaser.GameObjects.Container {
 	public playerText: Phaser.GameObjects.Text
 	public graphics: Phaser.GameObjects.Graphics
 	public facing: Vec2 = [0, 1]
-	public identifier: string
+	public identifier: Identifier
 	public pos: Vec2
 	public weapon: Weapon
 	public inventory: GameObject[]
 
-	constructor(scene: Phaser.Scene, text: string, player: Server_Player) {
+	constructor(scene: Phaser.Scene, text: string, player: PlayerPub) {
 		const playerText = scene.add.text(0, 0, text, { color: 'white' })
 		playerText.setOrigin(0.5)
 		super(scene, ...player.pos.map((x: number) => x * 32 + 16), playerText) // The frame is optional
@@ -36,7 +36,7 @@ export default class Player extends Phaser.GameObjects.Container {
 		this.graphics = graphics
 	}
 
-	updatePlayer(player: Server_Player) {
+	updatePlayer(player: PlayerPub) {
 		this.identifier = player.identifier
 		this.weapon = new Weapon(
 			player.current_weapon.weapon_type,

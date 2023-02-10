@@ -1,4 +1,4 @@
-import { RoundStatus, RoundData } from '@/types'
+import { RoundStatus, RoundData, Events, LoginMessage } from '@/types'
 
 let prevRound: RoundData | null = null
 let token: string | null = null
@@ -31,25 +31,29 @@ hide(roundEl)
 window.addEventListener(
 	'message',
 	function (e) {
-		const { type, data } = e.data
-		if (type === 'login') {
-			token = data.token
-		} else if (type === 'round') {
-			console.log('round', data)
-			if (data.status === RoundStatus.RUNNING) {
+		const { type, data } = e.data as LoginMessage | Events
+		switch (type) {
+			case 'login':
+				token = data.token
+				break
+			case 'round':
+				// console.log('round', data)
+				if (data.status === RoundStatus.RUNNING) {
+					hide(roundEl)
+				} else {
+					show(roundEl)
+					if (data.status === RoundStatus.INIT) {
+						roundText.innerText = `Round ${data.id} is initializing...`
+						gameFrame.src = '/game.html' // reload
+					} else if (data.status === RoundStatus.END) {
+						roundText.innerText = `Round ${data.id} is over!`
+					}
+					prevRound = data
+				}
+				break
+			case 'init':
 				hide(roundEl)
-				return
-			}
-			show(roundEl)
-			if (data.status === RoundStatus.INIT) {
-				roundText.innerText = `Round ${data.id} is initializing...`
-				gameFrame.src = '/game.html' // reload
-			} else if (data.status === RoundStatus.END) {
-				roundText.innerText = `Round ${data.id} is over!`
-			}
-			prevRound = data
-		} else if (type === 'init') {
-			hide(roundEl)
+				break
 		}
 	},
 	false,

@@ -4,13 +4,13 @@ import Player from '@/resources/Player'
 import Weapon from '@/resources/Weapon'
 import { Vec2 } from '@/types'
 import { rotate, add } from '~/utils'
-import { ClientMessage } from '@/types'
+import { ClientMessage, Identifier } from '@/types'
 
 export default class Game extends Phaser.Scene {
 	layer: any
 	topLayer: any
 	map: any
-	players = new Map<string, Player>()
+	players = new Map<Identifier, Player>()
 	me = {} as Player
 	cursors: any
 	tickCallbacks = new Set<Function>()
@@ -334,9 +334,15 @@ export default class Game extends Phaser.Scene {
 						]
 
 						let respawn_time_cnt = respawn_time
-						const func = () => deathTexts[2].setText(`Respawn in ${--respawn_time_cnt} seconds`)
+						const func = () =>
+							deathTexts[2].setText(
+								`Respawn in ${--respawn_time_cnt} seconds`,
+							)
 						this.tickCallbacks.add(func)
-						setTimeout(() => this.tickCallbacks.delete(func), (respawn_time - 0.5) * 1000)
+						setTimeout(
+							() => this.tickCallbacks.delete(func),
+							(respawn_time - 0.5) * 1000,
+						)
 					}
 
 					const handler = setInterval(() => {

@@ -4,11 +4,19 @@ import config from '@/config'
 import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
 
+const allowPostTypes = ['login', 'round', 'init']
+
 function postMessage(...args: any) {
-	if (window.top && window.top !== window) {
+	if (
+		window.top &&
+		window.top !== window &&
+		allowPostTypes.includes(args?.[0]?.type)
+	) {
 		window.top.postMessage.apply(window.top, args)
 	}
 }
+
+let parser: Parser | null = null
 
 function onopen() {
 	postMessage('ready', '*')
@@ -34,7 +42,7 @@ function onclose(event: CloseEvent) {
 }
 
 async function onmessage(event: MessageEvent<ArrayBuffer>) {
-	const message = (await window.parser.parse(event.data)) as ClientMessage
+	const message = (await parser!.parse(event.data)) as ClientMessage
 	// console.log('recv', message)
 	switch (message.type) {
 		case 'login':
@@ -86,14 +94,13 @@ export async function setupWS(url: string | URL) {
 	// ws.onopen = onopen
 	ws.onclose = onclose
 	await new Promise(resolve => ws.addEventListener('open', resolve))
-	const parser = new Parser()
+	parser = new Parser()
 	await parser.initClient(ws)
-	window.parser = parser
 	ws.onmessage = onmessage
 	onopen()
 
 	window.send = async (message: ServerMessage) => {
-		return ws.send(await parser.stringify(message))
+		return ws.send(await parser!.stringify(message))
 	}
 
 	if (window.top && window.top !== window) {
@@ -105,11 +112,5 @@ export async function setupWS(url: string | URL) {
 				})
 			}
 		})
-	}
-}
-
-declare global {
-	interface Window {
-		parser: Parser
 	}
 }

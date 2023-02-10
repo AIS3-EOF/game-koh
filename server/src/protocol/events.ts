@@ -167,7 +167,7 @@ export interface RoundEvent {
 	data: RoundData
 }
 
-export type Event =
+export type Events =
 	| InitEvent
 	| JoinEvent
 	| LeaveEvent
