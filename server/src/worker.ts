@@ -122,7 +122,7 @@ export async function setupWorker(manager: Manager) {
 	}
 
 	const res = await dbCollection().findOne({ name: 'token' })
-	const name = 'KoH Game Worker'
+	const name = process.env.WORKER_NAME ?? 'KoH Game Worker'
 
 	let token: string = res?.token ?? (await registerWorker(name))
 	console.log('Worker initialized. Name: %s Token: %s', name, token)

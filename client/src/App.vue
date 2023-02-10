@@ -35,7 +35,8 @@ function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
 		const message = event.detail as ClientMessage
 		// console.log('event', message)
-		if (!['init', 'tick', 'move'].includes(message.type))
+		const n_debug_events = ['init', 'tick', 'move', 'new_object_spawned']
+		if (!n_debug_events.includes(message.type))
 			events.value = [message, ...events.value.slice(0, 30)]
 
 		switch (message.type) {
@@ -72,9 +73,6 @@ function handleEvent(event: any) {
 					identifier: score.identifier,
 					name: score.name,
 				}))
-				message.data.scores.forEach(score => {
-					playerMap.value.set(score.identifier, score.name)
-				})
 				break
 
 			case 'round':
@@ -92,7 +90,7 @@ function handleEvent(event: any) {
 				inventory.show = !inventory.show
 				break
 			case 'd':
-				if (import.meta.env.DEV) debug.value = !debug.value
+				debug.value = !debug.value
 				break
 		}
 	}
@@ -117,7 +115,7 @@ onBeforeUnmount(() => {
 			</template>
 		</div>
 		<Inventory :show="inventory.show" :items="inventory.items" />
-		<Scoreboard :scores="scores" :round="round" />
+		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
 		<Chatroom
 			:players="players"
 			:playerMap="playerMap"

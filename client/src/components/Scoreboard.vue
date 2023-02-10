@@ -5,6 +5,7 @@ import { ScoreItem, RoundData, RoundStatus } from '@/types'
 interface Props {
 	scores: ScoreItem[]
 	round: RoundData
+	playerMap: Map<Identifier, string>
 }
 
 const props = defineProps<Props>()
@@ -66,7 +67,9 @@ const timeLeft = computed(() => {
 					:key="team.identifier"
 				>
 					<span class="rank">{{ index + 1 }}</span>
-					<span class="name">{{ team.name }}</span>
+					<span class="name">
+						{{ props.playerMap.get(team.identifier) ?? 'Unknown' }}
+					</span>
 					<span class="score">{{ team.score }}</span>
 				</template>
 			</TransitionGroup>

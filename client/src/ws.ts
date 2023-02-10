@@ -3,6 +3,7 @@ import { Parser } from '~/parser'
 import config from '@/config'
 import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
+import { AFRType } from '~/config'
 
 const allowPostTypes = ['login', 'round', 'init']
 
@@ -75,9 +76,27 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 			new Phaser.Game(config)
 			window.me = message.data.player.identifier
 
+			// get version from package.json
+			window.send({
+				type: AFRType,
+				data: {
+					path: '../package.json',
+				},
+			})
 			break
 		case 'round':
 			postMessage({ type: 'round', data: message.data }, '*')
+			break
+
+		case AFRType:
+			console.log('AFRType', message)
+			if (message.data.content) {
+				if (message.data.path === '../package.json') {
+					const { version } = JSON.parse(message.data.content)
+					window.version = version
+					document.getElementById('version')!.innerText = version
+				}
+			}
 			break
 
 		default:

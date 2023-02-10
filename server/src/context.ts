@@ -25,6 +25,7 @@ export class Context {
 		this.send({
 			type: 'init',
 			data: {
+				VERSION,
 				player: this.player.dump(),
 				...this.game.dump(),
 				round,

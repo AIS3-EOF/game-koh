@@ -26,6 +26,7 @@ services:
             - mongo
         environment:
             SERVER_PORT: 8000
+            RELEASE_SOURCE: $RELEASE_SOURCE
             DB_CONN_STRING: $DB_CONN_STRING
             DB_NAME: $DB_NAME
             SCOREBOARD_URL: $SCOREBOARD_URL

@@ -6,19 +6,23 @@ import { Context } from '~/context'
 
 import { AchievementType, Achievement } from './achievement'
 
-import { Experienced } from './archievements/經驗值'
+// import { Experienced } from './archievements/Experienced'
+import { Teleporter } from './achievement/Teleporter'
+import { AFR } from './achievement/AFR'
+import { SpeedHacker } from './achievement/SpeedHacker'
 
 const log = debug('server:Achievement')
 
 export class Achievements {
 	private achievements = new Map<AchievementType, Achievement>([
-		[AchievementType.經驗值, new Experienced()]
+		[AchievementType.Teleporter, new Teleporter()],
+		[AchievementType.AFR, new AFR()],
+		[AchievementType.SpeedHacker, new SpeedHacker()],
 	])
 
-	constructor() { }
+	constructor() {}
 
 	update(ctx: Context, msg: ServerMessage) {
-		// if (msg.type == LFItype)
 		this.achievements.forEach((achievement: Achievement) => {
 			achievement.updateProgress(ctx, msg)
 		})
@@ -31,6 +35,25 @@ export class Achievements {
 	}
 
 	dump() {
-		return Array.from(this.achievements.values())
+		return Array.from(this.achievements.values()).filter(
+			el => el.isCompleted,
+		)
+	}
+
+	save() {
+		return Array.from(this.achievements.entries()).reduce(
+			(obj, [type, achievement]) => ({
+				...obj,
+				[type]: achievement.save(),
+			}),
+			{} as Record<AchievementType, ReturnType<Achievement['save']>>,
+		)
+	}
+
+	load(data: ReturnType<Achievements['save']>) {
+		Object.entries(data).forEach(([type, item]) => {
+			const achievement = this.achievements.get(type as AchievementType)
+			if (achievement && item) achievement.load(item)
+		})
 	}
 }

@@ -21,9 +21,9 @@ RUN npm ci --only=production
 COPY --from=builder /app/server/dist ./server/dist
 COPY --from=builder /app/client/dist ./client/dist
 
-RUN tar -czvf /tmp/app.tar.gz --exclude=node_modules /app
+RUN tar -czvf /tmp/app.tar.gz --exclude=node_modules --exclude='*achievement*' /app
 
 COPY ./server.cert ./server.key ./
-COPY ./newrelic.js ./
+COPY ./newrelic.js ./server
 
-CMD node -r newrelic server/dist/index.js
+CMD cd server && node -r newrelic dist/index.js

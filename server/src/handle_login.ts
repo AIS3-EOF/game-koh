@@ -1,7 +1,5 @@
-import { InitIdentifier, LoginMessageData } from '~/protocol'
 import { Player } from '~/game'
 import { ServerMessage, InitIdentifier } from '~/protocol'
-import { Db } from 'mongodb'
 import { WebSocket } from 'ws'
 
 import { apiFetch } from '~/worker'

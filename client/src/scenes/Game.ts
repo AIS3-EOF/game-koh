@@ -26,6 +26,9 @@ export default class Game extends Phaser.Scene {
 
 	updateVec = throttle(
 		(vec: Vec2) => {
+			if (typeof this.me.face !== 'function') {
+				return location.reload()
+			}
 			// me.setPosition(me.x + vec[0], me.y + vec[1])
 			this.me.face(vec)
 			let newPos = add(this.me.pos, vec)

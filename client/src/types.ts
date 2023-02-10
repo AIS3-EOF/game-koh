@@ -18,5 +18,6 @@ declare global {
 		gameMap: GameMap
 		events: ClientMessage[]
 		send: (message: ServerMessage) => void
+		version: string
 	}
 }

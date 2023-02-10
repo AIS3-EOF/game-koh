@@ -13,13 +13,15 @@ export enum AchievementType {
 	'槍王之王' = '槍王之王',
 	'How_did_we_get_there' = 'How did we get here?',
 	'經驗值' = '經驗值',
-	'LFI' = 'LFI',
+	'AFR' = 'AFR',
 	'konami code' = 'konami code',
 	'Front-End hardcoded' = 'Front-End hardcoded',
 	'佐藤和真' = '佐藤和真',
 	'360_no_scope' = '360 no scope',
 	'Game_Controller' = 'Game Controller',
 	'走路不看路' = '走路不看路',
+	'Teleporter' = 'Teleporter',
+	'SpeedHacker' = 'Speed Hacker',
 }
 
 export class Achievement {
@@ -30,7 +32,11 @@ export class Achievement {
 	maxProgress: number = 100
 	rewarded = false
 
-	constructor(public type: AchievementType) { this.rewarded = false }
+	complete_time: number = 0
+
+	constructor(public type: AchievementType) {
+		this.rewarded = false
+	}
 
 	get isCompleted() {
 		return this.progress >= this.maxProgress
@@ -42,12 +48,14 @@ export class Achievement {
 			return
 		}
 
-		if (this.isCompleted) {
+		if (this.isCompleted && !this.rewarded) {
 			this.reward(ctx)
 			return
 		}
 
-		log(`Updating ${ctx.player.identifier}'s progress for achievement: ${this.type}`)
+		log(
+			`Updating ${ctx.player.identifier}'s progress for achievement: ${this.type}`,
+		)
 	}
 
 	reward(ctx: Context) {
@@ -56,7 +64,30 @@ export class Achievement {
 		}
 
 		log(`Rewarding ${ctx.player.identifier} for achievement: ${this.type}`)
+		this.complete_time = Date.now()
 		this.rewarded = true
 		ctx.addScore(this.SCORE)
+
+		eventQueue.push({
+			type: 'achievement',
+			data: {
+				player: ctx.player.dump(),
+				achievement: this,
+			},
+		})
+	}
+
+	save() {
+		return {
+			complete_time: this.complete_time,
+			progress: this.progress,
+			rewarded: this.rewarded,
+		}
+	}
+
+	load(data: ReturnType<Achievement['save']>) {
+		this.complete_time = data.complete_time
+		this.progress = data.progress
+		this.rewarded = data.rewarded
 	}
 }

@@ -13,7 +13,7 @@ import { Context } from '~/context'
 import { Item } from '../item'
 import { ChebyshevDistance } from '~/utils'
 
-const DAMAGE_AMOUNT = 25
+const DAMAGE_AMOUNT = 10
 
 export const identifier = '黎明之鎚雷射定位裝置'
 export const texture = 'hammer_of_dawn'

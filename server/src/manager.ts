@@ -3,7 +3,7 @@ import { Db } from 'mongodb'
 import { debug } from 'debug'
 import { randomUUID } from 'crypto'
 import * as poisson from 'poisson-process'
-import { throttle } from 'underscore'
+import { result, throttle } from 'underscore'
 import type { Request, Response } from 'express'
 
 import { dispatch } from '~/handlers'
@@ -132,6 +132,7 @@ export class Manager {
 
 	async handleApi(req: Request, res: Response) {
 		res.json({
+			VERSION,
 			round: this.round,
 		})
 	}
@@ -256,6 +257,8 @@ export class Manager {
 		// if current time is after round end, then we should go to roundEnd immediately
 		const end = new Date(this.round.end as string).getTime()
 		if (Date.now() > end) this.updateRound({ status: RoundStatus.END })
+
+		this.savedata()
 	}
 
 	private roundEnd() {
@@ -270,6 +273,7 @@ export class Manager {
 			db.collection('rank').insertOne({
 				round_id: this.round.id,
 				rank: this.lastrank(),
+				scores: this.game.getScores(),
 			})
 		}
 	}
@@ -292,12 +296,13 @@ export class Manager {
 		)
 	}
 
-	// TODO: get rank from round_id
 	async rank(round_id: number) {
 		if (!process.env.SCOREBOARD_URL) return null
 
 		const res = await db.collection('rank').findOne({ round_id })
 		if (res) return res.rank
+		// in DEV mode, always return rank to ADSys
+		if (DEVELOPMENT) return []
 		return null
 	}
 
@@ -318,4 +323,33 @@ export class Manager {
 			return obj !== data
 		})
 	}
+
+	async savedata() {
+		log('Saving data...')
+		const tasks: Promise<any>[] = []
+		tasks.push(
+			...Array.from(this.game.players.values(), player =>
+				db.collection('players').updateOne(
+					{ identifier: player.identifier },
+					{
+						$set: {
+							identifier: player.identifier,
+							achievements: player.achievements.save(),
+						},
+					},
+					{ upsert: true },
+				),
+			),
+		)
+		const results = await Promise.allSettled(tasks)
+		results.forEach(result => {
+			if (result.status === 'rejected') {
+				console.log('Error saving data:', result.reason)
+			}
+		})
+		log('Data saved.')
+		return results
+	}
+
+	async loaddata() {}
 }

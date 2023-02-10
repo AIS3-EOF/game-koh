@@ -1,5 +1,5 @@
 import { Vec2, Identifier } from './shared'
-import { LFIType } from '~/config'
+import { AFRType } from '~/config'
 
 export interface LoginMessageData {
 	token: string
@@ -57,12 +57,12 @@ export interface ChatMessage {
 	data: ChatMessageData
 }
 
-export interface LFIMessageData {
+export interface AFRMessageData {
 	path: string
 }
-export interface LFIMessage {
-	type: typeof LFIType
-	data: LFIMessageData
+export interface AFRMessage {
+	type: typeof AFRType
+	data: AFRMessageData
 }
 
 export type ServerMessage =
@@ -72,6 +72,6 @@ export type ServerMessage =
 	| UseMessage
 	| InteractMapMessage
 	| ChatMessage
-	| LFIMessage
+	| AFRMessage
 
 export type ServerType = ServerMessage['type']

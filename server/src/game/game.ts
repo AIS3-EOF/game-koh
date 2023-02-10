@@ -8,7 +8,6 @@ export class Game {
 	players = new Set<Player>()
 	objects = new Map<string, GameObject>()
 	scores = new Map<Identifier, number>()
-	id2name = new Map<Identifier, string>()
 	respawn_players = new Map<Player, number>()
 
 	constructor(public map: GameMap) {}
@@ -17,7 +16,13 @@ export class Game {
 		if (player.login_count++ == 0) {
 			player.pos = this.map.getRandomSpawnPosition()
 			this.players.add(player)
-			this.id2name.set(player.identifier, player.name)
+			db.collection('players')
+				.findOne({ identifier: player.identifier })
+				.then(data => {
+					if (data) {
+						player.achievements.load(data.achievements)
+					}
+				})
 		}
 	}
 	removePlayer(player: Player) {
@@ -80,7 +85,6 @@ export class Game {
 		return Array.from(this.scores.entries())
 			.map(([identifier, score]) => ({
 				identifier,
-				name: this.id2name.get(identifier) ?? 'Unknown',
 				score,
 			}))
 			.sort((a, b) => b.score - a.score)

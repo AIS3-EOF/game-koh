@@ -19,10 +19,10 @@ export const texture = 'loic'
 export const description = '使用低軌道離子武器，對其他玩家造成致命傷害'
 export const is_rare = true
 export function use(item: Item, ctx: Context) {
-    item.extra_data = 20
+    item.extra_data = 5
 }
 
-export const total_tick = 10
+export const total_tick = 5
 export function tick(item: Item, ctx: Context) {
     eventQueue.push({
         type: 'chat',

@@ -6,7 +6,7 @@ import { Achievement, AchievementType } from '../achievement'
 
 
 export class Experienced extends Achievement {
-	SCORE = 1000
+	SCORE = 10
 	EXP_THRESHOLD = 1000000
 
 	constructor() {

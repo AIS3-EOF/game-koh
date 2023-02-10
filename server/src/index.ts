@@ -17,10 +17,12 @@ process.on('unhandledRejection', function (err) {
 // @ts-ignore
 globalThis.DEVELOPMENT = typeof BUILD === 'undefined'
 globalThis.PRODUCTION = !DEVELOPMENT
+globalThis.VERSION = PRODUCTION ? require('../../package.json').version : 'dev'
 
 declare global {
 	var DEVELOPMENT: boolean
 	var PRODUCTION: boolean
+	var VERSION: string
 }
 
 if (DEVELOPMENT) {

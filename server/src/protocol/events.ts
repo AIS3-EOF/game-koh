@@ -2,12 +2,13 @@ import { GameMap, PlayerPub } from '~/game'
 import { GameObject } from '~/game_objects'
 import { Achievement } from '~/achievement'
 import { MapObject } from '~/maps'
-import { LFIType } from '~/config'
+import { AFRType } from '~/config'
 import { RoundData } from '~/round'
 import { ChatMessageData } from './server'
 import { Vec2, Identifier } from './shared'
 
 export interface InitData {
+	VERSION: string
 	player: PlayerPub
 	players: PlayerPub[]
 	objects: GameObject[]
@@ -141,17 +142,18 @@ export interface ErrorEvent {
 	data: string
 }
 
-export interface LFIData {
-	content: string
+export interface AFRData {
+	path: string
+	content?: string
+	error?: string
 }
-export interface LFIEvent {
-	type: typeof LFIType
-	data: LFIData
+export interface AFREvent {
+	type: typeof AFRType
+	data: AFRData
 }
 
 export interface ScoreItem {
 	identifier: Identifier
-	name: string
 	score: number
 }
 export interface TickData {
@@ -181,7 +183,7 @@ export type Events =
 	| NewObjectSpawnedEvent
 	| UpdateMapEvent
 	| ErrorEvent
-	| LFIEvent
+	| AFREvent
 	| DeathEvent
 	| RespawnEvent
 	| TickEvent

@@ -12,7 +12,7 @@
 import { Context } from '~/context'
 import { Item } from '../item'
 
-const DAMAGE_AMOUNT = 8
+const DAMAGE_AMOUNT = 5
 
 export const identifier = '地獄火強襲'
 export const texture = 'dynamite'

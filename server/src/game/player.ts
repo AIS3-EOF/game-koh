@@ -2,14 +2,13 @@ import { Vec2, Identifier, InitIdentifier } from '~/protocol'
 import { GameObject } from '~/game_objects/game_object'
 import { Weapon } from '~/game_objects/equipments/weapon'
 import { Armor } from '~/game_objects/equipments/armor'
-import { TICK_ACTION_COUNT } from '~/config'
+import { TICK_ACTION_COUNT, DEFAULT_HP } from '~/config'
 import { Achievements } from '~/achievement'
 
-export const DEFAULT_HP = 10
-export const DEFAULT_POS: Vec2 = [1, 1]
 
+export const DEFAULT_POS: Vec2 = [1, 1]
 export class Player {
-	constructor(public identifier: Identifier, public name: string) { }
+	constructor(public identifier: Identifier, public name: string) {}
 
 	max_hp: number = DEFAULT_HP
 	hp: number = DEFAULT_HP
@@ -85,7 +84,9 @@ export class Player {
 	}
 
 	removeObjectFromInventory(object: GameObject | string) {
-		return this.inventory.delete(typeof object === 'string' ? object : object.uuid)
+		return this.inventory.delete(
+			typeof object === 'string' ? object : object.uuid,
+		)
 	}
 
 	dealDamage(damage: number): boolean {
