@@ -32,3 +32,4 @@ services:
             SCOREBOARD_URL: $SCOREBOARD_URL
             SCOREBOARD_TOKEN: $SCOREBOARD_TOKEN
             CHALLENGE_IDS: $CHALLENGE_IDS
+            DEBUG: $DEBUG
