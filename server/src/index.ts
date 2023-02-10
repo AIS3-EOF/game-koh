@@ -54,7 +54,6 @@ async function setup() {
 	setupWorker(manager)
 
 	const app = express()
-	app.use(logger('tiny'))
 
 	if (PRODUCTION) {
 		app.use(
@@ -63,6 +62,8 @@ async function setup() {
 			),
 		)
 	}
+
+	app.use(logger('tiny'))
 
 	app.use('/api/', async (req, res) => {
 		manager.handleApi(req, res)
