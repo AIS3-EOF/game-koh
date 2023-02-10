@@ -5,9 +5,6 @@ services:
         environment:
             MONGO_INITDB_ROOT_USERNAME: $MONGO_USERNAME
             MONGO_INITDB_ROOT_PASSWORD: $MONGO_PASSWORD
-        # for development
-        ports:
-            - 27017:27017
     mongo-express:
         image: mongo-express
         restart: always
