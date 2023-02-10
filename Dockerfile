@@ -13,8 +13,6 @@ RUN npm run server:build
 COPY client ./client
 RUN npm run client:build
 
-RUN openssl req -new -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -x509 -nodes -days 365 -out server.cert -keyout server.key -subj '/CN=game-koh'
-
 FROM node:18-alpine AS runner
 
 WORKDIR /app
@@ -27,7 +25,7 @@ COPY --from=builder /app/client/dist ./client/dist
 
 RUN tar -czvf /tmp/app.tar.gz --exclude=node_modules /app
 
-COPY --from=builder /app/server.* ./
+COPY ./server.cert ./server.key ./
 COPY ./newrelic.js ./
 
 CMD node -r newrelic server/dist/index.js
