@@ -239,9 +239,14 @@ export class Manager {
 		// TODO: Not sure is this implementation thread-safe
 		// CSY: If the is JS, then it must thread-safe
 		this.ticking_objects = this.ticking_objects.filter(obj => {
+			try {
 			obj.tick_fn(obj.tick_count)
 			if (obj.forever) return true
 			return obj.tick_count-- > 0
+			} catch (e) {
+				error('ticking_object(%s): %s', obj.identifier, e)
+				return false
+			}
 		})
 		this.checkDeath()
 
