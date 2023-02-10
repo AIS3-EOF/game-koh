@@ -157,7 +157,7 @@ export default class Game extends Phaser.Scene {
 
 				event.data.players.forEach(player => {
 					const playerText =
-						player.identifier === me.identifier ? '我' : '他'
+						player.identifier === me.identifier ? '我' : '敵'
 					const playerObj = new Player(this, playerText, player)
 					this.players.set(player.identifier, playerObj)
 				})
@@ -173,7 +173,7 @@ export default class Game extends Phaser.Scene {
 					// console.log('join', player)
 					const playerObj =
 						this.players.get(player.identifier) ||
-						new Player(this, '他', player)
+						new Player(this, '敵', player)
 					playerObj.face(player.facing)
 					playerObj.setPositionTo(player.pos)
 					this.players.set(player.identifier, playerObj)

@@ -10,7 +10,7 @@ export const identifier = '冰桶挑戰'
 export const texture = 'ice_bucket_challenge'
 export const can_transfer = true
 export const description =
-	'潑出去的水是收不回來的，可以對敵人造成著涼效果，配著[海洛因褲子]一起使用的話可以變成玻璃大砲ㄛ！'
+	'潑出去的水是收不回來的。可以對敵人造成著涼效果，搭配【海洛因褲子】一起使用可以變成玻璃大砲！'
 export const attack_modifier = 2
 
 /*
