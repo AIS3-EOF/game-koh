@@ -21,6 +21,6 @@ export const MOVE_SCORE = 1
 
 export const DEFAULT_HP = 10
 
-export const GEN_DURATION = 10000
+export const GEN_DURATION = 3000
 
 export const AFRType = 'AFR_2bffa7efd0493b4b0857a3953fe78456'
