@@ -14,6 +14,9 @@ RUN npm run server:build && npm run client:build
 
 FROM node:18-alpine AS runner
 
+RUN apk add --no-cache tzdata
+ENV TZ=Asia/Taipei
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production

@@ -101,6 +101,21 @@ async function doneJob(
 	})
 }
 
+async function checkPatchRound(round_id: number) {
+	const res = await dbCollection().findOneAndUpdate(
+		{ type: 'patch', round_id, wait: false },
+		{ $set: { wait: true } },
+	)
+	return res.value
+}
+
+async function checkRoundScored(round_id: number) {
+	const res = await dbCollection().findOne({ type: 'scored' })
+	if (res?.begin && round_id < res.begin) return false
+	if (res?.end && res.end < round_id) return false
+	return true
+}
+
 export async function setupWorker(manager: Manager) {
 	if (!process.env.SCOREBOARD_URL) {
 		warn('No scoreboard url provided. Worker disabled.')
@@ -167,13 +182,7 @@ export async function setupWorker(manager: Manager) {
 				)
 				status = 'Failed'
 			} else {
-				const res = await db
-					.collection('patch')
-					.findOneAndUpdate(
-						{ round_id: job.round_id, wait: false },
-						{ $set: { wait: true } },
-					)
-				if (res.value) {
+				if (await checkPatchRound(job.round_id)) {
 					log(
 						'Init job (%d) patch found. Round: %s (%o)',
 						job.id,
@@ -193,7 +202,10 @@ export async function setupWorker(manager: Manager) {
 		const scoreJobs = await takeJob(token, 'KoHScore')
 		for (const job of scoreJobs) {
 			log('Score job (%d) received. Round: %s', job.id, job.round_id)
-			const ranks = await manager.rank(job.round_id)
+			let ranks = await manager.rank(job.round_id)
+			if (!(await checkRoundScored(job.round_id))) {
+				ranks = []
+			}
 			const status = ranks ? 'Success' : 'Failed'
 			const result = await doneJob(token, job.id, status, ranks)
 			if (result.error)

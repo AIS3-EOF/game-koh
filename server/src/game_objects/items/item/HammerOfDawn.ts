@@ -17,39 +17,42 @@ const DAMAGE_AMOUNT = 10
 
 export const identifier = '黎明之鎚雷射定位裝置'
 export const texture = 'hammer_of_dawn'
-export const description = '有幾個軌道武器從戰爭機器的宇宙飄進這了，你還很剛好撿到這個定位裝置！\n' +
-                           '使用後會呼叫黎明之鎚在周圍的一片區域進行轟炸。'
+export const description =
+	'有幾個軌道武器從戰爭機器的宇宙飄進這了，你還很剛好撿到這個定位裝置！\n' +
+	'使用後會呼叫黎明之鎚在周圍的一片區域進行轟炸。'
 export function use(item: Item, ctx: Context) {
-    item.extra_data = 5
+	item.extra_data = 5
 }
 
 export const total_tick = 5
 export function tick(item: Item, ctx: Context) {
-    eventQueue.push({
-        type: 'chat',
-        data: {
-            from: '(server)',
-            to: '(all)',
-            message: `黎明之鎚轟炸倒數 ${item.extra_data}...`,
-        },
-    })
-    item.extra_data--
+	eventQueue.push({
+		type: 'chat',
+		data: {
+			timestamp: Date.now(),
+			from: '(server)',
+			to: '(all)',
+			message: `黎明之鎚轟炸倒數 ${item.extra_data}...`,
+		},
+	})
+	item.extra_data--
 }
 export function end(item: Item, ctx: Context) {
-    // We don't use game.dealDamage here
-    // don't want player earn any score
-    ctx.game.players.forEach((p) => {
-        if (ChebyshevDistance(ctx.player.pos, p.pos) < 5) {
-            ctx.game.dealDamage(ctx.player, p, DAMAGE_AMOUNT)
-        }
+	// We don't use game.dealDamage here
+	// don't want player earn any score
+	ctx.game.players.forEach(p => {
+		if (ChebyshevDistance(ctx.player.pos, p.pos) < 5) {
+			ctx.game.dealDamage(ctx.player, p, DAMAGE_AMOUNT)
+		}
 
-        eventQueue.push({
-            type: 'chat',
-            data: {
-                from: '(server)',
-                to: p.identifier,
-                message: `你被黎明之鎚轟炸了`,
-            },
-        })
-    })
+		eventQueue.push({
+			type: 'chat',
+			data: {
+				timestamp: Date.now(),
+				from: '(server)',
+				to: p.identifier,
+				message: `你被黎明之鎚轟炸了`,
+			},
+		})
+	})
 }

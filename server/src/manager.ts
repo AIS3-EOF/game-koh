@@ -98,7 +98,7 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					log('%s received %o', sessionId, msg)
+					verbose('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
 					} else {
@@ -326,7 +326,7 @@ export class Manager {
 		if (!process.env.SCOREBOARD_URL) return null
 
 		const res = await db.collection('rank').findOne({ round_id })
-		if (res) return res.rank
+		if (res) return res.rank as ReturnType<Manager['lastrank']>
 		// in DEV mode, always return rank to ADSys
 		if (DEVELOPMENT) return []
 		return null
