@@ -353,6 +353,7 @@ export default class Game extends Phaser.Scene {
 					}, 200)
 
 					setTimeout(() => {
+						victim.setAlpha(1)
 						victim.setVisible(false)
 						clearInterval(handler)
 
@@ -386,6 +387,24 @@ export default class Game extends Phaser.Scene {
 				}
 				break
 
+			case 'interact_chest':
+				const { new_items } = event.data
+				const message = this.add
+					.text(
+						this.me.x,
+						this.me.y - 32,
+						new_items.length > 0
+							? `你獲得了 ${new_items
+									.map(i => i.identifier.split('::').at(-1))
+									.join(', ')}`
+							: '這裡還沒有物資...',
+						{ fontSize: '16px', color: '#ffffff' },
+					)
+					.setDepth(100)
+					.setOrigin(0.5, 0.5)
+				setTimeout(() => message.destroy(), 2000)
+
+				break
 			case 'interact_map':
 			case 'use':
 				this.players
