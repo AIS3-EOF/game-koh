@@ -323,11 +323,11 @@ export default class Game extends Phaser.Scene {
 						const attacker_name =
 							this.players.get(attacker_identifier)?.name ??
 							'unknown'
-						console.log({
-							attacker_identifier,
-							attacker_name,
-							attacker: this.players.get(attacker_identifier),
-						})
+						// console.log({
+						// 	attacker_identifier,
+						// 	attacker_name,
+						// 	attacker: this.players.get(attacker_identifier),
+						// })
 						deathTexts = [
 							this.add
 								.text(this.me.x, this.me.y - 32, 'You died', {
