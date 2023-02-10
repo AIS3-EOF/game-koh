@@ -92,6 +92,10 @@ function handleEvent(event: any) {
 			case 'd':
 				debug.value = !debug.value
 				break
+			// esc
+			case 'escape':
+				inventory.show = false
+				break
 		}
 	}
 }
@@ -114,13 +118,10 @@ onBeforeUnmount(() => {
 				<pre>{{ event.data }}</pre>
 			</template>
 		</div>
-		<Inventory :show="inventory.show" :items="inventory.items" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Chatroom
-			:players="players"
-			:playerMap="playerMap"
-			:messages="chatMessages"
-		/>
+		<Chatroom :players="players" :playerMap="playerMap" :messages="chatMessages" />
+
+		<Inventory :show="inventory.show" :items="inventory.items" />
 	</div>
 </template>
 

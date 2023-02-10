@@ -23,14 +23,13 @@ function use(item: GameObject) {
 	<div class="inventory" v-if="show">
 		<h2 class="inventory-header">Inventory</h2>
 		<div class="inventory-items">
-			<div
-				v-for="item in items"
-				:key="item.uuid"
-				class="inventory-item"
-				@click="use(item)"
-			>
-				{{ object2name(item) }}
-			</div>
+			<template v-for="item in items" :key="item.uuid">
+				<div class="inventory-item" @click="use(item)">{{ object2name(item) }}</div>
+				<p class="inventory-item-description" v-if="item.description">
+					[{{ item.identifier.split('::').at(-2) }}] {{ item.description }}
+				</p>
+			</template>
+
 		</div>
 	</div>
 </template>
@@ -49,7 +48,7 @@ function use(item: GameObject) {
 	display: flex;
 	flex-direction: column;
 
-	> .inventory-header {
+	>.inventory-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -57,21 +56,23 @@ function use(item: GameObject) {
 		color: white;
 	}
 
-	> .inventory-items {
+	>.inventory-items {
+		height: 100%;
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
+		justify-content: flex-start;
+		align-items: flex-start;
 		gap: 8px;
 		overflow-y: scroll;
 
-		> .inventory-item {
+		.inventory-item {
 			width: 100%;
 			height: 60px;
 			background: #515151;
 			border: 1px solid white;
 			border-radius: 10px;
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 			align-items: center;
 			color: white;
@@ -79,6 +80,25 @@ function use(item: GameObject) {
 
 			&:hover {
 				background: #3f3f3f;
+
+				+.inventory-item-description {
+					display: block;
+				}
+			}
+
+			+.inventory-item-description {
+				cursor: default;
+				display: none;
+				position: absolute;
+				transform: translate(-30px, calc(min(475px, 100vh - 100px)));
+				width: 100%;
+				height: 100px;
+				background: rgba($color: #3f3f3f, $alpha: 0.5);
+				border: 1px solid white;
+				border-radius: 10px;
+				padding: 10px;
+				color: white;
+				white-space: pre-wrap;
 			}
 		}
 	}
