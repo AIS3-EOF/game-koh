@@ -171,9 +171,10 @@ export class Manager {
 		if (round.start) this.round.start = round.start
 		if (round.end) this.round.end = round.end
 
-		if (!round.status || this.round.status === round.status) return
+		if (!round.status || this.round.status === round.status) return false
 
 		switch (round.status) {
+			case RoundStatus.PREINIT:
 			case RoundStatus.INIT:
 				if (this.round.start === RoundStatus.RUNNING)
 					error('round status: RUNNING -> INIT')
@@ -189,22 +190,15 @@ export class Manager {
 				break
 		}
 
-		this.updateStatus(round.status)
 		if (round.id) this.round.id = round.id
-
 		log(`Round ${this.round.id} ${RoundMessage[round.status]}`)
 
-		switch (round.status) {
-			case RoundStatus.INIT:
-				return this.roundInit()
-			case RoundStatus.RUNNING:
-				return this.roundStart()
-			case RoundStatus.END:
-				return this.roundEnd()
-		}
+		return true
 	}
 
-	private roundInit() {
+	roundInit() {
+		if (!this.updateStatus(RoundStatus.INIT)) return
+
 		this.game.resetAchievementReward()
 		this.game.scores.clear()
 
@@ -225,7 +219,9 @@ export class Manager {
 		}
 	}
 
-	private roundStart() {
+	roundStart() {
+		if (!this.updateStatus(RoundStatus.RUNNING)) return
+
 		this.tickInterval = setInterval(
 			this.roundTick.bind(this),
 			config.TICK_INTERVAL,
@@ -275,13 +271,15 @@ export class Manager {
 		})
 
 		// if current time is after round end, then we should go to roundEnd immediately
-		const end = new Date(this.round.end as string).getTime()
+		const end = new Date(this.round.end!).getTime()
 		if (Date.now() >= end) this.updateRound({ status: RoundStatus.END })
 
 		this.savedata()
 	}
 
-	private roundEnd() {
+	roundEnd() {
+		if (!this.updateStatus(RoundStatus.END)) return
+
 		clearInterval(this.tickInterval)
 		this.tickInterval = undefined
 		this.generator.stop()
@@ -327,11 +325,13 @@ export class Manager {
 	}
 
 	private updateStatus(status: RoundStatus) {
+		if (this.round.status === status) return false
 		this.round.status = status
 		eventQueue.push({
 			type: 'round',
 			data: this.round,
 		})
+		return true
 	}
 
 	private tickObject(data: TickObjectData) {
@@ -359,6 +359,18 @@ export class Manager {
 					},
 					{ upsert: true },
 				),
+			),
+		)
+		tasks.push(
+			db.collection('scores').updateOne(
+				{ round_id: this.round.id },
+				{
+					$set: {
+						round_id: this.round.id,
+						scores: this.game.getScores(),
+					},
+				},
+				{ upsert: true },
 			),
 		)
 		const results = await Promise.allSettled(tasks)
