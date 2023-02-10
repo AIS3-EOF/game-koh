@@ -80,12 +80,6 @@ function handleEvent(event: any) {
 				)
 				break
 
-			case 'respawn':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value = message.data.player
-				}
-				break
-
 			case 'leave':
 				playerMap.value.delete(message.data.identifier)
 				break
@@ -107,6 +101,9 @@ function handleEvent(event: any) {
 				break
 
 			case 'respawn':
+				if (message.data.player.identifier === me.value) {
+					currentPlayer.value = message.data.player
+				}
 				deathPlayerMap.value.delete(message.data.player.identifier)
 				break
 

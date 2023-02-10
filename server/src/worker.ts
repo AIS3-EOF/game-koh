@@ -16,7 +16,7 @@ export async function apiFetch(
 	{ body, token, options } = {} as any,
 ) {
 	if (!process.env.SCOREBOARD_URL) {
-		warn('No scoreboard url provided.')
+		warn('[apiFetch] No scoreboard url provided. Using Mocked data.')
 		switch (path) {
 			case '/team/my':
 				return { id: Math.ceil(Math.random() * 10000000), name: token }
@@ -127,10 +127,13 @@ export async function setupWorker(manager: Manager) {
 				now + (ROUND_TIME_INIT + ROUND_TIME) * 1000,
 			).toISOString()
 			manager.updateRound({ id, status: RoundStatus.INIT, start, end })
+			manager.roundInit()
 			await sleep(ROUND_TIME_INIT * 1000)
 			manager.updateRound({ id, status: RoundStatus.RUNNING, start, end })
+			manager.roundStart()
 			await sleep(ROUND_TIME * 1000)
 			manager.updateRound({ id, status: RoundStatus.END, start, end })
+			manager.roundEnd()
 			await sleep(ROUND_TIME_END * 1000)
 			id++
 		}
