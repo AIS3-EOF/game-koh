@@ -37,12 +37,16 @@ export function tick(ctx: Context) {
 		const inside = range.some(rv => ChebyshevDistance(dv, rv) <= 0.5)
 		if (inside) {
 			ctx.game.dealDamage(ctx.player, p, DAMAGE_AMOUNT)
-			handle_chat(ctx, {
-				timestamp: Date.now(),
-				from: '(server)',
-				to: p.identifier,
-				message: '[敵人的日炎聖盾] 你覺得太熱了：-1 HP',
-			})
+			handle_chat(
+				ctx,
+				{
+					timestamp: Date.now(),
+					from: '(server)',
+					to: p.identifier,
+					message: '[敵人的日炎聖盾] 你覺得太熱了：-1 HP',
+				},
+				true,
+			)
 		}
 	})
 }

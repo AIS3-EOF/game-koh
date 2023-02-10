@@ -4,7 +4,11 @@ import { CHAT_COOLDOWN } from '~/config'
 
 const chatmap = new Map<Identifier, number>()
 
-export const handle = async (ctx: Context, data: ChatMessageData) => {
+export const handle = async (
+	ctx: Context,
+	data: ChatMessageData,
+	fromServer = false,
+) => {
 	const { /*from,*/ to } = data
 	const from = ctx.player.identifier
 	const ServerMessage = (message: string) => ({
@@ -19,13 +23,15 @@ export const handle = async (ctx: Context, data: ChatMessageData) => {
 		data: { ...data, timestamp: Date.now(), from },
 	}
 
-	const last_chat = chatmap.get(from)
-	if (last_chat && Date.now() - last_chat < CHAT_COOLDOWN)
-		return ctx.send({
-			type: 'chat',
-			data: ServerMessage('Chat cooldown'),
-		})
-	chatmap.set(from, Date.now())
+	if (!fromServer) {
+		const last_chat = chatmap.get(from)
+		if (last_chat && Date.now() - last_chat < CHAT_COOLDOWN)
+			return ctx.send({
+				type: 'chat',
+				data: ServerMessage('Chat cooldown'),
+			})
+		chatmap.set(from, Date.now())
+	}
 
 	// if (to === from)
 	// 	return ctx.send({

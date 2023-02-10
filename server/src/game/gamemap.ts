@@ -178,7 +178,7 @@ export class GameMap {
 
 	getRandomSpawnPosition(): Vec2 {
 		// TEST CODE: limited spawn positions
-		// return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
+		return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
 		while (true) {
 			const pos = [
 				Math.floor(Math.random() * this.width),
@@ -194,12 +194,15 @@ export class GameMap {
 	dropGameObject(game_object: GameObject) {
 		const pos =
 			this.chest_positions[
-			Math.floor(Math.random() * this.chest_positions.length)
+				Math.floor(Math.random() * this.chest_positions.length)
 			]
 		if (!pos) return
 		const chest = this.getTile(pos) as Chest
 
-		if ((game_object instanceof Item || game_object instanceof Equipment) && game_object.is_rare)
+		if (
+			(game_object instanceof Item || game_object instanceof Equipment) &&
+			game_object.is_rare
+		)
 			chest.chest_inventory_rare.push(game_object)
 		else chest.chest_inventory.push(game_object)
 

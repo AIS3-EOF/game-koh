@@ -34,10 +34,14 @@ export const range: Vec2[] = Array.from({ length: W })
 export const tick_count = 3
 export const tick = (ctx: Context, target: Player) => {
 	ctx.game.dealDamage(ctx.player, target, TICK_DAMAGE)
-	handle_chat(ctx, {
-		timestamp: Date.now(),
-		from: '(server)',
-		to: target.identifier,
-		message: '[敵人的冰桶挑戰] 你覺得寒冷：-1 HP',
-	})
+	handle_chat(
+		ctx,
+		{
+			timestamp: Date.now(),
+			from: '(server)',
+			to: target.identifier,
+			message: '[敵人的冰桶挑戰] 你覺得寒冷：-1 HP',
+		},
+		true,
+	)
 }

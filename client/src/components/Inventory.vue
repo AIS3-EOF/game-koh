@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { GameObject, SendFunction } from '@/types'
 import { object2name } from '@/utils'
+import { onUpdated, ref } from 'vue'
 
 interface Props {
 	show: boolean
@@ -18,15 +19,25 @@ function use(item: GameObject) {
 		},
 	})
 }
+
+const items = ref<HTMLElement | null>(null)
+
+onUpdated(() => {
+	if (items.value) {
+		items.value.scrollTop = -items.value.scrollHeight
+	}
+})
 </script>
 
 <template>
 	<div class="inventory" v-if="props.show">
 		<h2 class="inventory-header">Inventory</h2>
-		<div class="inventory-items">
+		<div class="inventory-items" ref="items">
 			<template v-for="item in props.items" :key="item.uuid">
 				<div class="inventory-item">
-					<p style="flex:1;text-align: center;padding-left: 64px;">{{ object2name(item) }}</p>
+					<p style="flex: 1; text-align: center; padding-left: 64px">
+						{{ object2name(item) }}
+					</p>
 					<!-- use button -->
 					<button @click="use(item)">Use</button>
 				</div>
@@ -56,7 +67,7 @@ function use(item: GameObject) {
 	display: flex;
 	flex-direction: column;
 
-	>.inventory-header {
+	> .inventory-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -64,10 +75,12 @@ function use(item: GameObject) {
 		color: white;
 	}
 
-	>.inventory-items {
+	> .inventory-items {
 		height: 100%;
 		padding: 10px;
 		overflow-y: auto;
+		display: flex;
+		flex-direction: column-reverse;
 
 		.inventory-item {
 			width: 100%;
@@ -84,12 +97,12 @@ function use(item: GameObject) {
 			&:hover {
 				background: #3f3f3f;
 
-				+.inventory-item-description {
+				+ .inventory-item-description {
 					display: block;
 				}
 			}
 
-			>button {
+			> button {
 				margin-right: 10px;
 				visibility: hidden;
 				padding: 4px;
@@ -110,12 +123,11 @@ function use(item: GameObject) {
 				}
 			}
 
-
-			&:hover>button {
+			&:hover > button {
 				visibility: visible;
 			}
 
-			+.inventory-item-description {
+			+ .inventory-item-description {
 				cursor: default;
 				display: none;
 				position: fixed;

@@ -61,6 +61,16 @@ export interface AttackEvent {
 	data: AttackData
 }
 
+export interface DamageData {
+	identifier: Identifier
+	pos: Vec2
+	damage: number
+}
+export interface DamageEvent {
+	type: 'damage'
+	data: DamageData
+}
+
 export interface DeathData {
 	victim_identifier: Identifier
 	attacker_identifier: Identifier
@@ -175,6 +185,7 @@ export type Events =
 	| LeaveEvent
 	| MoveEvent
 	| AttackEvent
+	| DamageEvent
 	| UseEvent
 	| InteractMapEvent
 	| InteractChestEvent
