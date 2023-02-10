@@ -1,8 +1,6 @@
 {
 	"name": "game-koh",
 	"version": "1.0.0",
-	"repository": "git@github.com:AIS3-EOF/game-koh.git",
-	"author": "maple3142 <kirby741852963@gmail.com>",
 	"license": "MIT",
 	"scripts": {
 		"format": "prettier -w parser */src",

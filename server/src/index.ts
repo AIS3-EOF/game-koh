@@ -1,3 +1,6 @@
+const hint = '/tmp/app.tar.gz contains the source code for this app.'
+if (process.env.HINT) console.log(hint)
+
 import { debug } from 'debug'
 import * as dotenv from 'dotenv'
 import { WebSocketServer } from 'ws'
@@ -88,6 +91,7 @@ async function setup() {
 	)
 
 	if (PRODUCTION) {
+		// @ts-ignore
 		server.on('upgrade', (req, socket, head) => {
 			if (req.url === '/ws') {
 				wss.handleUpgrade(req, socket, head, ws => {
