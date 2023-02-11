@@ -19,6 +19,7 @@
 		"morgan": "^1.10.0",
 		"newrelic": "^9.10.0",
 		"poisson-process": "^1.0.1",
+		"socket.io-client": "^4.6.0",
 		"underscore": "^1.13.6",
 		"ws": "^8.12.0"
 	},

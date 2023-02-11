@@ -276,9 +276,9 @@ export default class Game extends Phaser.Scene {
 
 			case 'damage': {
 				const { player, damage } = event.data
-				this.players
-					.get(player.identifier)
-					.getDamage(this, damage, player)
+				const playerObj = this.players.get(player.identifier)
+				if (!playerObj) break
+				playerObj.getDamage(this, damage, player)
 				break
 			}
 
