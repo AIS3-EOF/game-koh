@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { onMounted, onBeforeUnmount, ref, reactive, computed } from 'vue'
 import {
 	ClientMessage,
 	ServerMessage,
@@ -28,13 +28,18 @@ const props = defineProps<Props>()
 
 const init = ref(false)
 const me = ref(InitIdentifier)
+const npc = ref(InitIdentifier)
 const showInventory = ref(false)
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
 const playerMap = ref(new Map<Identifier, string>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
-const currentPlayer = ref<PlayerPub>({} as PlayerPub)
+
+const playersMap = ref(new Map<Identifier, PlayerPub>())
+const currentPlayer = computed(
+	() => playersMap.value.get(me.value) ?? playersMap.value.get(npc.value)!,
+)
 
 var achievement = ref(false)
 
@@ -45,38 +50,47 @@ function handleEvent(event: any) {
 		switch (message.type) {
 			case 'init':
 				init.value = true
-				me.value = message.data.player.identifier
+				me.value = npc.value = message.data.player.identifier
 				round.value = message.data.round
 				message.data.players.forEach(player => {
 					playerMap.value.set(player.identifier, player.name)
+					playersMap.value.set(player.identifier, player)
 				})
-				currentPlayer.value = message.data.player
 				break
 
 			case 'interact_map':
-			case 'use':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.inventory =
-						message.data.player.inventory
-					currentPlayer.value = message.data.player
-				}
+			case 'use': {
+				const playerObj = playersMap.value.get(
+					message.data.player.identifier,
+				)
+				if (!playerObj) return
+				Object.assign(playerObj, message.data.player)
 				break
+			}
 
-			case 'damage':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.hp -= message.data.damage
-				}
+			case 'damage': {
+				const playerObj = playersMap.value.get(
+					message.data.player.identifier,
+				)
+				if (!playerObj) return
+				playerObj.hp -= message.data.damage
 				break
+			}
 
 			case 'join':
 				playerMap.value.set(
 					message.data.player.identifier,
 					message.data.player.name,
 				)
+				playersMap.value.set(
+					message.data.player.identifier,
+					message.data.player,
+				)
 				break
 
 			case 'leave':
 				playerMap.value.delete(message.data.identifier)
+				playersMap.value.delete(message.data.identifier)
 				break
 
 			case 'tick':
@@ -101,12 +115,15 @@ function handleEvent(event: any) {
 				chatMessages.value.push(message.data)
 				break
 
-			case 'respawn':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value = message.data.player
-				}
+			case 'respawn': {
+				const playerObj = playersMap.value.get(
+					message.data.player.identifier,
+				)
+				if (!playerObj) return
+				Object.assign(playerObj, message.data.player)
 				deathPlayerMap.value.delete(message.data.player.identifier)
 				break
+			}
 
 			case 'death':
 				deathPlayerMap.value.set(
@@ -114,6 +131,7 @@ function handleEvent(event: any) {
 					message.data,
 				)
 				break
+
 			case 'achievement':
 				console.log('achievement', message)
 				achievement = message.data.achievement.type
@@ -134,6 +152,13 @@ function handleEvent(event: any) {
 	}
 }
 
+function switch_camera(event: any) {
+	if (event instanceof CustomEvent && event.detail) {
+		const { identifier } = event.detail
+		me.value = identifier
+	}
+}
+
 function send(message: ServerMessage) {
 	props.dom.dispatchEvent(
 		new CustomEvent('send', {
@@ -145,10 +170,12 @@ function send(message: ServerMessage) {
 onMounted(() => {
 	props.dom.addEventListener('event', handleEvent)
 	document.addEventListener('keydown', handleEvent)
+	props.dom.addEventListener('switch_camera', switch_camera)
 })
 onBeforeUnmount(() => {
 	props.dom.removeEventListener('event', handleEvent)
 	document.removeEventListener('keydown', handleEvent)
+	props.dom.removeEventListener('switch_camera', switch_camera)
 })
 </script>
 

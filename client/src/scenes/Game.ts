@@ -150,7 +150,7 @@ export default class Game extends Phaser.Scene {
 	}
 
 	cameraMap = new Map<Identifier, Phaser.Cameras.Scene2D.Camera>()
-	revCameraMap = new Map<Phaser.Cameras.Scene2D.Camera, Identifier>()
+	revCameraMap = new WeakMap<Phaser.Cameras.Scene2D.Camera, Identifier>()
 	addCamera(playerObj: Player) {
 		const camera = this.cameras
 			.add()
@@ -387,14 +387,15 @@ export default class Game extends Phaser.Scene {
 
 	send: SendFunction = () => {}
 	events_pool: ClientMessage[] = []
+	dom: EventTarget
 
 	constructor() {
 		super('GameScene')
 
-		const dom = window.gameDom
+		this.dom = window.gameDom!
 		delete window.gameDom
 		this.send = (msg: ServerMessage) => {
-			dom?.dispatchEvent(new CustomEvent('send', { detail: msg }))
+			this.dom.dispatchEvent(new CustomEvent('send', { detail: msg }))
 		}
 		this.events_pool = window.gameEvents!
 		delete window.gameEvents
@@ -476,13 +477,19 @@ export default class Game extends Phaser.Scene {
 
 	switchCamera() {
 		if (this.timeout) clearTimeout(this.timeout)
+		const { cameras } = this.cameras
 
-		const cameras = this.cameras.cameras
 		const current = cameras.findIndex(c => c.visible)
 		const next = (current + 1) % cameras.length
+		let identifier = this.revCameraMap.get(cameras[next])
 
-		cameras[current].setVisible(false)
+		// current === -1 means no camera is visible
+		cameras[current]?.setVisible(false)
 		cameras[next].setVisible(true)
+
+		this.dom.dispatchEvent(
+			new CustomEvent('switch_camera', { detail: { identifier } }),
+		)
 
 		this.timeout = setTimeout(this.switchCamera.bind(this), 5000)
 	}
