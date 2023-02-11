@@ -79,48 +79,55 @@ export default class Player extends Phaser.GameObjects.Container {
 	}
 
 	updateHpBar() {
-		const offsetX = 6;
-		const offsetY = -3;
-		const hpBarHeight = 6;
-		const hpBarWidth = 20;
-		const hpBarBorderWidth = 1;
+		const offsetX = 6
+		const offsetY = -3
+		const hpBarHeight = 6
+		const hpBarWidth = 20
+		const hpBarBorderWidth = 1
 
-        this.hpBar.clear();
+		this.hpBar.clear()
 
-        //  BG
-        this.hpBar.fillStyle(0x000000);
-        this.hpBar.fillRect(offsetX, offsetY, hpBarWidth + hpBarBorderWidth*2, hpBarHeight + hpBarBorderWidth*2);
+		//  BG
+		this.hpBar.fillStyle(0x000000)
+		this.hpBar.fillRect(
+			offsetX,
+			offsetY,
+			hpBarWidth + hpBarBorderWidth * 2,
+			hpBarHeight + hpBarBorderWidth * 2,
+		)
 
-        //  Health
+		//  Health
 
-        this.hpBar.fillStyle(0xffffff);
-        this.hpBar.fillRect(offsetX + hpBarBorderWidth, offsetY + hpBarBorderWidth, hpBarWidth, hpBarHeight);
+		this.hpBar.fillStyle(0xffffff)
+		this.hpBar.fillRect(
+			offsetX + hpBarBorderWidth,
+			offsetY + hpBarBorderWidth,
+			hpBarWidth,
+			hpBarHeight,
+		)
 
-        if (this.max_hp - this.hp > this.max_hp * 0.3)
-        {
-            this.hpBar.fillStyle(a);
-        }
-        else
-        {
-            this.hpBar.fillStyle(0x00ff00);
-        }
+		if (this.max_hp - this.hp >= this.max_hp * 0.7) {
+			this.hpBar.fillStyle(0xff0000)
+		} else {
+			this.hpBar.fillStyle(0x00ff00)
+		}
 
-        var width = Math.floor(hpBarWidth * (this.hp / this.max_hp));
+		var width = Math.floor(hpBarWidth * (this.hp / this.max_hp))
 
-        this.hpBar.fillRect(offsetX + hpBarBorderWidth, offsetY + hpBarBorderWidth, width, hpBarHeight);
+		this.hpBar.fillRect(
+			offsetX + hpBarBorderWidth,
+			offsetY + hpBarBorderWidth,
+			width,
+			hpBarHeight,
+		)
 	}
 
 	getDamage(scene: Phaser.Scene, damage: number, player: object) {
 		const text = scene.add
-			.text(
-				this.x + 12,
-				this.y - 12,
-				damage.toString(),
-				{
-					fontSize: '16px',
-					color: '#ff0000',
-				},
-			)
+			.text(this.x + 12, this.y - 12, damage.toString(), {
+				fontSize: '16px',
+				color: '#ff0000',
+			})
 			.setDepth(100)
 			.setOrigin(0.5, 0.5)
 		setTimeout(() => text.destroy(), 300)
