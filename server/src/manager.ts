@@ -8,7 +8,7 @@ import type { Request, Response } from 'express'
 
 import { dispatch, alwaysAllowEvents } from '~/handlers'
 import { Context } from '~/context'
-import { ServerMessage } from '~/protocol'
+import { ServerMessage, ServerType } from '~/protocol'
 import {
 	RoundData,
 	RoundStatus,
@@ -80,7 +80,7 @@ export class Manager {
 		}
 	}
 
-	verbose = ['move']
+	verbose: ServerType[] = ['move', 'attack', 'interact_map']
 
 	async handleConnection(ws: WebSocket) {
 		try {
