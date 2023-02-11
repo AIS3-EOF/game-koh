@@ -17,7 +17,7 @@ function onopen() {
 	setTimeout(() => {
 		send({
 			type: 'login',
-			data: { token: 'af3540c1bb9e476dbd5c2b5043151dc9' },
+			data: { token: import.meta.env.VITE_TOKEN },
 		})
 	}, 100)
 }
