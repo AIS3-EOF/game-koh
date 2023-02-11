@@ -22,6 +22,7 @@ export enum AchievementType {
 	'走路不看路' = '走路不看路',
 	'Teleporter' = 'Teleporter',
 	'SpeedHacker' = 'Speed Hacker',
+	'Lucky' = 'Lucky',
 }
 
 export class Achievement {

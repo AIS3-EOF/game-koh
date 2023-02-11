@@ -5,6 +5,7 @@ import { Context } from '~/context'
 import { MapObject } from './map_object'
 import { randProb } from '../custom_rng/index'
 import { randomUUID } from 'crypto'
+import { generateObject } from '../game_objects'
 
 import { debug } from 'debug'
 
@@ -23,6 +24,18 @@ export class Chest extends MapObject {
 		// TODO: Replace texture here
 		this.texture = 'chest'
 		this.can_walk = false
+
+		this.ensureRareItem()
+	}
+
+	private ensureRareItem() {
+		// ensure at least one rare item
+		while (this.chest_inventory_rare.length == 0) {
+			const obj = generateObject()
+			if (obj.is_rare) {
+				this.chest_inventory_rare.push(obj)
+			}
+		}
 	}
 
 	interact(ctx: Context, data: any) {
@@ -61,10 +74,9 @@ export class Chest extends MapObject {
 				Math.floor(Math.random() * this.chest_inventory_rare.length),
 				1,
 			)[0]
-			if (item) {
-				ctx.player.addObjectToInventory(item)
-				new_items.push(item)
-			}
+			ctx.player.addObjectToInventory(item)
+			new_items.push(item)
+			this.ensureRareItem()
 		}
 
 		ctx.send({
