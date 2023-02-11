@@ -1,6 +1,6 @@
 {
 	"name": "game-koh",
-	"version": "v0",
+	"version": "v1",
 	"license": "MIT",
 	"scripts": {
 		"format": "prettier -w parser */src",
