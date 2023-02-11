@@ -111,7 +111,7 @@ function handleEvent(event: any) {
 			case 'achievement':
 				console.log('achievement', message)
 				achievement = message.data.achievement.type
-				setTimeout(() => achievement = '', 10000)
+				setTimeout(() => (achievement = ''), 10000)
 				break
 		}
 	}
@@ -149,12 +149,21 @@ onBeforeUnmount(() => {
 <template>
 	<div class="container" v-if="init">
 		<div class="achievement" v-if="achievement">
-			<img :src="`assets/images/${achievement}.png`">
+			<img :src="`assets/images/${achievement}.png`" />
 		</div>
 		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Chatroom :playerMap="playerMap" :messages="chatMessages" :send="send" />
-		<Inventory :show="showInventory" :items="currentPlayer.inventory" :send="send" />
+		<Deathview :playerMap="playerMap" :deathPlayerMap="deathPlayerMap" />
+		<Chatroom
+			:playerMap="playerMap"
+			:messages="chatMessages"
+			:send="send"
+		/>
+		<Inventory
+			:show="showInventory"
+			:items="currentPlayer.inventory"
+			:send="send"
+		/>
 	</div>
 </template>
 
