@@ -474,13 +474,15 @@ export default class Game extends Phaser.Scene {
 	}
 
 	timeout: ReturnType<typeof setTimeout> | undefined
+	cameraDir = 1
 
 	switchCamera() {
 		if (this.timeout) clearTimeout(this.timeout)
 		const { cameras } = this.cameras
 
 		const current = cameras.findIndex(c => c.visible)
-		const next = (current + 1) % cameras.length
+		const next =
+			(current + this.cameraDir + cameras.length) % cameras.length
 		let identifier = this.revCameraMap.get(cameras[next])
 
 		// current === -1 means no camera is visible
@@ -501,5 +503,9 @@ export default class Game extends Phaser.Scene {
 
 		if (this.input.keyboard.checkDown(this.cursors.space, 500))
 			this.switchCamera()
+		if (this.input.keyboard.checkDown(this.cursors.right, 500))
+			(this.cameraDir = 1), this.switchCamera()
+		if (this.input.keyboard.checkDown(this.cursors.left, 500))
+			(this.cameraDir = -1), this.switchCamera()
 	}
 }
