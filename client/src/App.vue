@@ -68,7 +68,7 @@ function handleEvent(event: any) {
 				break
 
 			case 'damage':
-				if (message.data.identifier === me.value) {
+				if (message.data.player.identifier === me.value) {
 					currentPlayer.value.hp -= message.data.damage
 				}
 				break

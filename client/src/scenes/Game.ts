@@ -18,7 +18,6 @@ export default class Game extends Phaser.Scene {
 	raycaster: any
 	ray: any
 	intersections: any
-	graphics: any
 	maskGraphics: any
 	fow: any
 	fovRange: any
@@ -115,8 +114,8 @@ export default class Game extends Phaser.Scene {
 	updateFOV() {
 		const updateOnce = () => {
 			this.ray.setOrigin(
-				this.me.x - this.me.facing?.[0] * 15,
-				this.me.y - this.me.facing?.[1] * 15,
+				this.me.x - this.me.facing?.[0] * 30,
+				this.me.y - this.me.facing?.[1] * 30,
 			)
 			this.ray.setConeDeg(90)
 			if (this.me.facing) {
@@ -275,20 +274,8 @@ export default class Game extends Phaser.Scene {
 				break
 
 			case 'damage': {
-				const { identifier, pos, damage } = event.data
-				const text = this.add
-					.text(
-						pos[0] * 32 + 16 + 12,
-						pos[1] * 32 + 16 - 12,
-						damage.toString(),
-						{
-							fontSize: '16px',
-							color: '#ff0000',
-						},
-					)
-					.setDepth(100)
-					.setOrigin(0.5, 0.5)
-				setTimeout(() => text.destroy(), 300)
+				const { player, damage } = event.data
+				this.players.get(player.identifier).getDamage(this, damage, player)
 				break
 			}
 
