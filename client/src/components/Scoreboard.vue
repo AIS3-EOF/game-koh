@@ -86,7 +86,7 @@ const timeLeft = computed(() => {
 	top: 16px;
 	width: 250px;
 	height: 50%;
-	background-color: rgba(200, 200, 200, 0.7);
+	background-color: rgba(0, 0, 0, 0.7);
 	color: white;
 	padding: 8px;
 	display: flex;
