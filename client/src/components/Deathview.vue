@@ -29,6 +29,7 @@ const deaths = computed(() => Array.from(props.deathPlayerMap.values()))
 
 <style lang="scss" scoped>
 .deathview {
+	background: var(--background);
 	position: absolute;
 	bottom: 40px;
 	right: 16px;

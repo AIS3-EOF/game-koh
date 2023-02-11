@@ -76,7 +76,7 @@ const props = defineProps<Props>()
 	left: 0;
 	width: 200px;
 	height: auto;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: var(--background);
 
 	padding: 1rem;
 	margin: 1rem;
@@ -114,7 +114,7 @@ const props = defineProps<Props>()
 	position: relative;
 	width: 100%;
 	height: 20px;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: var(--background);
 	border-radius: 10px;
 
 	.value {

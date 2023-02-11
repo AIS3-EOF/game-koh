@@ -167,7 +167,7 @@ function displayUser(message: ChatMessageData) {
 	bottom: 0;
 	left: 0;
 	height: 200px;
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: var(--background);
 	border: 1px solid #333;
 	overflow: hidden;
 	display: flex;
