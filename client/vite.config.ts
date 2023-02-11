@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import replace from '@rollup/plugin-replace'
 import vue from '@vitejs/plugin-vue'
+import basicSsl from '@vitejs/plugin-basic-ssl'
 import path from 'path'
 import dotenv from 'dotenv'
 
 dotenv.config({ path: path.resolve(__dirname, '../share.env') })
 
 export default defineConfig({
-	plugins: [vue()],
+	plugins: [vue(), basicSsl()],
 	build: {
 		rollupOptions: {
 			input: {
@@ -36,6 +37,9 @@ export default defineConfig({
 		},
 	},
 	server: {
+		host: '0.0.0.0',
+		port: Number(process.env.CLIENT_PORT ?? 3000),
+		https: true,
 		proxy: {
 			'/api': {
 				target: `http://localhost:${process.env.SERVER_PORT}`,
