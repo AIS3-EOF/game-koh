@@ -5,18 +5,6 @@ import GameMap from '@/resources/map'
 import { ClientMessage, ServerMessage } from '@/types'
 import { AFRType } from '~/config'
 
-const allowPostTypes = ['login', 'round', 'init']
-
-function postMessage(...args: any) {
-	if (
-		window.top &&
-		window.top !== window &&
-		(args?.[0] == 'ready' || allowPostTypes.includes(args?.[0]?.type))
-	) {
-		window.top.postMessage.apply(window.top, args)
-	}
-}
-
 let parser: Parser | null = null
 let dom: EventTarget | null = null
 
@@ -27,20 +15,11 @@ function send(message: ServerMessage) {
 
 function onopen() {
 	setTimeout(() => {
-		postMessage('ready', '*')
-	}, 500)
-	const login_input = document.getElementById('login-input')
-	if (!login_input) return
-	login_input.removeAttribute('disabled')
-	login_input.focus()
-	login_input.addEventListener('keydown', event => {
-		if (event.key === 'Enter' || event.key === 'NumpadEnter') {
-			const token = (login_input as HTMLInputElement).value
-			send({ type: 'login', data: { token } })
-			postMessage({ type: 'login', data: { token } }, '*')
-			login_input.setAttribute('disabled', 'true')
-		}
-	})
+		send({
+			type: 'login',
+			data: { token: 'af3540c1bb9e476dbd5c2b5043151dc9' },
+		})
+	}, 100)
 }
 
 function onclose(event: CloseEvent) {
@@ -62,8 +41,6 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 				//Create a empty event queue
 				events.length = 0
 			} else {
-				postMessage({ type: 'login', data: { token: '' } }, '*')
-
 				const login_input = document.getElementById('login-input')
 				login_input?.removeAttribute('disabled')
 				// show some error message
@@ -76,8 +53,6 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 			}
 			break
 		case 'init':
-			postMessage({ type: 'init', data: message.data.round }, '*')
-
 			const gameMap = new GameMap(message.data.map)
 			const mapJSON = gameMap.getJSON()
 			window.sessionStorage.setItem('map', JSON.stringify(mapJSON))
@@ -94,9 +69,6 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 					path: '../package.json',
 				},
 			})
-			break
-		case 'round':
-			postMessage({ type: 'round', data: message.data }, '*')
 			break
 
 		case AFRType:

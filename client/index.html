@@ -2,27 +2,24 @@
 <html lang="en">
 
 <head>
-    <title>KoH</title>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOH</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+        integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="/css/main.css">
-    <script type="module" src="/src/entry.ts"></script>
-    <!-- <script type="text/javascript" src="/newrelic.js"></script>
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "frxhf3um1m");
-    </script> -->
+    <script type="module" src="/src/index.ts"></script>
 </head>
 
 <body>
-    <div id="round">
-        <h1 id="round-text"></h1>
+    <div id="login-container">
+        <p>Login TOKEN</p>
+        <input type="text" id="login-input" disabled>
+        <p id="login-error-message"></p>
     </div>
-    <iframe id="gameFrame" src="/game.html" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="game"></div>
+    <span id="version">v?</span>
+    <div id="app"></div>
 </body>
 
 </html>

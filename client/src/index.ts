@@ -3,5 +3,5 @@ import { setupVue } from '@/vue'
 
 const dom = document.getElementById('game')!
 
-setupWS(location.origin.replace('http', 'ws') + '/ws', dom)
+setupWS('wss://game.zoolab.org/ws', dom)
 setupVue(dom)

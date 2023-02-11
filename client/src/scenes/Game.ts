@@ -77,7 +77,7 @@ export default class Game extends Phaser.Scene {
 		mask.invertAlpha = true
 
 		this.fow = this.add.graphics({
-			fillStyle: { color: 0x000000, alpha: 1 },
+			fillStyle: { color: 0x000000, alpha: 0 },
 		})
 		this.fow.setMask(mask)
 		this.fow.fillRect(0, 0, this.map.heightInPixels, this.map.widthInPixels)
@@ -90,7 +90,7 @@ export default class Game extends Phaser.Scene {
 		mask2.invertAlpha = true
 
 		this.fovRange = this.add.graphics({
-			fillStyle: { color: 0, alpha: 0.85 },
+			fillStyle: { color: 0, alpha: 0 },
 		})
 		this.fovRange.setMask(mask2)
 		this.fovRange.fillRect(
@@ -156,14 +156,20 @@ export default class Game extends Phaser.Scene {
 
 				event.data.players.forEach(player => {
 					const playerText =
-						player.identifier === me.identifier ? '我' : '敵'
+						player.identifier === me.identifier ? '站' : '戰'
 					const playerObj = new Player(this, playerText, player)
 					this.players.set(player.identifier, playerObj)
+
+					this.cameras
+						.add()
+						.setZoom(1)
+						.startFollow(playerObj, true, 0.05, 0.05)
+						.setVisible(false)
 				})
 
 				this.me = this.players.get(me.identifier)!
 				this.updateFOV()
-				this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
+				// this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
 				break
 
 			case 'join':
@@ -172,7 +178,7 @@ export default class Game extends Phaser.Scene {
 					// console.log('join', player)
 					const playerObj =
 						this.players.get(player.identifier) ||
-						new Player(this, '敵', player)
+						new Player(this, '戰', player)
 					playerObj.face(player.facing)
 					playerObj.setPositionTo(player.pos)
 					this.players.set(player.identifier, playerObj)
@@ -193,11 +199,6 @@ export default class Game extends Phaser.Scene {
 					playerObj.hp = player.hp
 					playerObj.max_hp = player.max_hp
 					playerObj.updateHpBar()
-
-					if (player.identifier === this.me.identifier) {
-						this.updateFOV()
-						this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
-					}
 				}
 				break
 
@@ -218,10 +219,6 @@ export default class Game extends Phaser.Scene {
 
 				playerObj.face(facing)
 				playerObj.setPositionTo(pos)
-
-				if (identifier === this.me.identifier) {
-					this.updateFOV()
-				}
 
 				break
 
@@ -297,75 +294,6 @@ export default class Game extends Phaser.Scene {
 					} = event.data
 					const victim = this.players.get(victim_identifier)
 					if (!victim) break
-					if (victim_identifier === this.me.identifier) {
-						this.cameras.main.shake(1000, 0.01)
-						this.cameras.main.stopFollow()
-
-						deathScreen = this.add
-							.rectangle(
-								0,
-								0,
-								this.map.heightInPixels,
-								this.map.widthInPixels,
-								0x000000,
-								0.5,
-							)
-							.setDepth(100)
-							.setOrigin(0, 0)
-
-						const attacker_name =
-							this.players.get(attacker_identifier)?.name ??
-							'unknown'
-						// console.log({
-						// 	attacker_identifier,
-						// 	attacker_name,
-						// 	attacker: this.players.get(attacker_identifier),
-						// })
-						deathTexts = [
-							this.add
-								.text(this.me.x, this.me.y - 32, 'You died', {
-									fontSize: '128px',
-									color: '#ff0000',
-								})
-								.setDepth(101)
-								.setOrigin(0.5, 0.5),
-							this.add
-								.text(
-									this.me.x,
-									this.me.y + 128 - 32,
-									`Killed by ${attacker_name}`,
-									{
-										fontSize: '64px',
-										color: '#ffffff',
-									},
-								)
-								.setDepth(101)
-								.setOrigin(0.5, 0.5),
-							this.add
-								.text(
-									this.me.x,
-									this.me.y + 128 + 64 + 20 - 32,
-									`Respawn in ${respawn_time} seconds`,
-									{
-										fontSize: '64px',
-										color: '#ffffff',
-									},
-								)
-								.setDepth(101)
-								.setOrigin(0.5, 0.5),
-						]
-
-						let respawn_time_cnt = respawn_time
-						const func = () =>
-							deathTexts[2].setText(
-								`Respawn in ${--respawn_time_cnt} seconds`,
-							)
-						this.tickCallbacks.add(func)
-						setTimeout(
-							() => this.tickCallbacks.delete(func),
-							(respawn_time - 0.5) * 1000,
-						)
-					}
 
 					const handler = setInterval(() => {
 						victim.setAlpha(victim.alpha === 1 ? 0.25 : 1)
@@ -510,31 +438,36 @@ export default class Game extends Phaser.Scene {
 		this.fow.setDepth(2)
 
 		this.updateFOV()
+
+		// create a camera for each player
+		this.cameras.cameras.forEach(c => c.setVisible(false))
+		this.cameras.cameras[0].setZoom(0.5)
+
+		// focus on map center
+		this.cameras.cameras[0].centerOn(
+			this.map.widthInPixels / 2,
+			this.map.heightInPixels / 2,
+		)
+
+		this.cameras.cameras[0].setVisible(true)
+
+		setInterval(() => {
+			this.switchCamera()
+		}, 1000 * 5)
+	}
+
+	switchCamera() {
+		const cameras = this.cameras.cameras
+		const current = cameras.findIndex(c => c.visible)
+		const next = (current + 1) % cameras.length
+
+		cameras[current].setVisible(false)
+		cameras[next].setVisible(true)
 	}
 
 	update(time: number, delta: number): void {
 		// pop from event queue, then handle
 		let event: ClientMessage | undefined
 		while ((event = this.events_pool.shift())) this.handleEvent(event)
-
-		// attack
-		if (this.input.keyboard.checkDown(this.cursors.space, 100)) {
-			this.attack()
-		}
-
-		// interact
-		if (this.input.keyboard.checkDown(this.cursors.x, 100)) {
-			this.interact()
-		}
-
-		// player control
-		const vec = [
-			this.cursors.right.isDown - this.cursors.left.isDown,
-			this.cursors.down.isDown - this.cursors.up.isDown,
-		] as Vec2
-		if (vec.some(Boolean)) {
-			this.faceAry.push(vec)
-			this.updateFace()
-		}
 	}
 }

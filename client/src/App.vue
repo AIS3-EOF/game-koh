@@ -89,6 +89,12 @@ function handleEvent(event: any) {
 			case 'round':
 				if (import.meta.env.DEV) console.log('round', message.data)
 				round.value = message.data
+
+				if (message.data.status === RoundStatus.END) {
+					setTimeout(() => {
+						location.reload()
+					}, 1000)
+				}
 				break
 
 			case 'chat':
