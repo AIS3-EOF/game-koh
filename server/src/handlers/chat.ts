@@ -47,6 +47,8 @@ export const handle = async (
 				type: 'chat',
 				data: ServerMessage('Player not found'),
 			})
-		sockets.send(to, messageData)
+		// FEAT: filter chat on client side
+		// sockets.send(to, messageData)
+		eventQueue.push(messageData)
 	}
 }
