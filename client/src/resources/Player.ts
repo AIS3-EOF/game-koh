@@ -125,12 +125,26 @@ export default class Player extends Phaser.GameObjects.Container {
 	getDamage(scene: Phaser.Scene, damage: number, player: object) {
 		const text = scene.add
 			.text(this.x + 12, this.y - 12, damage.toString(), {
-				fontSize: '16px',
+				fontSize: '18px',
 				color: '#ff0000',
 			})
 			.setDepth(100)
 			.setOrigin(0.5, 0.5)
-		setTimeout(() => text.destroy(), 300)
+		const borderedText = scene.add
+			.text(this.x + 12, this.y - 12, damage.toString(), {
+				fontSize: '22px',
+				color: '#000000',
+			})
+			.setDepth(99)
+			.setOrigin(0.5, 0.5)
+		scene.tweens.add({
+			targets: [text, borderedText],
+			y: this.y - 32,
+			duration: 300,
+			ease: 'Linear',
+		})
+
+		setTimeout(() => [text, borderedText].forEach(e => e.destroy()), 300)
 
 		// update health
 		this.hp = player.hp

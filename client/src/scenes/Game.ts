@@ -114,8 +114,8 @@ export default class Game extends Phaser.Scene {
 	updateFOV() {
 		const updateOnce = () => {
 			this.ray.setOrigin(
-				this.me.x - this.me.facing?.[0] * 30,
-				this.me.y - this.me.facing?.[1] * 30,
+				this.me.x - this.me.facing?.[0] * 15,
+				this.me.y - this.me.facing?.[1] * 15,
 			)
 			this.ray.setConeDeg(90)
 			if (this.me.facing) {
@@ -189,6 +189,10 @@ export default class Game extends Phaser.Scene {
 					playerObj.setPositionTo(player.pos)
 
 					playerObj.setVisible(true)
+
+					playerObj.hp = player.hp
+					playerObj.max_hp = player.max_hp
+					playerObj.updateHpBar()
 
 					if (player.identifier === this.me.identifier) {
 						this.updateFOV()
@@ -275,7 +279,9 @@ export default class Game extends Phaser.Scene {
 
 			case 'damage': {
 				const { player, damage } = event.data
-				this.players.get(player.identifier).getDamage(this, damage, player)
+				this.players
+					.get(player.identifier)
+					.getDamage(this, damage, player)
 				break
 			}
 
