@@ -38,6 +38,7 @@ const deathPlayerMap = ref(new Map<Identifier, DeathData>())
 const currentPlayer = ref<PlayerPub>({} as PlayerPub)
 
 const events = ref<ClientMessage[]>([])
+var achievement = ref(false)
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
@@ -113,6 +114,11 @@ function handleEvent(event: any) {
 					message.data,
 				)
 				break
+			case 'achievement':
+				console.log('achievement', message)
+				achievement = message.data.achievement.type
+				setTimeout(()=>achievement='', 10000)
+				break
 		}
 	}
 	if (event instanceof KeyboardEvent && !event.repeat && init.value) {
@@ -157,6 +163,9 @@ onBeforeUnmount(() => {
 				<pre>{{ event.data }}</pre>
 			</template>
 		</div>
+		<div class="achievement" v-if="achievement">
+			<img :src="`assets/images/${achievement}.png`">
+		</div>
 		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
 		<Chatroom
@@ -191,5 +200,11 @@ onBeforeUnmount(() => {
 	background-color: rgba(255, 255, 255, 0.5);
 	color: black;
 	overflow-y: scroll;
+}
+.achievement{
+	position: absolute;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
 }
 </style>
