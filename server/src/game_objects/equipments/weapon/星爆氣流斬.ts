@@ -4,7 +4,7 @@ import { Weapon } from '../weapon'
 export const identifier = '星爆氣流斬/星光流連擊'
 export const texture = 'c8763'
 export const can_transfer = true
-export const description = '那到底是什麼技能啊?!?!?!'
+export const description = '那到底是什麼技能啊！'
 export const attack_modifier = 25
 
 export const is_rare = true

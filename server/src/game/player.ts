@@ -94,8 +94,7 @@ export class Player {
 		eventQueue.push({
 			type: 'damage',
 			data: {
-				identifier: this.identifier,
-				pos: this.pos,
+				player: this.dump(),
 				damage,
 			},
 		})

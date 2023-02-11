@@ -27,7 +27,6 @@ interface Props {
 const props = defineProps<Props>()
 
 const init = ref(false)
-const debug = ref(false)
 const me = ref(InitIdentifier)
 const showInventory = ref(false)
 const scores = ref([] as ScoreItem[])
@@ -37,16 +36,12 @@ const playerMap = ref(new Map<Identifier, string>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
 const currentPlayer = ref<PlayerPub>({} as PlayerPub)
 
-const events = ref<ClientMessage[]>([])
+var achievement = ref(false)
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
 		const message = event.detail as ClientMessage
 		if (import.meta.env.DEV) console.log('event', message)
-		const n_debug_events = ['init', 'tick', 'move', 'new_object_spawned']
-		if (!n_debug_events.includes(message.type))
-			events.value = [message, ...events.value.slice(0, 30)]
-
 		switch (message.type) {
 			case 'init':
 				init.value = true
@@ -68,7 +63,7 @@ function handleEvent(event: any) {
 				break
 
 			case 'damage':
-				if (message.data.identifier === me.value) {
+				if (message.data.player.identifier === me.value) {
 					currentPlayer.value.hp -= message.data.damage
 				}
 				break
@@ -113,15 +108,17 @@ function handleEvent(event: any) {
 					message.data,
 				)
 				break
+			case 'achievement':
+				console.log('achievement', message)
+				achievement = message.data.achievement.type
+				setTimeout(() => achievement = '', 10000)
+				break
 		}
 	}
 	if (event instanceof KeyboardEvent && !event.repeat && init.value) {
 		switch (event.key.toLowerCase()) {
 			case 'i':
 				showInventory.value = !showInventory.value
-				break
-			case 'd':
-				if (import.meta.env.DEV) debug.value = !debug.value
 				break
 			// esc
 			case 'escape':
@@ -151,24 +148,13 @@ onBeforeUnmount(() => {
 
 <template>
 	<div class="container" v-if="init">
-		<div class="debug" v-if="debug">
-			<template v-for="(event, idx) in events" :key="idx">
-				<div>{{ event.type }}</div>
-				<pre>{{ event.data }}</pre>
-			</template>
+		<div class="achievement" v-if="achievement">
+			<img :src="`assets/images/${achievement}.png`">
 		</div>
 		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Chatroom
-			:playerMap="playerMap"
-			:messages="chatMessages"
-			:send="send"
-		/>
-		<Inventory
-			:show="showInventory"
-			:items="currentPlayer.inventory"
-			:send="send"
-		/>
+		<Chatroom :playerMap="playerMap" :messages="chatMessages" :send="send" />
+		<Inventory :show="showInventory" :items="currentPlayer.inventory" :send="send" />
 	</div>
 </template>
 
@@ -182,14 +168,10 @@ onBeforeUnmount(() => {
 	height: 100dvh;
 }
 
-.debug {
-	position: relative;
-	top: 0;
-	left: 0;
-	width: 600px;
-	height: 100%;
-	background-color: rgba(255, 255, 255, 0.5);
-	color: black;
-	overflow-y: scroll;
+.achievement {
+	position: absolute;
+	width: 100vw;
+	display: flex;
+	justify-content: center;
 }
 </style>

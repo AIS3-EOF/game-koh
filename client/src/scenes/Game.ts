@@ -18,7 +18,6 @@ export default class Game extends Phaser.Scene {
 	raycaster: any
 	ray: any
 	intersections: any
-	graphics: any
 	maskGraphics: any
 	fow: any
 	fovRange: any
@@ -157,7 +156,7 @@ export default class Game extends Phaser.Scene {
 
 				event.data.players.forEach(player => {
 					const playerText =
-						player.identifier === me.identifier ? '我' : '他'
+						player.identifier === me.identifier ? '我' : '敵'
 					const playerObj = new Player(this, playerText, player)
 					this.players.set(player.identifier, playerObj)
 				})
@@ -173,7 +172,7 @@ export default class Game extends Phaser.Scene {
 					// console.log('join', player)
 					const playerObj =
 						this.players.get(player.identifier) ||
-						new Player(this, '他', player)
+						new Player(this, '敵', player)
 					playerObj.face(player.facing)
 					playerObj.setPositionTo(player.pos)
 					this.players.set(player.identifier, playerObj)
@@ -190,6 +189,10 @@ export default class Game extends Phaser.Scene {
 					playerObj.setPositionTo(player.pos)
 
 					playerObj.setVisible(true)
+
+					playerObj.hp = player.hp
+					playerObj.max_hp = player.max_hp
+					playerObj.updateHpBar()
 
 					if (player.identifier === this.me.identifier) {
 						this.updateFOV()
@@ -275,20 +278,10 @@ export default class Game extends Phaser.Scene {
 				break
 
 			case 'damage': {
-				const { identifier, pos, damage } = event.data
-				const text = this.add
-					.text(
-						pos[0] * 32 + 16 + 12,
-						pos[1] * 32 + 16 - 12,
-						damage.toString(),
-						{
-							fontSize: '16px',
-							color: '#ff0000',
-						},
-					)
-					.setDepth(100)
-					.setOrigin(0.5, 0.5)
-				setTimeout(() => text.destroy(), 300)
+				const { player, damage } = event.data
+				this.players
+					.get(player.identifier)
+					.getDamage(this, damage, player)
 				break
 			}
 

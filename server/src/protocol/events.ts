@@ -62,8 +62,7 @@ export interface AttackEvent {
 }
 
 export interface DamageData {
-	identifier: Identifier
-	pos: Vec2
+	player: PlayerPub
 	damage: number
 }
 export interface DamageEvent {
