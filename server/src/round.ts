@@ -12,6 +12,13 @@ export const RoundMessage = {
 	[RoundStatus.END]: 'ended',
 }
 
+export const ExpectedRoundStatus = {
+	[RoundStatus.PREINIT]: [RoundStatus.INIT],
+	[RoundStatus.INIT]: [RoundStatus.PREINIT, RoundStatus.RUNNING],
+	[RoundStatus.RUNNING]: [RoundStatus.END],
+	[RoundStatus.END]: [RoundStatus.PREINIT, RoundStatus.INIT],
+}
+
 export interface RoundData {
 	id: number
 	status: RoundStatus

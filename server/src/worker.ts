@@ -116,6 +116,16 @@ async function checkRoundScored(round_id: number) {
 	return true
 }
 
+async function getRound() {
+	const overview = await apiFetch(`/overview`)
+	return {
+		id: overview.round.id,
+		status: overview.round.status,
+		start: overview.round.start?.replace(/$/, 'Z'),
+		end: overview.round.end?.replace(/$/, 'Z'),
+	}
+}
+
 export async function setupWorker(manager: Manager) {
 	if (!process.env.SCOREBOARD_URL) {
 		warn('No scoreboard url provided. Worker disabled.')
@@ -151,14 +161,10 @@ export async function setupWorker(manager: Manager) {
 		await deregisterWorker(token!)
 	})
 
+	await manager.loadRound(await getRound())
+
 	while (true) {
-		const overview = await apiFetch(`/overview`)
-		const round = {
-			id: overview.round.id,
-			status: overview.round.status,
-			start: overview.round.start?.replace(/$/, 'Z'),
-			end: overview.round.end?.replace(/$/, 'Z'),
-		}
+		const round = await getRound()
 		if (round.status === RoundStatus.INIT)
 			round.start == RoundStatus.PREINIT
 		if (manager.updateRound(round)) {
