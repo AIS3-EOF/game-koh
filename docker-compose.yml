@@ -36,3 +36,4 @@ services:
             SCOREBOARD_TOKEN: $SCOREBOARD_TOKEN
             CHALLENGE_IDS: $CHALLENGE_IDS
             DEBUG: $DEBUG
+            VISUALIZER_URL: $VISUALIZER_URL
