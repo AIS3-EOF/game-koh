@@ -76,7 +76,7 @@ const props = defineProps<Props>()
 	left: 0;
 	width: 200px;
 	height: auto;
-	background-color: var(--background);
+	background-color: rgba(0, 0, 0, 0.5);
 
 	padding: 1rem;
 	margin: 1rem;
@@ -85,6 +85,7 @@ const props = defineProps<Props>()
 		font-size: 2rem;
 		font-weight: bold;
 		margin-bottom: 1rem;
+		white-space: nowrap;
 	}
 }
 
@@ -114,7 +115,7 @@ const props = defineProps<Props>()
 	position: relative;
 	width: 100%;
 	height: 20px;
-	background-color: var(--background);
+	background-color: rgba(0, 0, 0, 0.5);
 	border-radius: 10px;
 
 	.value {
