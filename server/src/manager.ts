@@ -106,9 +106,12 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					if (this.verbose.includes(msg.type))
-						verbose('%s received %o', sessionId, msg)
-					else log('%s received %o', sessionId, msg)
+					;(this.verbose.includes(msg.type) ? verbose : log)(
+						'%s (%s) received %o',
+						player.name,
+						player.identifier,
+						msg,
+					)
 					if (
 						this.round.status === RoundStatus.RUNNING ||
 						alwaysAllowEvents.has(msg.type)
