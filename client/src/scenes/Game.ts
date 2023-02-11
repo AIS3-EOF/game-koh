@@ -149,6 +149,27 @@ export default class Game extends Phaser.Scene {
 		})
 	}
 
+	cameraMap = new Map<Identifier, Phaser.Cameras.Scene2D.Camera>()
+	revCameraMap = new Map<Phaser.Cameras.Scene2D.Camera, Identifier>()
+	addCamera(playerObj: Player) {
+		const camera = this.cameras
+			.add()
+			.setZoom(1)
+			.startFollow(playerObj, true, 0.05, 0.05)
+			.setVisible(false)
+		this.cameraMap.set(playerObj.identifier, camera)
+		this.revCameraMap.set(camera, playerObj.identifier)
+	}
+	removeCamera(playerObj: Player) {
+		const camera = this.cameraMap.get(playerObj.identifier)
+		if (camera) {
+			this.cameras.remove(camera)
+			this.cameraMap.delete(playerObj.identifier)
+			this.revCameraMap.delete(camera)
+			camera.destroy()
+		}
+	}
+
 	handleEvent(event: ClientMessage) {
 		switch (event.type) {
 			case 'init':
@@ -159,12 +180,7 @@ export default class Game extends Phaser.Scene {
 						player.identifier === me.identifier ? '站' : '戰'
 					const playerObj = new Player(this, playerText, player)
 					this.players.set(player.identifier, playerObj)
-
-					this.cameras
-						.add()
-						.setZoom(1)
-						.startFollow(playerObj, true, 0.05, 0.05)
-						.setVisible(false)
+					this.addCamera(playerObj)
 				})
 
 				this.me = this.players.get(me.identifier)!
@@ -182,6 +198,7 @@ export default class Game extends Phaser.Scene {
 					playerObj.face(player.facing)
 					playerObj.setPositionTo(player.pos)
 					this.players.set(player.identifier, playerObj)
+					this.addCamera(playerObj)
 				}
 				break
 
@@ -210,6 +227,7 @@ export default class Game extends Phaser.Scene {
 
 					playerObj.destroy()
 					this.players.delete(identifier)
+					this.removeCamera(playerObj)
 				}
 				break
 			case 'move':
@@ -451,23 +469,30 @@ export default class Game extends Phaser.Scene {
 
 		this.cameras.cameras[0].setVisible(true)
 
-		setInterval(() => {
-			this.switchCamera()
-		}, 1000 * 5)
+		this.switchCamera()
 	}
 
+	timeout: ReturnType<typeof setTimeout> | undefined
+
 	switchCamera() {
+		if (this.timeout) clearTimeout(this.timeout)
+
 		const cameras = this.cameras.cameras
 		const current = cameras.findIndex(c => c.visible)
 		const next = (current + 1) % cameras.length
 
 		cameras[current].setVisible(false)
 		cameras[next].setVisible(true)
+
+		this.timeout = setTimeout(this.switchCamera.bind(this), 5000)
 	}
 
 	update(time: number, delta: number): void {
 		// pop from event queue, then handle
 		let event: ClientMessage | undefined
 		while ((event = this.events_pool.shift())) this.handleEvent(event)
+
+		if (this.input.keyboard.checkDown(this.cursors.space, 500))
+			this.switchCamera()
 	}
 }
