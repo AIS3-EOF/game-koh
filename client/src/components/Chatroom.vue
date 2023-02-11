@@ -9,22 +9,19 @@ import {
 	Identifier,
 	ChatTarget,
 	SendFunction,
+	PlayerPub,
 } from '@/types'
 
 interface Props {
-	send: SendFunction
-	playerMap: Map<Identifier, string>
+	nameMap: Map<Identifier, string>
+	playersMap: Map<Identifier, PlayerPub>
 	messages: ChatMessageData[]
+	send: SendFunction
 }
 
 const props = defineProps<Props>()
 
-const players = computed(() =>
-	Array.from(props.playerMap.entries(), ([identifier, name]) => ({
-		identifier,
-		name,
-	})),
-)
+const players = computed(() => Array.from(props.playersMap.values()))
 
 // send message
 const message = ref('')
@@ -89,7 +86,7 @@ const bbcode = (text: string) => {
 }
 
 function name(id: Identifier) {
-	return props.playerMap.get(id)
+	return props.nameMap.get(id)
 }
 
 function displayUser(message: ChatMessageData) {

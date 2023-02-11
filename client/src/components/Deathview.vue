@@ -3,14 +3,14 @@ import { computed } from 'vue'
 import { Identifier, DeathData } from '@/types'
 
 interface Props {
-	playerMap: Map<Identifier, string>
+	nameMap: Map<Identifier, string>
 	deathPlayerMap: Map<Identifier, DeathData>
 }
 
 const props = defineProps<Props>()
 
 function name(id: Identifier) {
-	return props.playerMap.get(id) ?? '??'
+	return props.nameMap.get(id) ?? '??'
 }
 
 const deaths = computed(() => Array.from(props.deathPlayerMap.values()))

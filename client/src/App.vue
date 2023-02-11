@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { onMounted, onBeforeUnmount, ref, reactive, computed } from 'vue'
 import {
 	ClientMessage,
 	ServerMessage,
@@ -32,12 +32,22 @@ const showInventory = ref(false)
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
-const playerMap = ref(new Map<Identifier, string>())
+const nameMap = ref(new Map<Identifier, string>())
+const playersMap = ref(new Map<Identifier, PlayerPub>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
-const currentPlayer = ref<PlayerPub>({} as PlayerPub)
+const currentPlayer = computed(() => playersMap.value.get(me.value)!)
 
 const achievement = ref('')
 const showAchievement = ref(0)
+
+function addPlayer(player: PlayerPub) {
+	nameMap.value.set(player.identifier, player.name)
+	playersMap.value.set(player.identifier, player)
+}
+function removePlayer(identifier: Identifier) {
+	nameMap.value.delete(identifier)
+	playersMap.value.delete(identifier)
+}
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
@@ -48,32 +58,15 @@ function handleEvent(event: any) {
 				init.value = true
 				me.value = data.player.identifier
 				round.value = data.round
-				data.players.forEach(player => {
-					playerMap.value.set(player.identifier, player.name)
-				})
-				currentPlayer.value = data.player
-				break
-
-			case 'interact_map':
-			case 'use':
-				if (data.player.identifier === me.value) {
-					currentPlayer.value.inventory = data.player.inventory
-					currentPlayer.value = data.player
-				}
-				break
-
-			case 'damage':
-				if (data.player.identifier === me.value) {
-					currentPlayer.value.hp -= data.damage
-				}
+				data.players.forEach(addPlayer)
 				break
 
 			case 'join':
-				playerMap.value.set(data.player.identifier, data.player.name)
+				addPlayer(data.player)
 				break
 
 			case 'leave':
-				playerMap.value.delete(data.identifier)
+				removePlayer(data.identifier)
 				break
 
 			case 'tick':
@@ -94,22 +87,31 @@ function handleEvent(event: any) {
 				break
 
 			case 'respawn':
-				if (data.player.identifier === me.value) {
-					currentPlayer.value = data.player
-				}
 				deathPlayerMap.value.delete(data.player.identifier)
 				break
 
 			case 'death':
 				deathPlayerMap.value.set(data.victim_identifier, data)
 				break
-			case 'achievement':
+
+			case 'achievement': {
 				if (data.player.identifier === me.value) {
 					achievement.value = data.achievement.type
-					currentPlayer.value = data.player
 					showAchievement.value = 10
 				}
 				break
+			}
+		}
+		if (
+			type === 'damage' ||
+			type === 'respawn' ||
+			type === 'interact_map' ||
+			type === 'use' ||
+			type === 'achievement'
+		) {
+			const playerObj = playersMap.value.get(data.player.identifier)
+			if (!playerObj) return
+			Object.assign(playerObj, data.player)
 		}
 	}
 	if (event instanceof KeyboardEvent && !event.repeat && init.value) {
@@ -149,10 +151,11 @@ onBeforeUnmount(() => {
 			<img :src="`assets/images/${achievement}.png`" />
 		</div>
 		<Profile :currentPlayer="currentPlayer" />
-		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Deathview :playerMap="playerMap" :deathPlayerMap="deathPlayerMap" />
+		<Scoreboard :scores="scores" :round="round" />
+		<Deathview :nameMap="nameMap" :deathPlayerMap="deathPlayerMap" />
 		<Chatroom
-			:playerMap="playerMap"
+			:nameMap="nameMap"
+			:playersMap="playersMap"
 			:messages="chatMessages"
 			:send="send"
 		/>
