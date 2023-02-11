@@ -33,12 +33,20 @@ const deaths = computed(() => Array.from(props.deathPlayerMap.values()))
 	position: absolute;
 	bottom: 40px;
 	right: 16px;
-	width: 200px;
+	width: 300px;
 	height: auto;
 	display: grid;
-	grid-template-columns: 1fr auto 1fr max-content;
+	grid-template-columns: 1fr 32px 1fr max-content;
 	grid-auto-rows: 32px;
 	justify-items: center;
 	align-items: center;
+}
+
+.attacker,
+.victim {
+	max-width: 100%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 </style>

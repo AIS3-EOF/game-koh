@@ -159,7 +159,7 @@ function displayUser(message: ChatMessageData) {
 
 <style lang="scss" scoped>
 .chatroom {
-	min-width: 400px;
+	width: 400px;
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -216,6 +216,7 @@ function displayUser(message: ChatMessageData) {
 
 	select {
 		flex: 1;
+		max-width: 50%;
 	}
 
 	input {
