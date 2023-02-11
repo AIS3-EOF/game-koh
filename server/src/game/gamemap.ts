@@ -178,7 +178,7 @@ export class GameMap {
 
 	getRandomSpawnPosition(): Vec2 {
 		// TEST CODE: limited spawn positions
-		return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
+		// return [Math.floor(Math.random() * 4), Math.floor(Math.random() * 4)]
 		while (true) {
 			const pos = [
 				Math.floor(Math.random() * this.width),

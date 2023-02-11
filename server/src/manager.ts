@@ -6,10 +6,16 @@ import * as poisson from 'poisson-process'
 import { result, throttle } from 'underscore'
 import type { Request, Response } from 'express'
 
-import { dispatch } from '~/handlers'
+import { dispatch, alwaysAllowEvents } from '~/handlers'
 import { Context } from '~/context'
 import { ServerMessage } from '~/protocol'
-import { RoundData, RoundStatus, RoundMessage, InitRoundData } from '~/round'
+import {
+	RoundData,
+	RoundStatus,
+	RoundMessage,
+	InitRoundData,
+	validNextRoundStatus,
+} from '~/round'
 import { Game, GameMap, Player } from '~/game'
 import { GameObject, generateObject } from '~/game_objects'
 import { handleLogin } from '~/handle_login'
@@ -74,6 +80,8 @@ export class Manager {
 		}
 	}
 
+	verbose = ['move']
+
 	async handleConnection(ws: WebSocket) {
 		try {
 			const parser = new Parser()
@@ -98,8 +106,13 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					verbose('%s received %o', sessionId, msg)
-					if (this.round.status === RoundStatus.RUNNING) {
+					if (this.verbose.includes(msg.type))
+						verbose('%s received %o', sessionId, msg)
+					else log('%s received %o', sessionId, msg)
+					if (
+						this.round.status === RoundStatus.RUNNING ||
+						alwaysAllowEvents.has(msg.type)
+					) {
 						dispatch(ctx, msg)
 					} else {
 						ctx.send({
@@ -170,33 +183,32 @@ export class Manager {
 
 	private tickInterval: NodeJS.Timeout | undefined
 
+	async loadRound(round: RoundData) {
+		const res = await db.collection('round').findOne({ id: round.id })
+		if (res) {
+			this.round.id = res.id
+			this.round.status = res.status ?? RoundStatus.PREINIT
+			this.round.start = res.start
+			this.round.end = res.end
+			log('Round %d loaded %o', this.round.id, res)
+		}
+	}
+
 	updateRound(round: Partial<RoundData>) {
 		if (round.start) this.round.start = round.start
 		if (round.end) this.round.end = round.end
 
 		if (!round.status || this.round.status === round.status) return false
 
-		switch (round.status) {
-			case RoundStatus.PREINIT:
-			case RoundStatus.INIT:
-				if (this.round.start === RoundStatus.RUNNING)
-					error('round status: RUNNING -> INIT')
-				this.roundEnd()
-				break
-			case RoundStatus.RUNNING:
-				if (this.round.start === RoundStatus.END)
-					error('round status: END -> RUNNING')
-				break
-			case RoundStatus.END:
-				if (this.round.start === RoundStatus.INIT)
-					error('round status: INIT -> END')
-				break
+		if (
+			this.round.status === RoundStatus.RUNNING &&
+			[RoundStatus.PREINIT, RoundStatus.INIT].includes(round.status)
+		) {
+			this.roundEnd()
 		}
 
 		if (round.id) this.round.id = round.id
-		log(`Round ${this.round.id} ${RoundMessage[round.status]}`)
-
-		return true
+		return validNextRoundStatus(this.round.status, round.status)
 	}
 
 	roundInit() {
@@ -334,7 +346,17 @@ export class Manager {
 
 	private updateStatus(status: RoundStatus) {
 		if (this.round.status === status) return false
+		if (!validNextRoundStatus(this.round.status, status)) {
+			error(`Invalid round status: ${this.round.status} -> ${status}`)
+			return false
+		}
+		log(`Round ${this.round.id} ${RoundMessage[status]}`)
 		this.round.status = status
+		db.collection('round').updateOne(
+			{ id: this.round.id },
+			{ $set: this.round },
+			{ upsert: true },
+		)
 		eventQueue.push({
 			type: 'round',
 			data: this.round,
