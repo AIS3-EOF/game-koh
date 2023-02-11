@@ -80,6 +80,8 @@ export class Manager {
 		}
 	}
 
+	verbose = ['move']
+
 	async handleConnection(ws: WebSocket) {
 		try {
 			const parser = new Parser()
@@ -104,7 +106,9 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					verbose('%s received %o', sessionId, msg)
+					if (this.verbose.includes(msg.type))
+						verbose('%s received %o', sessionId, msg)
+					else log('%s received %o', sessionId, msg)
 					if (this.round.status === RoundStatus.RUNNING) {
 						dispatch(ctx, msg)
 					} else {
