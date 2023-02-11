@@ -67,8 +67,7 @@ export class Achievement {
 		this.complete_time = Date.now()
 		this.rewarded = true
 		ctx.addScore(this.SCORE)
-
-		eventQueue.push({
+		ctx.send({
 			type: 'achievement',
 			data: {
 				player: ctx.player.dump(),
