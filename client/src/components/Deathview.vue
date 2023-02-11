@@ -3,14 +3,14 @@ import { computed } from 'vue'
 import { Identifier, DeathData } from '@/types'
 
 interface Props {
-	playerMap: Map<Identifier, string>
+	nameMap: Map<Identifier, string>
 	deathPlayerMap: Map<Identifier, DeathData>
 }
 
 const props = defineProps<Props>()
 
 function name(id: Identifier) {
-	return props.playerMap.get(id) ?? '??'
+	return props.nameMap.get(id) ?? '??'
 }
 
 const deaths = computed(() => Array.from(props.deathPlayerMap.values()))
@@ -29,15 +29,24 @@ const deaths = computed(() => Array.from(props.deathPlayerMap.values()))
 
 <style lang="scss" scoped>
 .deathview {
+	background: var(--background);
 	position: absolute;
 	bottom: 40px;
 	right: 16px;
-	width: 200px;
+	width: 300px;
 	height: auto;
 	display: grid;
-	grid-template-columns: 1fr auto 1fr max-content;
+	grid-template-columns: 1fr 32px 1fr max-content;
 	grid-auto-rows: 32px;
 	justify-items: center;
 	align-items: center;
+}
+
+.attacker,
+.victim {
+	max-width: 100%;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 </style>

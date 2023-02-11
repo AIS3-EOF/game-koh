@@ -345,7 +345,7 @@ export default class Game extends Phaser.Scene {
 								.text(
 									this.me.x,
 									this.me.y + 128 + 64 + 20 - 32,
-									`Respawn in ${respawn_time} seconds`,
+									`Respawn in ${respawn_time + 1} seconds`,
 									{
 										fontSize: '64px',
 										color: '#ffffff',
@@ -355,7 +355,7 @@ export default class Game extends Phaser.Scene {
 								.setOrigin(0.5, 0.5),
 						]
 
-						let respawn_time_cnt = respawn_time
+						let respawn_time_cnt = respawn_time + 1
 						const func = () =>
 							deathTexts[2].setText(
 								`Respawn in ${--respawn_time_cnt} seconds`,

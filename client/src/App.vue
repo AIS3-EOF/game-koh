@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, ref, reactive } from 'vue'
+import { onMounted, onBeforeUnmount, ref, reactive, computed } from 'vue'
 import {
 	ClientMessage,
 	ServerMessage,
@@ -32,87 +32,86 @@ const showInventory = ref(false)
 const scores = ref([] as ScoreItem[])
 const round = ref<RoundData>(InitRoundData)
 const chatMessages = ref([] as ChatMessageData[])
-const playerMap = ref(new Map<Identifier, string>())
+const nameMap = ref(new Map<Identifier, string>())
+const playersMap = ref(new Map<Identifier, PlayerPub>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
-const currentPlayer = ref<PlayerPub>({} as PlayerPub)
+const currentPlayer = computed(() => playersMap.value.get(me.value)!)
 
-var achievement = ref(false)
+const achievement = ref('')
+const showAchievement = ref(0)
+
+function addPlayer(player: PlayerPub) {
+	nameMap.value.set(player.identifier, player.name)
+	playersMap.value.set(player.identifier, player)
+}
+function removePlayer(identifier: Identifier) {
+	nameMap.value.delete(identifier)
+	playersMap.value.delete(identifier)
+}
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
-		const message = event.detail as ClientMessage
-		if (import.meta.env.DEV) console.log('event', message)
-		switch (message.type) {
+		const { type, data } = event.detail as ClientMessage
+		if (import.meta.env.DEV) console.log('event', type, data)
+		switch (type) {
 			case 'init':
 				init.value = true
-				me.value = message.data.player.identifier
-				round.value = message.data.round
-				message.data.players.forEach(player => {
-					playerMap.value.set(player.identifier, player.name)
-				})
-				currentPlayer.value = message.data.player
-				break
-
-			case 'interact_map':
-			case 'use':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.inventory =
-						message.data.player.inventory
-					currentPlayer.value = message.data.player
-				}
-				break
-
-			case 'damage':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.hp -= message.data.damage
-				}
+				me.value = data.player.identifier
+				round.value = data.round
+				data.players.forEach(addPlayer)
 				break
 
 			case 'join':
-				playerMap.value.set(
-					message.data.player.identifier,
-					message.data.player.name,
-				)
+				addPlayer(data.player)
 				break
 
 			case 'leave':
-				playerMap.value.delete(message.data.identifier)
+				removePlayer(data.identifier)
 				break
 
 			case 'tick':
-				scores.value = message.data.scores
+				scores.value = data.scores
 				deathPlayerMap.value.forEach(death => {
 					death.respawn_time -= 1
 				})
+				if (showAchievement.value > 0) showAchievement.value -= 1
 				break
 
 			case 'round':
-				if (import.meta.env.DEV) console.log('round', message.data)
-				round.value = message.data
+				if (import.meta.env.DEV) console.log('round', data)
+				round.value = data
 				break
 
 			case 'chat':
-				chatMessages.value.push(message.data)
+				chatMessages.value.push(data)
 				break
 
 			case 'respawn':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value = message.data.player
-				}
-				deathPlayerMap.value.delete(message.data.player.identifier)
+				deathPlayerMap.value.delete(data.player.identifier)
 				break
 
 			case 'death':
-				deathPlayerMap.value.set(
-					message.data.victim_identifier,
-					message.data,
-				)
+				deathPlayerMap.value.set(data.victim_identifier, data)
 				break
-			case 'achievement':
-				console.log('achievement', message)
-				achievement = message.data.achievement.type
-				setTimeout(() => (achievement = ''), 10000)
+
+			case 'achievement': {
+				if (data.player.identifier === me.value) {
+					achievement.value = data.achievement.type
+					showAchievement.value = 10
+				}
 				break
+			}
+		}
+		if (
+			type === 'damage' ||
+			type === 'respawn' ||
+			type === 'interact_map' ||
+			type === 'use' ||
+			type === 'achievement'
+		) {
+			const playerObj = playersMap.value.get(data.player.identifier)
+			if (!playerObj) return
+			Object.assign(playerObj, data.player)
 		}
 	}
 	if (event instanceof KeyboardEvent && !event.repeat && init.value) {
@@ -148,14 +147,15 @@ onBeforeUnmount(() => {
 
 <template>
 	<div class="container" v-if="init">
-		<div class="achievement" v-if="achievement">
+		<div class="achievement" v-if="showAchievement">
 			<img :src="`assets/images/${achievement}.png`" />
 		</div>
 		<Profile :currentPlayer="currentPlayer" />
-		<Scoreboard :scores="scores" :round="round" :playerMap="playerMap" />
-		<Deathview :playerMap="playerMap" :deathPlayerMap="deathPlayerMap" />
+		<Scoreboard :scores="scores" :round="round" />
+		<Deathview :nameMap="nameMap" :deathPlayerMap="deathPlayerMap" />
 		<Chatroom
-			:playerMap="playerMap"
+			:nameMap="nameMap"
+			:playersMap="playersMap"
 			:messages="chatMessages"
 			:send="send"
 		/>
@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
 	</div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .container {
 	color: white;
 	position: fixed;

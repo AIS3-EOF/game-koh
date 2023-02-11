@@ -7,21 +7,22 @@ import { Context } from '~/context'
 const log = debug('server:Achievement:log')
 
 export enum AchievementType {
-	'散財童子' = '散財童子',
-	'敗家子' = '敗家子',
-	'兩萬五千里長征' = '兩萬五千里長征',
-	'槍王之王' = '槍王之王',
-	'How_did_we_get_there' = 'How did we get here?',
+	// '散財童子' = '散財童子',
+	// '敗家子' = '敗家子',
+	// '兩萬五千里長征' = '兩萬五千里長征',
+	// '槍王之王' = '槍王之王',
+	// 'How_did_we_get_there' = 'How did we get here?',
 	'經驗值' = '經驗值',
+	// 'konami code' = 'konami code',
+	// 'Front-End hardcoded' = 'Front-End hardcoded',
+	// '佐藤和真' = '佐藤和真',
+	// '360_no_scope' = '360 no scope',
+	// 'Game_Controller' = 'Game Controller',
+	// '走路不看路' = '走路不看路',
 	'AFR' = 'AFR',
-	'konami code' = 'konami code',
-	'Front-End hardcoded' = 'Front-End hardcoded',
-	'佐藤和真' = '佐藤和真',
-	'360_no_scope' = '360 no scope',
-	'Game_Controller' = 'Game Controller',
-	'走路不看路' = '走路不看路',
 	'Teleporter' = 'Teleporter',
 	'SpeedHacker' = 'Speed Hacker',
+	'Lucky' = 'Lucky',
 }
 
 export class Achievement {
@@ -67,7 +68,6 @@ export class Achievement {
 		this.complete_time = Date.now()
 		this.rewarded = true
 		ctx.addScore(this.SCORE)
-
 		eventQueue.push({
 			type: 'achievement',
 			data: {

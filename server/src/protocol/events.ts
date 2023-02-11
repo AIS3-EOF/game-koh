@@ -163,6 +163,7 @@ export interface AFREvent {
 
 export interface ScoreItem {
 	identifier: Identifier
+	name: string
 	score: number
 }
 export interface TickData {

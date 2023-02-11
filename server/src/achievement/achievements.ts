@@ -10,6 +10,7 @@ import { AchievementType, Achievement } from './achievement'
 import { Teleporter } from './achievement/Teleporter'
 import { AFR } from './achievement/AFR'
 import { SpeedHacker } from './achievement/SpeedHacker'
+import { Lucky } from './achievement/Lucky'
 
 const log = debug('server:Achievement:log')
 
@@ -18,6 +19,7 @@ export class Achievements {
 		[AchievementType.Teleporter, new Teleporter()],
 		[AchievementType.AFR, new AFR()],
 		[AchievementType.SpeedHacker, new SpeedHacker()],
+		[AchievementType.Lucky, new Lucky()],
 	])
 
 	constructor() {}
