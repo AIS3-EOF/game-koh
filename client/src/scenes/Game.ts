@@ -125,6 +125,9 @@ export default class Game extends Phaser.Scene {
 			}
 			this.intersections = this.ray.castCone()
 			this.draw()
+			this.fow.clear()
+			this.maskGraphics.clear()
+			this.fovRange.clear()
 		}
 		this.tweens.add({
 			targets: this.viewableRange,
@@ -164,6 +167,9 @@ export default class Game extends Phaser.Scene {
 				this.me = this.players.get(me.identifier)!
 				this.updateFOV()
 				this.cameras.main.startFollow(this.me, true, 0.05, 0.05)
+				this.cameras.main.setZoom(0.5, 0.5)
+				
+				this.updateFOV = ()=>{}
 				break
 
 			case 'join':

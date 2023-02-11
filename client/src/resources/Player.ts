@@ -15,7 +15,7 @@ export default class Player extends Phaser.GameObjects.Container {
 	public max_hp: number = 10
 
 	constructor(scene: Phaser.Scene, text: string, player: PlayerPub) {
-		const playerText = scene.add.text(0, 0, text, { color: 'white' })
+		const playerText = scene.add.text(0, 0, text, { color: 'blue' })
 		playerText.setOrigin(0.5)
 		super(scene, ...player.pos.map((x: number) => x * 32 + 16), playerText) // The frame is optional
 		this.scene.add.existing(this)
