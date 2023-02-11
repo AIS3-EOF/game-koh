@@ -41,47 +41,43 @@ const showAchievement = ref(0)
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
-		const message = event.detail as ClientMessage
-		if (import.meta.env.DEV) console.log('event', message)
-		switch (message.type) {
+		const { type, data } = event.detail as ClientMessage
+		if (import.meta.env.DEV) console.log('event', type, data)
+		switch (type) {
 			case 'init':
 				init.value = true
-				me.value = message.data.player.identifier
-				round.value = message.data.round
-				message.data.players.forEach(player => {
+				me.value = data.player.identifier
+				round.value = data.round
+				data.players.forEach(player => {
 					playerMap.value.set(player.identifier, player.name)
 				})
-				currentPlayer.value = message.data.player
+				currentPlayer.value = data.player
 				break
 
 			case 'interact_map':
 			case 'use':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.inventory =
-						message.data.player.inventory
-					currentPlayer.value = message.data.player
+				if (data.player.identifier === me.value) {
+					currentPlayer.value.inventory = data.player.inventory
+					currentPlayer.value = data.player
 				}
 				break
 
 			case 'damage':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value.hp -= message.data.damage
+				if (data.player.identifier === me.value) {
+					currentPlayer.value.hp -= data.damage
 				}
 				break
 
 			case 'join':
-				playerMap.value.set(
-					message.data.player.identifier,
-					message.data.player.name,
-				)
+				playerMap.value.set(data.player.identifier, data.player.name)
 				break
 
 			case 'leave':
-				playerMap.value.delete(message.data.identifier)
+				playerMap.value.delete(data.identifier)
 				break
 
 			case 'tick':
-				scores.value = message.data.scores
+				scores.value = data.scores
 				deathPlayerMap.value.forEach(death => {
 					death.respawn_time -= 1
 				})
@@ -89,31 +85,28 @@ function handleEvent(event: any) {
 				break
 
 			case 'round':
-				if (import.meta.env.DEV) console.log('round', message.data)
-				round.value = message.data
+				if (import.meta.env.DEV) console.log('round', data)
+				round.value = data
 				break
 
 			case 'chat':
-				chatMessages.value.push(message.data)
+				chatMessages.value.push(data)
 				break
 
 			case 'respawn':
-				if (message.data.player.identifier === me.value) {
-					currentPlayer.value = message.data.player
+				if (data.player.identifier === me.value) {
+					currentPlayer.value = data.player
 				}
-				deathPlayerMap.value.delete(message.data.player.identifier)
+				deathPlayerMap.value.delete(data.player.identifier)
 				break
 
 			case 'death':
-				deathPlayerMap.value.set(
-					message.data.victim_identifier,
-					message.data,
-				)
+				deathPlayerMap.value.set(data.victim_identifier, data)
 				break
 			case 'achievement':
-				if (message.data.player.identifier === me.value) {
-					achievement.value = message.data.achievement.type
-					currentPlayer.value = message.data.player
+				if (data.player.identifier === me.value) {
+					achievement.value = data.achievement.type
+					currentPlayer.value = data.player
 					showAchievement.value = 10
 				}
 				break
