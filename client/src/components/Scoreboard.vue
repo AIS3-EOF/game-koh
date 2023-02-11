@@ -5,7 +5,6 @@ import { ScoreItem, RoundData, RoundStatus, Identifier } from '@/types'
 interface Props {
 	scores: ScoreItem[]
 	round: RoundData
-	playerMap: Map<Identifier, string>
 }
 
 const props = defineProps<Props>()
@@ -58,9 +57,11 @@ const timeLeft = computed(() => {
 
 <template>
 	<div class="scoreboard">
-		<h2 class="header">Scoreboard</h2>
+		<div class="header">
+			<h2>Scoreboard</h2>
+			<p class="time">{{ timeLeft }}s left</p>
+		</div>
 		<h3 class="text">{{ roundMessage }}</h3>
-		<p class="time">{{ timeLeft }}s left</p>
 		<div class="list">
 			<TransitionGroup name="scoreboard">
 				<template
@@ -69,7 +70,7 @@ const timeLeft = computed(() => {
 				>
 					<span class="rank">{{ index + 1 }}</span>
 					<span class="name">
-						{{ props.playerMap.get(team.identifier) ?? 'Unknown' }}
+						{{ team.name }}
 					</span>
 					<span class="score">{{ team.score }}</span>
 				</template>
@@ -86,7 +87,7 @@ const timeLeft = computed(() => {
 	top: 16px;
 	width: 250px;
 	height: 50%;
-	background-color: rgba(0, 0, 0, 0.7);
+	background-color: var(--background);
 	color: white;
 	padding: 8px;
 	display: flex;
@@ -94,7 +95,18 @@ const timeLeft = computed(() => {
 	overflow: hidden;
 
 	> .header {
-		margin: 1rem;
+		margin: 0.5rem 1rem;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		> * {
+			display: inline-block;
+			margin: 0;
+		}
+	}
+
+	> .text {
+		margin: 0 1rem 0.5rem;
 	}
 
 	> .list {
