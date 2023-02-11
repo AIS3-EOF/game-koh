@@ -36,7 +36,8 @@ const playerMap = ref(new Map<Identifier, string>())
 const deathPlayerMap = ref(new Map<Identifier, DeathData>())
 const currentPlayer = ref<PlayerPub>({} as PlayerPub)
 
-var achievement = ref(false)
+const achievement = ref('')
+const showAchievement = ref(0)
 
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
@@ -84,6 +85,7 @@ function handleEvent(event: any) {
 				deathPlayerMap.value.forEach(death => {
 					death.respawn_time -= 1
 				})
+				if (showAchievement.value > 0) showAchievement.value -= 1
 				break
 
 			case 'round':
@@ -109,9 +111,11 @@ function handleEvent(event: any) {
 				)
 				break
 			case 'achievement':
-				console.log('achievement', message)
-				achievement = message.data.achievement.type
-				setTimeout(() => (achievement = ''), 10000)
+				if (message.data.player.identifier === me.value) {
+					achievement.value = message.data.achievement.type
+					currentPlayer.value = message.data.player
+					showAchievement.value = 10
+				}
 				break
 		}
 	}
@@ -148,7 +152,7 @@ onBeforeUnmount(() => {
 
 <template>
 	<div class="container" v-if="init">
-		<div class="achievement" v-if="achievement">
+		<div class="achievement" v-if="showAchievement">
 			<img :src="`assets/images/${achievement}.png`" />
 		</div>
 		<Profile :currentPlayer="currentPlayer" />
@@ -167,7 +171,7 @@ onBeforeUnmount(() => {
 	</div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .container {
 	color: white;
 	position: fixed;
