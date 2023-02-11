@@ -85,17 +85,15 @@ const bbcode = (text: string) => {
 	return html
 }
 
-function name(id: Identifier) {
+function name(id: Identifier | string) {
+	if (typeof id === 'string') return id
 	return props.nameMap.get(id)
 }
 
 function displayUser(message: ChatMessageData) {
-	if (message.from === '(server)' || message.from === '(all)')
-		return message.from
 	const from = name(message.from)
-	if (message.to === '(all)') return `${from} 📢`
-	if (message.to === '(server)') return `${from}`
 	const to = name(message.to)
+	if (message.to === '(all)') return `${from} 📢`
 	return `${from} → ${to}`
 }
 </script>
