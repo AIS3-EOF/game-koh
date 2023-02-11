@@ -14,7 +14,7 @@ import {
 	RoundStatus,
 	RoundMessage,
 	InitRoundData,
-	ExpectedRoundStatus,
+	validNextRoundStatus,
 } from '~/round'
 import { Game, GameMap, Player } from '~/game'
 import { GameObject, generateObject } from '~/game_objects'
@@ -201,7 +201,7 @@ export class Manager {
 		}
 
 		if (round.id) this.round.id = round.id
-		return true
+		return validNextRoundStatus(this.round.status, round.status)
 	}
 
 	roundInit() {
@@ -339,7 +339,7 @@ export class Manager {
 
 	private updateStatus(status: RoundStatus) {
 		if (this.round.status === status) return false
-		if (!ExpectedRoundStatus[this.round.status].includes(status)) {
+		if (validNextRoundStatus(this.round.status, status)) {
 			error(`Invalid round status: ${this.round.status} -> ${status}`)
 			return false
 		}
