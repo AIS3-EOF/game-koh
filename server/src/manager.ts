@@ -339,7 +339,7 @@ export class Manager {
 
 	private updateStatus(status: RoundStatus) {
 		if (this.round.status === status) return false
-		if (validNextRoundStatus(this.round.status, status)) {
+		if (!validNextRoundStatus(this.round.status, status)) {
 			error(`Invalid round status: ${this.round.status} -> ${status}`)
 			return false
 		}

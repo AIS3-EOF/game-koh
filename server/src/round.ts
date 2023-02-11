@@ -20,7 +20,7 @@ export const ExpectedNextRoundStatus = {
 }
 
 export function validNextRoundStatus(current: RoundStatus, next: RoundStatus) {
-	return !ExpectedNextRoundStatus[current].includes(next)
+	return ExpectedNextRoundStatus[current].includes(next)
 }
 
 export interface RoundData {
