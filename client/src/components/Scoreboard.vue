@@ -124,6 +124,8 @@ const timeLeft = computed(() => {
 
 		> .name {
 			text-align: center;
+			text-overflow: ellipsis;
+			overflow: hidden;
 		}
 
 		> .score {

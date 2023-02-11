@@ -28,6 +28,8 @@ const HANDLERS = new Map<
 	[AFRType, handle_afr],
 ])
 
+export const alwaysAllowEvents = new Set<ServerType>(['login', 'chat', AFRType])
+
 export const dispatch = async (ctx: Context, msg: ServerMessage) => {
 	if (!ctx.player.alive || ctx.player.action_count < 0) return
 	ctx.player.action_count--
