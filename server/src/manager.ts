@@ -8,7 +8,7 @@ import type { Request, Response } from 'express'
 
 import { dispatch, alwaysAllowEvents } from '~/handlers'
 import { Context } from '~/context'
-import { ServerMessage } from '~/protocol'
+import { ServerMessage, ServerType } from '~/protocol'
 import {
 	RoundData,
 	RoundStatus,
@@ -80,7 +80,7 @@ export class Manager {
 		}
 	}
 
-	verbose = ['move']
+	verbose: ServerType[] = ['move', 'attack', 'interact_map']
 
 	async handleConnection(ws: WebSocket) {
 		try {
@@ -106,9 +106,12 @@ export class Manager {
 					const msg: ServerMessage = await parser.parse(
 						new Uint8Array(rawData).buffer,
 					)
-					if (this.verbose.includes(msg.type))
-						verbose('%s received %o', sessionId, msg)
-					else log('%s received %o', sessionId, msg)
+					;(this.verbose.includes(msg.type) ? verbose : log)(
+						'%s (%s) received %o',
+						player.name,
+						player.identifier,
+						msg,
+					)
 					if (
 						this.round.status === RoundStatus.RUNNING ||
 						alwaysAllowEvents.has(msg.type)

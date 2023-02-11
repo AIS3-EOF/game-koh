@@ -102,11 +102,13 @@ async function doneJob(
 }
 
 async function checkPatchRound(round_id: number) {
-	const res = await dbCollection().findOneAndUpdate(
-		{ type: 'patch', round_id, wait: false },
-		{ $set: { wait: true } },
+	const res = await dbCollection().findOne({ type: 'patch', round_id })
+	if (!res || !res.wait) return false
+	dbCollection().findOneAndUpdate(
+		{ _id: res._id },
+		{ $set: { wait: res.wait - 1 } },
 	)
-	return res.value
+	return true
 }
 
 async function checkRoundScored(round_id: number) {

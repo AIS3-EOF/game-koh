@@ -39,8 +39,7 @@ import { EventQueue } from '~/event_queue'
 import { Sockets } from '~/sockets'
 import { Manager } from '~/manager'
 import { setupWorker } from '~/worker'
-
-import { sleep } from '~/utils'
+import { visualizer } from '~/visualizer'
 
 globalThis.eventQueue = new EventQueue()
 globalThis.sockets = new Sockets()
@@ -110,6 +109,8 @@ async function setup() {
 		log('new connection')
 		manager.handleConnection(ws)
 	})
+
+	visualizer()
 }
 
 setup()
