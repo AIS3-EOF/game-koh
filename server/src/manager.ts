@@ -6,7 +6,7 @@ import * as poisson from 'poisson-process'
 import { result, throttle } from 'underscore'
 import type { Request, Response } from 'express'
 
-import { dispatch } from '~/handlers'
+import { dispatch, alwaysAllowEvents } from '~/handlers'
 import { Context } from '~/context'
 import { ServerMessage } from '~/protocol'
 import {
@@ -109,7 +109,10 @@ export class Manager {
 					if (this.verbose.includes(msg.type))
 						verbose('%s received %o', sessionId, msg)
 					else log('%s received %o', sessionId, msg)
-					if (this.round.status === RoundStatus.RUNNING) {
+					if (
+						this.round.status === RoundStatus.RUNNING ||
+						alwaysAllowEvents.has(msg.type)
+					) {
 						dispatch(ctx, msg)
 					} else {
 						ctx.send({
