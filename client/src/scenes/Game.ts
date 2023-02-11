@@ -427,7 +427,7 @@ export default class Game extends Phaser.Scene {
 		this.cameras.main.setBackgroundColor('#222222')
 
 		this.cursors = this.input.keyboard.createCursorKeys()
-		this.cursors.x = this.input.keyboard.addKey('X')
+		this.cursors.p = this.input.keyboard.addKey('P')
 
 		this.players.clear()
 
@@ -507,5 +507,6 @@ export default class Game extends Phaser.Scene {
 			(this.cameraDir = 1), this.switchCamera()
 		if (this.input.keyboard.checkDown(this.cursors.left, 500))
 			(this.cameraDir = -1), this.switchCamera()
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.p)) this.cameraDir = 0
 	}
 }
