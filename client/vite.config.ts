@@ -4,12 +4,25 @@ import vue from '@vitejs/plugin-vue'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import path from 'path'
 import dotenv from 'dotenv'
+import { readFileSync } from 'fs'
 
 dotenv.config()
 dotenv.config({ path: path.resolve(__dirname, '../share.env') })
 
+const plugins = [vue()]
+let https: any
+if (process.env.VITE_SSL_KEY && process.env.VITE_SSL_CERT) {
+	https = {
+		key: readFileSync(process.env.VITE_SSL_KEY),
+		cert: readFileSync(process.env.VITE_SSL_CERT),
+	}
+} else {
+	https = true
+	plugins.push(basicSsl())
+}
+
 export default defineConfig({
-	plugins: [vue(), basicSsl()],
+	plugins,
 	build: {
 		rollupOptions: {
 			input: {
@@ -40,7 +53,7 @@ export default defineConfig({
 	server: {
 		host: '0.0.0.0',
 		port: Number(process.env.CLIENT_PORT ?? 3000),
-		https: true,
+		https,
 		headers: {
 			'Content-Security-Policy': [
 				"default-src 'self'",
