@@ -36,6 +36,17 @@ window.addEventListener(
 			case 'login':
 				token = data.token
 				break
+			case 'init':
+				if (data.status === RoundStatus.RUNNING) {
+					hide(roundEl)
+				} else {
+					if (data.status === RoundStatus.INIT) {
+						roundText.innerText = `Round ${data.id} is initializing...`
+					} else if (data.status === RoundStatus.END) {
+						roundText.innerText = `Round ${data.id} is over!`
+					}
+				}
+				break
 			case 'round':
 				// console.log('round', data)
 				if (data.status === RoundStatus.RUNNING) {
@@ -50,9 +61,6 @@ window.addEventListener(
 					}
 					prevRound = data
 				}
-				break
-			case 'init':
-				hide(roundEl)
 				break
 		}
 	},

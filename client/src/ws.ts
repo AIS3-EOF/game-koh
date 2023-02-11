@@ -26,7 +26,9 @@ function send(message: ServerMessage) {
 }
 
 function onopen() {
-	postMessage('ready', '*')
+	setTimeout(() => {
+		postMessage('ready', '*')
+	}, 500)
 	const login_input = document.getElementById('login-input')
 	if (!login_input) return
 	login_input.removeAttribute('disabled')
@@ -74,7 +76,7 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 			}
 			break
 		case 'init':
-			postMessage({ type: 'init', data: {} }, '*')
+			postMessage({ type: 'init', data: message.data.round }, '*')
 
 			const gameMap = new GameMap(message.data.map)
 			const mapJSON = gameMap.getJSON()
@@ -116,6 +118,17 @@ async function onmessage(event: MessageEvent<ArrayBuffer>) {
 }
 
 export async function setupWS(url: string, _dom: EventTarget) {
+	if (window.top && window.top !== window) {
+		window.addEventListener('message', event => {
+			if (event.data.type === 'login') {
+				send({
+					type: 'login',
+					data: { token: event.data.data.token },
+				})
+			}
+		})
+	}
+
 	dom = _dom
 	const ws = new WebSocket(url)
 	ws.binaryType = 'arraybuffer'
@@ -133,15 +146,4 @@ export async function setupWS(url: string, _dom: EventTarget) {
 			ws.send(await parser!.stringify(message))
 		}
 	})
-
-	if (window.top && window.top !== window) {
-		window.addEventListener('message', event => {
-			if (event.data.type === 'login') {
-				send({
-					type: 'login',
-					data: { token: event.data.data.token },
-				})
-			}
-		})
-	}
 }
