@@ -6,7 +6,7 @@
 		"format": "prettier -w parser */src",
 		"server:dev": "cd server && nodemon",
 		"server:build": "cd server && rollup --config",
-		"client:dev": "cd client && vite --port 8000",
+		"client:dev": "cd client && vite",
 		"client:build": "cd client && vite build",
 		"client:serve": "cd client && vite preview"
 	},
@@ -36,6 +36,7 @@
 		"@types/node-fetch": "^2.6.2",
 		"@types/underscore": "^1.11.4",
 		"@types/ws": "^8.5.4",
+		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"@vitejs/plugin-vue": "^4.0.0",
 		"@vue/tsconfig": "^0.1.3",
 		"node-fetch": "^3.3.0",
