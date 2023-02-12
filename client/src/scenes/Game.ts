@@ -152,6 +152,7 @@ export default class Game extends Phaser.Scene {
 	cameraMap = new Map<Identifier, Phaser.Cameras.Scene2D.Camera>()
 	revCameraMap = new WeakMap<Phaser.Cameras.Scene2D.Camera, Identifier>()
 	addCamera(playerObj: Player) {
+		if (this.cameraMap.has(playerObj.identifier)) return
 		const camera = this.cameras
 			.add()
 			.setZoom(1)
