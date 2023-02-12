@@ -337,6 +337,7 @@ export default class Game extends Phaser.Scene {
 
 			case 'tick':
 				this.tickCallbacks.forEach(cb => cb(event.data))
+				this.updateFocus(event.data.scores[0].identifier)
 				break
 
 			default:
@@ -442,19 +443,33 @@ export default class Game extends Phaser.Scene {
 	focus: Identifier = InitIdentifier
 	follow: Identifier = InitIdentifier
 
+	activeCamera() {
+		return this.cameras.cameras.findIndex(c => c.visible)
+	}
+
+	updateFocus(identifier: Identifier) {
+		const current = this.activeCamera()
+		if (current !== -1) this.cameras.cameras[current].setVisible(false)
+		this.focus = identifier
+		localStorage.setItem('focus', JSON.stringify(identifier))
+		if (this.timeout) clearTimeout(this.timeout)
+		if (identifier === InitIdentifier) return
+		this.switchCamera(0)
+		this.cameraMap.get(identifier)?.setVisible(true)
+	}
+
 	switchCamera(dir?: number) {
 		if (dir !== undefined) {
 			this.cameraDir = dir
 			localStorage.setItem('cameraDir', dir.toString())
-			this.focus = InitIdentifier
-			localStorage.setItem('focus', JSON.stringify(this.focus))
+			this.updateFocus(InitIdentifier)
 		}
 
 		if (this.timeout) clearTimeout(this.timeout)
 		if (this.focus !== InitIdentifier) return
 		const { cameras } = this.cameras
 
-		const current = cameras.findIndex(c => c.visible)
+		const current = this.activeCamera()
 		const next =
 			(current + this.cameraDir + cameras.length) % cameras.length
 		let identifier = this.revCameraMap.get(cameras[next]) ?? InitIdentifier
@@ -483,11 +498,8 @@ export default class Game extends Phaser.Scene {
 		if (this.input.keyboard.checkDown(this.cursors.left, 500))
 			this.switchCamera(-1)
 		if (Phaser.Input.Keyboard.JustDown(this.cursors.p)) this.switchCamera(0)
-		if (Phaser.Input.Keyboard.JustDown(this.cursors.f)) {
-			this.focus = this.follow
-			localStorage.setItem('focus', JSON.stringify(this.focus))
-			this.switchCamera(0)
-		}
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.f))
+			this.updateFocus(this.follow)
 		if (Phaser.Input.Keyboard.JustDown(this.cursors.c)) localStorage.clear()
 		if (Phaser.Input.Keyboard.JustDown(this.cursors.r)) location.reload()
 	}
