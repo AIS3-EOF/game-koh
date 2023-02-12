@@ -169,17 +169,6 @@ onBeforeUnmount(() => {
 		<Profile :currentPlayer="currentPlayer" />
 		<Scoreboard :scores="scores" :round="round" />
 		<Deathview :nameMap="nameMap" :deathPlayerMap="deathPlayerMap" />
-		<Chatroom
-			:nameMap="nameMap"
-			:playersMap="playersMap"
-			:messages="chatMessages"
-			:send="send"
-		/>
-		<Inventory
-			:show="showInventory"
-			:items="currentPlayer.inventory"
-			:send="send"
-		/>
 	</div>
 </template>
 

@@ -1,4 +1,6 @@
 import { Vec2, GameObject, PlayerPub, Identifier } from '@/types'
+import { throttle } from 'underscore'
+import { rotate, add } from '~/utils'
 import Weapon from './Weapon'
 
 export default class Player extends Phaser.GameObjects.Container {
@@ -13,6 +15,7 @@ export default class Player extends Phaser.GameObjects.Container {
 	public inventory: GameObject[]
 	public hp: number = 10
 	public max_hp: number = 10
+	public canAttack: boolean = true
 
 	constructor(scene: Phaser.Scene, text: string, player: PlayerPub) {
 		const playerText = scene.add.text(0, 0, text, { color: 'white' })
@@ -120,6 +123,42 @@ export default class Player extends Phaser.GameObjects.Container {
 			width,
 			hpBarHeight,
 		)
+	}
+
+	public attack = (scene: Phaser.Scene, attacker_pos: any) => {
+
+		if (!this.canAttack) return
+		this.canAttack = false
+		// show some light with weapon demageRange
+		const [fx, fy] = this.facing
+		const angle = (Math.atan2(fy, fx) * 180.0) / Math.PI
+		for (const [rx, ry] of this.weapon.damageRange) {
+			let rv = rotate([rx, ry], this.facing).map(
+				v => v * 32,
+			) as Vec2
+			// console.log(rx, ry, facing, rv, add([x,y], rv))
+			let d = scene.add.rectangle(
+				...add(
+					attacker_pos.map(
+						x => x * 32 + 16,
+					) as Vec2,
+					rv,
+				),
+				32,
+				32,
+				0x990000,
+			)
+			d.angle = angle
+			d.setDepth(3)
+			let opacity: number = 1
+			setInterval(() => {
+				d.setAlpha((opacity -= 0.1))
+			}, 10)
+			setTimeout(() => {
+				d.destroy()
+				this.canAttack = true
+			}, 50)
+		}
 	}
 
 	getDamage(scene: Phaser.Scene, damage: number, player: object) {

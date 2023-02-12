@@ -242,55 +242,8 @@ export default class Game extends Phaser.Scene {
 				break
 
 			case 'attack':
-				{
-					const { attacker, targets } = event.data
-					const attackerObj = this.players.get(attacker)
-					if (!attackerObj) break
+				this.players.get(event.data.attacker).attack(this, event.data.attacker_pos)
 
-					// show some light with weapon demageRange
-					const { x, y, weapon, facing } = attackerObj
-					const [fx, fy] = facing
-					const angle = (Math.atan2(fy, fx) * 180.0) / Math.PI
-					for (const [rx, ry] of weapon.damageRange) {
-						let rv = rotate([rx, ry], facing).map(
-							v => v * 32,
-						) as Vec2
-						// console.log(rx, ry, facing, rv, add([x,y], rv))
-						let d = this.add.rectangle(
-							...add(
-								event.data.attacker_pos.map(
-									x => x * 32 + 16,
-								) as Vec2,
-								rv,
-							),
-							32,
-							32,
-							0x990000,
-						)
-						d.angle = angle
-						d.setDepth(3)
-						let opacity: number = 1
-						setInterval(() => {
-							d.setAlpha((opacity -= 0.1))
-						}, 10)
-						setTimeout(() => {
-							d.destroy()
-						}, 100)
-					}
-					for (const target of targets) {
-						const targetObj = this.players.get(target.identifier)
-						if (!targetObj) continue
-						let opacity: boolean = false
-						let flash = setInterval(() => {
-							targetObj.setAlpha(opacity ? 1 : 0.5)
-							opacity = !opacity
-						}, 50)
-						setTimeout(() => {
-							clearInterval(flash)
-							targetObj.setAlpha(1)
-						}, 200)
-					}
-				}
 				break
 
 			case 'damage': {
