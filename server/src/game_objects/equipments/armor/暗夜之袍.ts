@@ -1,13 +1,13 @@
 import { Player } from '~/game'
 
-const ATK_BOOST: number = 2
-const HP_BOOST: number = 10
+const ATK_BOOST: number = 10
+const HP_BOOST: number = 50
 
 export const identifier = '暗夜之袍'
 export const texture = 'magic_cloak'
 export const can_transfer = true
 export const description = '傳說從某個手持雙刀的獨行玩家所流傳下來的裝備'
-export const defense_modifier = 8
+export const defense_modifier = 4
 
 
 export function equip(player: Player) {

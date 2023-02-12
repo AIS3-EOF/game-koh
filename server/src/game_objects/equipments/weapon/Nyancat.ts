@@ -8,7 +8,7 @@ export const texture = 'nyancat'
 export const can_transfer = true
 export const description =
 	'普通攻擊是全體傷害的喵喵喔！ 🐈🫴 別忘記了貓咪也是會打主人ㄉ。'
-export const attack_modifier = 2
+export const attack_modifier = 5
 
 /*
 ---
