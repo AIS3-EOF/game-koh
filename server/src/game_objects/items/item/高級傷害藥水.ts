@@ -12,11 +12,11 @@
 import { Context } from '~/context'
 import { Item } from '../item'
 
-const ATK_AMOUNT = 20
+const ATK_AMOUNT = 15
 
 export const identifier = '高級傷害藥水'
 export const texture = 'strength_potion'
-export const description = '使用後立刻獲得 20 攻擊加成'
+export const description = '使用後立刻獲得 15 攻擊加成'
 export function use(item: Item, ctx: Context) {
     ctx.player.atk += ATK_AMOUNT
 }
