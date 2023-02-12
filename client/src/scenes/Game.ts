@@ -387,6 +387,8 @@ export default class Game extends Phaser.Scene {
 		this.cursors = this.input.keyboard.createCursorKeys()
 		this.cursors.p = this.input.keyboard.addKey('P')
 		this.cursors.f = this.input.keyboard.addKey('F')
+		this.cursors.c = this.input.keyboard.addKey('C')
+		this.cursors.r = this.input.keyboard.addKey('R')
 
 		this.players.clear()
 
@@ -484,6 +486,9 @@ export default class Game extends Phaser.Scene {
 		if (Phaser.Input.Keyboard.JustDown(this.cursors.f)) {
 			this.focus = this.follow
 			localStorage.setItem('focus', JSON.stringify(this.focus))
+			this.switchCamera(0)
 		}
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.c)) localStorage.clear()
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.r)) location.reload()
 	}
 }
