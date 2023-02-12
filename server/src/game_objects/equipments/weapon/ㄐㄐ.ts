@@ -5,7 +5,7 @@ export const identifier = 'ㄐㄐ'
 export const texture = 'chi_chi'
 export const can_transfer = true
 export const description = '30cm。'
-export const attack_modifier = 2
+export const attack_modifier = 4
 
 /*
 ---

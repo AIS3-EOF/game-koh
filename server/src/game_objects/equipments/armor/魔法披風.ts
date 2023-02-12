@@ -3,7 +3,7 @@ import { Context } from '~/context'
 
 
 const ATK_BOOST: number = 5
-const HP_BOOST: number = 5
+const HP_BOOST: number = 50
 
 export const identifier = '魔法披風'
 export const texture = 'magic_cloak'

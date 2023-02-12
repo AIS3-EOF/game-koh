@@ -1,5 +1,5 @@
 export const ROUND_TIME_INIT = 5
-export const ROUND_TIME = 60
+export const ROUND_TIME = 60 * 5
 export const ROUND_TIME_END = 5
 
 export const ROUND_PER_CYCLE = 3
@@ -24,7 +24,7 @@ export const KILL_SCORE = 1000
 export const DAMAGE_SCORE = 2
 export const MOVE_SCORE = 1
 
-export const DEFAULT_HP = 10
+export const DEFAULT_HP = 100
 
 export const GEN_DURATION = 3000
 

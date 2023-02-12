@@ -83,7 +83,8 @@ function handleEvent(event: any) {
 				break
 
 			case 'chat':
-				chatMessages.value.push(data)
+				if (data.to === '(all)' || data.to === me.value)
+					chatMessages.value.push(data)
 				break
 
 			case 'respawn':
