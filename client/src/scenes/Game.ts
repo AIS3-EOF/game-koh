@@ -471,13 +471,18 @@ export default class Game extends Phaser.Scene {
 
 		this.cameras.cameras[0].setVisible(true)
 
-		this.switchCamera()
+		this.switchCamera(Number(localStorage.getItem('cameraDir') ?? 1))
 	}
 
 	timeout: ReturnType<typeof setTimeout> | undefined
 	cameraDir = 1
 
-	switchCamera() {
+	switchCamera(dir?: number) {
+		if (dir) {
+			this.cameraDir = dir
+			localStorage.setItem('cameraDir', dir.toString())
+		}
+
 		if (this.timeout) clearTimeout(this.timeout)
 		const { cameras } = this.cameras
 
@@ -505,9 +510,9 @@ export default class Game extends Phaser.Scene {
 		if (this.input.keyboard.checkDown(this.cursors.space, 500))
 			this.switchCamera()
 		if (this.input.keyboard.checkDown(this.cursors.right, 500))
-			(this.cameraDir = 1), this.switchCamera()
+			this.switchCamera(1)
 		if (this.input.keyboard.checkDown(this.cursors.left, 500))
-			(this.cameraDir = -1), this.switchCamera()
-		if (Phaser.Input.Keyboard.JustDown(this.cursors.p)) this.cameraDir = 0
+			this.switchCamera(-1)
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.p)) this.switchCamera(0)
 	}
 }
