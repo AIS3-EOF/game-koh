@@ -4,6 +4,7 @@ import { Events } from '~/protocol'
 
 const warn = debug('server:visualizer:warn')
 const log = debug('server:visualizer:log')
+const verbose = debug('server:visualizer:debug')
 
 export async function visualizer() {
 	const { VISUALIZER_URL } = process.env
@@ -19,7 +20,7 @@ export async function visualizer() {
 	log('connected to visualizer')
 
 	function send(type: string, data: any) {
-		log('sending %s %o', type, data)
+		verbose('sending %s %o', type, data)
 		socket.emit(type, data)
 	}
 

@@ -172,6 +172,12 @@ export class Manager {
 					Math.ceil(Math.random() * config.RESPAWN_TIME_MAX)
 				this.game.respawnPlayer(current_player, respawn_time)
 
+				log(
+					'%s killed by %s',
+					current_player.name,
+					current_player.last_damage_from,
+				)
+
 				eventQueue.push({
 					type: 'death',
 					data: {

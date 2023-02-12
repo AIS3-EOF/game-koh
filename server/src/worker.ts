@@ -71,8 +71,8 @@ async function deregisterWorker(token: string) {
 	log('Worker deregister successful. Token: %s', token)
 }
 
-async function takeJob(token: string, jobtype: string) {
-	return apiFetch('/job/take', {
+async function takeJob(token: string, jobtype: string): Promise<any[]> {
+	const res = await apiFetch('/job/take', {
 		body: {
 			jobtype,
 			team_ids: [],
@@ -81,6 +81,12 @@ async function takeJob(token: string, jobtype: string) {
 			limit: 10,
 		},
 	})
+	if (res.error) {
+		error('Take job %s failed. Error: %s', jobtype, res.error)
+		await sleep(1000)
+		return []
+	}
+	return res
 }
 
 type JobResultStatus = 'Success' | 'Failed' | 'WorkerFailed' | 'WorkerTimeout'
