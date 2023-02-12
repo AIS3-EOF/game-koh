@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 import { throttle } from 'underscore'
 import Player from '@/resources/Player'
 import Weapon from '@/resources/Weapon'
-import { SendFunction, ServerMessage, Vec2 } from '@/types'
+import { InitIdentifier, SendFunction, ServerMessage, Vec2 } from '@/types'
 import { rotate, add } from '~/utils'
 import { ClientMessage, Identifier } from '@/types'
 
@@ -160,6 +160,8 @@ export default class Game extends Phaser.Scene {
 			.setVisible(false)
 		this.cameraMap.set(playerObj.identifier, camera)
 		this.revCameraMap.set(camera, playerObj.identifier)
+		if (playerObj.identifier === this.focus)
+			this.cameras.main.setVisible(true)
 	}
 	removeCamera(playerObj: Player) {
 		const camera = this.cameraMap.get(playerObj.identifier)
@@ -242,7 +244,9 @@ export default class Game extends Phaser.Scene {
 				break
 
 			case 'attack':
-				this.players.get(event.data.attacker).attack(this, event.data.attacker_pos)
+				this.players
+					.get(event.data.attacker)
+					.attack(this, event.data.attacker_pos)
 
 				break
 
@@ -382,6 +386,7 @@ export default class Game extends Phaser.Scene {
 
 		this.cursors = this.input.keyboard.createCursorKeys()
 		this.cursors.p = this.input.keyboard.addKey('P')
+		this.cursors.f = this.input.keyboard.addKey('F')
 
 		this.players.clear()
 
@@ -425,28 +430,37 @@ export default class Game extends Phaser.Scene {
 		this.cameras.cameras[0].setVisible(true)
 
 		this.switchCamera(Number(localStorage.getItem('cameraDir') ?? 1))
+		this.focus = JSON.parse(
+			localStorage.getItem('focus') ?? JSON.stringify(InitIdentifier),
+		)
 	}
 
 	timeout: ReturnType<typeof setTimeout> | undefined
 	cameraDir = 1
+	focus: Identifier = InitIdentifier
+	follow: Identifier = InitIdentifier
 
 	switchCamera(dir?: number) {
 		if (dir !== undefined) {
 			this.cameraDir = dir
 			localStorage.setItem('cameraDir', dir.toString())
+			this.focus = InitIdentifier
+			localStorage.setItem('focus', JSON.stringify(this.focus))
 		}
 
 		if (this.timeout) clearTimeout(this.timeout)
+		if (this.focus !== InitIdentifier) return
 		const { cameras } = this.cameras
 
 		const current = cameras.findIndex(c => c.visible)
 		const next =
 			(current + this.cameraDir + cameras.length) % cameras.length
-		let identifier = this.revCameraMap.get(cameras[next])
+		let identifier = this.revCameraMap.get(cameras[next]) ?? InitIdentifier
 
 		// current === -1 means no camera is visible
 		cameras[current]?.setVisible(false)
 		cameras[next].setVisible(true)
+		this.follow = identifier
 
 		this.dom.dispatchEvent(
 			new CustomEvent('switch_camera', { detail: { identifier } }),
@@ -467,5 +481,9 @@ export default class Game extends Phaser.Scene {
 		if (this.input.keyboard.checkDown(this.cursors.left, 500))
 			this.switchCamera(-1)
 		if (Phaser.Input.Keyboard.JustDown(this.cursors.p)) this.switchCamera(0)
+		if (Phaser.Input.Keyboard.JustDown(this.cursors.f)) {
+			this.focus = this.follow
+			localStorage.setItem('focus', JSON.stringify(this.focus))
+		}
 	}
 }
