@@ -85,6 +85,7 @@ function handleEvent(event: any) {
 			case 'chat':
 				if (data.to === '(all)' || data.to === me.value)
 					chatMessages.value.push(data)
+				if (chatMessages.value.length > 100) chatMessages.value.shift()
 				break
 
 			case 'respawn':
