@@ -432,10 +432,10 @@ export default class Game extends Phaser.Scene {
 
 		this.cameras.cameras[0].setVisible(true)
 
-		this.switchCamera(Number(localStorage.getItem('cameraDir') ?? 1))
-		this.focus = JSON.parse(
-			localStorage.getItem('focus') ?? JSON.stringify(InitIdentifier),
-		)
+		// this.switchCamera(Number(localStorage.getItem('cameraDir') ?? 1))
+		// this.focus = JSON.parse(
+		// 	localStorage.getItem('focus') ?? JSON.stringify(InitIdentifier),
+		// )
 	}
 
 	timeout: ReturnType<typeof setTimeout> | undefined
@@ -448,14 +448,19 @@ export default class Game extends Phaser.Scene {
 	}
 
 	updateFocus(identifier: Identifier) {
+		// console.log('updateFocus', identifier, this.players.get(identifier))
 		const current = this.activeCamera()
 		if (current !== -1) this.cameras.cameras[current].setVisible(false)
 		this.focus = identifier
-		localStorage.setItem('focus', JSON.stringify(identifier))
-		if (this.timeout) clearTimeout(this.timeout)
+		// localStorage.setItem('focus', JSON.stringify(identifier))
+		// if (this.timeout) clearTimeout(this.timeout)
 		if (identifier === InitIdentifier) return
-		this.switchCamera(0)
+		// this.switchCamera(0)
 		this.cameraMap.get(identifier)?.setVisible(true)
+
+		this.dom.dispatchEvent(
+			new CustomEvent('switch_camera', { detail: { identifier } }),
+		)
 	}
 
 	switchCamera(dir?: number) {

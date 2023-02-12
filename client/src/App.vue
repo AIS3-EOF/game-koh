@@ -55,7 +55,7 @@ function removePlayer(identifier: Identifier) {
 function handleEvent(event: any) {
 	if (event instanceof CustomEvent && event.detail) {
 		const { type, data } = event.detail as ClientMessage
-		if (import.meta.env.DEV) console.log('event', type, data)
+		// if (import.meta.env.DEV) console.log('event', type, data)
 		switch (type) {
 			case 'init':
 				init.value = true
