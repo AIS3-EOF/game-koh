@@ -478,7 +478,7 @@ export default class Game extends Phaser.Scene {
 	cameraDir = 1
 
 	switchCamera(dir?: number) {
-		if (dir) {
+		if (dir !== undefined) {
 			this.cameraDir = dir
 			localStorage.setItem('cameraDir', dir.toString())
 		}
