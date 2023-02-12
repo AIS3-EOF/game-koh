@@ -246,7 +246,7 @@ export default class Game extends Phaser.Scene {
 			case 'attack':
 				this.players
 					.get(event.data.attacker)
-					.attack(this, event.data.attacker_pos)
+					?.attack(this, event.data.attacker_pos)
 
 				break
 
