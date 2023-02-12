@@ -5,7 +5,7 @@ export const identifier = '認真手刀'
 export const texture = 'strong_hand_sword'
 export const can_transfer = true
 export const description = 'マジ毆り'
-export const attack_modifier = 100
+export const attack_modifier = 300
 
 export const is_rare = true
 

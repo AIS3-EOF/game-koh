@@ -13,7 +13,7 @@ import { Context } from '~/context'
 import { Item } from '../item'
 import { ChebyshevDistance } from '~/utils'
 
-const DAMAGE_AMOUNT = 10
+const DAMAGE_AMOUNT = 75
 
 export const identifier = '黎明之鎚雷射定位裝置'
 export const texture = 'hammer_of_dawn'
@@ -21,10 +21,10 @@ export const description =
 	'有幾個軌道武器從戰爭機器的宇宙飄進這了，你還很剛好撿到這個定位裝置！\n' +
 	'使用後會呼叫黎明之鎚在周圍的一片區域進行轟炸。'
 export function use(item: Item, ctx: Context) {
-	item.extra_data = 5
+	item.extra_data = 15
 }
 
-export const total_tick = 5
+export const total_tick = 15
 export function tick(item: Item, ctx: Context) {
 	eventQueue.push({
 		type: 'chat',

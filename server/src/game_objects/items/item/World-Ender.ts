@@ -12,7 +12,7 @@
 import { Context } from '~/context'
 import { Item } from '../item'
 
-const DAMAGE_AMOUNT = 50
+const DAMAGE_AMOUNT = 80
 
 export const identifier = 'WORLD-ENDER'
 export const texture = 'world_ender'

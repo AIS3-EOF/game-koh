@@ -92,6 +92,7 @@ function handleEvent(event: any) {
 
 			case 'chat':
 				chatMessages.value.push(data)
+				if (chatMessages.value.length > 100) chatMessages.value.shift()
 				break
 
 			case 'respawn':

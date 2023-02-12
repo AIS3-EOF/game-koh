@@ -12,11 +12,11 @@
 import { Context } from '~/context'
 import { Item } from '../item'
 
-const HEAL_AMOUNT = 10
+const HEAL_AMOUNT = 35
 
 export const identifier = '回復藥水'
 export const texture = 'recovery_potion'
-export const description = '使用後立刻獲得 10HP'
+export const description = '使用後立刻獲得 35 HP'
 export function use(item: Item, ctx: Context) {
     ctx.player.heal(HEAL_AMOUNT)
 }

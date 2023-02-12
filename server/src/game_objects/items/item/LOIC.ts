@@ -12,7 +12,7 @@
 import { Context } from '~/context'
 import { Item } from '../item'
 
-const DAMAGE_AMOUNT = 100
+const DAMAGE_AMOUNT = 1000
 
 export const identifier = '低軌道離子砲-LOIC'
 export const texture = 'loic'

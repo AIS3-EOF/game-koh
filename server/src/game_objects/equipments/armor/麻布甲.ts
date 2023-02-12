@@ -1,6 +1,6 @@
 import { Player } from '~/game'
 
-const HP_BOOST: number = 5
+const HP_BOOST: number = 50
 
 export const identifier = '麻布甲'
 export const texture = 'weed_bo'

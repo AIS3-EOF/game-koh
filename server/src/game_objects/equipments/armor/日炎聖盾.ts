@@ -6,13 +6,13 @@ import { handle as handle_chat } from '~/handlers/chat'
 
 import { DAMAGE_SCORE } from '~/config'
 
-const DAMAGE_AMOUNT = 1
+const DAMAGE_AMOUNT = 2
 
 export const identifier = '日炎聖盾'
 export const texture = 'sunshine_shield'
 export const can_transfer = true
 export const description = '讓太陽的力量籠罩你吧！灼燒周圍的一切！！'
-export const defense_modifier = 2
+export const defense_modifier = 5
 
 export function equip(player: Player) {}
 

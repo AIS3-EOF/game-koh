@@ -1,6 +1,6 @@
 import { Player } from '~/game'
 
-const HP_BOOST: number = 5
+const HP_BOOST: number = 30
 
 export const identifier = '破布'
 export const texture = 'broken_cloth'
