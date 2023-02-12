@@ -1,6 +1,6 @@
 import { Player } from '~/game'
 
-const ATK_BOOST: number = 20
+const ATK_BOOST: number = 10
 
 export const identifier = '海洛因褲子'
 export const texture = 'heroin_pants'

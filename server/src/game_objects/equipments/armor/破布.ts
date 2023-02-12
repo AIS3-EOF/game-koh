@@ -6,7 +6,7 @@ export const identifier = '破布'
 export const texture = 'broken_cloth'
 export const can_transfer = true
 export const description = '破掉的布'
-export const defense_modifier = 2
+export const defense_modifier = 5
 
 
 export function equip(player: Player) {
